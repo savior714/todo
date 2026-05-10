@@ -47,7 +47,7 @@
 
 ## 5. 기술 스택 및 데이터베이스 스키마
 - **Frontend**: Next.js (App Router), React, TailwindCSS, PWA 설정
-- **Backend / DB**: Supabase (PostgreSQL, Realtime, Storage)
+- **Backend / DB**: Turso (libSQL), Drizzle ORM, Auth.js (세션은 DB 어댑터)
 - **Hosting**: Vercel
 
 **[핵심 DB 테이블 구조]**
@@ -66,10 +66,10 @@
 ### 🚩 Phase 1: 뼈대 구축 및 코어 타임라인 (Week 1)
 - **목표**: 가족들이 넷플릭스처럼 로그인하고, 버튼을 눌러 타임라인에 기록을 남길 수 있다.
 - **작업 내용**:
-  - Next.js + Supabase 프로젝트 세팅
+  - Next.js + Turso(Drizzle) 프로젝트 세팅
   - DB 테이블 생성 (`profiles`, `events`)
   - Google Auth 및 프로필 선택 UI 구현
-  - 기본 퀵 액션 버튼(투약, 식사) 및 실시간 타임라인(Realtime) 연동
+  - 기본 퀵 액션 버튼(투약, 식사) 및 타임라인 UI(서버 데이터 + 갱신)
 
 ### 🚩 Phase 2: 육아 특화 기능 확장 (Week 2)
 - **목표**: 7세/4세의 디테일한 일정과 상태를 추적한다.
@@ -81,7 +81,7 @@
 ### 🚩 Phase 3: "엄마의 매뉴얼" 시스템 도입 (Week 3)
 - **목표**: 조부모님이 질문 없이 스스로 정보를 찾고 실행할 수 있게 돕는다.
 - **작업 내용**:
-  - Supabase Storage 연동 (사진 업로드 기능)
+  - 가이드 사진 업로드(객체 스토리지·URL 저장 등) 연동
   - `care_guides` 테이블 구축 및[가이드 탭] UI 구현
   - **핵심**: 퀵 액션 버튼 클릭 시 관련 가이드(힌트)가 팝업에 자동 노출되는 로직 구현
   - `daily_pins` (오늘의 지시사항) 상단 고정 기능 추가

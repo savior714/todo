@@ -33,6 +33,15 @@ test("linked_action 가이드 힌트가 퀵 액션 패널에 노출된다", () =
   assert.match(quickAction, /연결 가이드/);
 });
 
+test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한다", () => {
+  const feed = read("app/(dashboard)/TimelineFeed.tsx");
+  const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  assert.match(feed, /grid-cols-3/);
+  assert.match(feed, /type="date"/);
+  assert.match(feed, /timelineDate/);
+  assert.match(dashboard, /metadata: events\.metadata/);
+});
+
 test("PWA 매니페스트가 선언되어 있다", () => {
   const manifest = read("public/manifest.json");
   assert.match(manifest, /"display":\s*"standalone"/);

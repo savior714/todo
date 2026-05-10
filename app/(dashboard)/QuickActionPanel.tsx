@@ -1,11 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { createEvent } from "@/app/actions/events";
 
 const ACTIONS = [
   { actionType: "meal", label: "식사 기록", target: "family" },
   { actionType: "medication", label: "투약 기록", target: "kid4" },
+  { actionType: "school_run", label: "등·하원", target: "kid4" },
+  { actionType: "brushing", label: "양치", target: "kid4" },
 ] as const;
 
 type QuickActionPanelProps = {
@@ -13,6 +16,7 @@ type QuickActionPanelProps = {
 };
 
 export default function QuickActionPanel({ guideHints = {} }: QuickActionPanelProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -53,10 +57,12 @@ export default function QuickActionPanel({ guideHints = {} }: QuickActionPanelPr
         }
 
         showToast("강행으로 투약 이벤트를 기록했습니다.");
+        router.refresh();
         return;
       }
 
       showToast("이벤트가 기록되었습니다.");
+      router.refresh();
     });
   };
 

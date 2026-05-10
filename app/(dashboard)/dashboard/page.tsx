@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull } from "drizzle-orm";
 import DailyPinBanner from "@/app/(dashboard)/DailyPinBanner";
 import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import TimelineFeed from "@/app/(dashboard)/TimelineFeed";
@@ -6,8 +6,11 @@ import { db } from "@/db/client";
 import { careGuides, events } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
 
+const TIMELINE_LOOKBACK_MS = 120 * 24 * 60 * 60 * 1000;
+
 export default async function DashboardPage() {
   const profile = await getActiveProfileContext();
+  const timelineSince = Date.now() - TIMELINE_LOOKBACK_MS;
 
   const timelineRows = profile
     ? await db
@@ -17,11 +20,18 @@ export default async function DashboardPage() {
           target: events.target,
           created_at: events.createdAt,
           is_reverted: events.isReverted,
+          metadata: events.metadata,
         })
         .from(events)
-        .where(and(eq(events.familyId, profile.familyId), eq(events.isReverted, false)))
+        .where(
+          and(
+            eq(events.familyId, profile.familyId),
+            eq(events.isReverted, false),
+            gte(events.createdAt, timelineSince)
+          )
+        )
         .orderBy(desc(events.createdAt))
-        .limit(10)
+        .limit(500)
     : [];
 
   const guides = profile
@@ -44,6 +54,7 @@ export default async function DashboardPage() {
     ...row,
     created_at: new Date(row.created_at).toISOString(),
     is_reverted: Boolean(row.is_reverted),
+    metadata: row.metadata ?? "{}",
   }));
 
   return (

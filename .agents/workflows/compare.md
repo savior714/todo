@@ -55,7 +55,7 @@ last_updated: 2026-05-06
 - **기록 필드(필수)**
   - 출처, 확인일, 스펙 추출 항목과의 **매핑(어떤 행에 대응하는지)**
   - **한계**: 공개 자료만으로 검증 불가한 내용은 "미검증"으로 표시.
-- **DuckDuckGo MCP 검색 도구 사용**
+- **SearXNG MCP 검색 도구 사용**
   - **`CallMcpTool(server="user-searxng", toolName="searxng_search", arguments={"query":"South Korea EMR 2nd cycle KCD-9 diagnosis code implementation"})`**: 웹 검색 (제목/URL/요약)
   - **페이지 본문 확인은 `WebFetch` 또는 프로젝트에서 활성화된 URL-read MCP 도구를 `CallMcpTool`로 호출**한다.
   - **구체적인 쿼리 사용**: "EMR certification KCD-9 2026"보다 "South Korea EMR 2nd cycle KCD-9 diagnosis code implementation"이 더 정확
@@ -126,7 +126,7 @@ last_updated: 2026-05-06
 - [ ] 모든 비자명 주장에 **출처·확인일**이 있다.
 - [ ] P0/P1 항목이 스펙에 **추적 가능한 문장**으로 반영되었거나, Hold로 **이유**가 적혀 있다.
 |- [ ] `AGENTS.md` §2.1.1 참조 — MEMORY.md에 장문을 쓰지 않고, 필요 시 `docs/memory/project_changelog_*.md` 또는 플랜 링크만 추가했다.
-- [ ] **DuckDuckGo MCP 도구 사용**: `CallMcpTool`로 검색/본문 읽기 도구를 호출하여 웹 검색 수행
+- [ ] **SearXNG MCP 도구 사용**: `CallMcpTool`로 검색/본문 읽기 도구를 호출하여 웹 검색 수행
 
 ## 5. 에이전트·휴먼 공통 프롬프트 (세션 시작용)
 
@@ -135,7 +135,7 @@ last_updated: 2026-05-06
 대상 스펙: docs/specs/{category}/{file}.md
 산출: 비교 매트릭스 + 갭 등급 + 스펙 수정(또는 변경 없음 근거) + 필요 시 CRITICAL_LOGIC/knowledge
 제약: 출처 없는 타사 단정 금지, MEMORY.md 장문 금지, Docs-First
-웹 검색: DuckDuckGo MCP 도구(`CallMcpTool` 기반 검색/본문 읽기 호출) 사용, 로컬 docs/knowledge/ 우선 조회
+웹 검색: SearXNG MCP 도구(`CallMcpTool` 기반 검색/본문 읽기 호출) 사용, 로컬 docs/knowledge/ 우선 조회
 ```
 
 ## 6. 관련 SSOT

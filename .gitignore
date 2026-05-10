@@ -20,3 +20,6 @@ tsconfig.tsbuildinfo
 # bun이 SSOT이면 npm lock은 추적하지 않음
 package-lock.json
 .env*.local
+
+# 로컬 전용 ai_worklog 심볼릭 링크(타 머신 경로) — 추적 금지
+tools/ai_worklog

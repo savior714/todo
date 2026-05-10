@@ -6,7 +6,7 @@
 
 ## 2. 시스템 개요
 - **클라이언트**: Next.js 14+ (App Router) + React + TailwindCSS 기반 PWA.
-- **백엔드**: Supabase (PostgreSQL, Realtime, Storage, Auth).
+- **백엔드**: Turso (libSQL) + Drizzle ORM, Auth.js(Google OAuth·DB 세션).
 - **배포**: Vercel.
 - **핵심 목표**:
   - 다중 양육자 환경에서 실시간 동기화.
@@ -21,10 +21,10 @@
 - **상태 변이(Mutation)**: API Route(`/api/...`) 대신 **Server Actions**를 사용하여 폼 제출 및 데이터 변경을 처리한다.
 - **PWA 요구사항**: `manifest.json` 제공, `next-pwa` 또는 커스텀 서비스 워커를 통한 정적 자산 캐싱, 홈 화면 아이콘(standalone) 지원.
 
-### 3.2 백엔드/데이터 (Supabase)
-- 단일 진실 소스(SSOT)로 Supabase Postgres를 사용한다.
-- **실시간 동기화**: Supabase Realtime(WebSocket)을 클라이언트 컴포넌트에서 구독하여 UI를 낙관적 업데이트(Optimistic Update) 없이 즉각 갱신한다.
-- 사진 자산은 Supabase Storage `guides` 버킷에 저장하며, CDN을 통해 서빙한다.
+### 3.2 백엔드/데이터 (Turso + Drizzle)
+- 단일 진실 소스(SSOT)로 Turso(libSQL 호환)를 사용하며, 스키마·쿼리는 Drizzle로 관리한다.
+- **동기화**: MVP는 Server Actions + 라우터 갱신 등으로 타임라인을 맞추며, 별도 Realtime 구독은 후속 과제로 둔다.
+- 사진 자산은 `care_guides.image_url` 등 URL 필드로 참조하며, 저장소는 Vercel Blob·외부 스토리지 등으로 선택한다.
 
 ### 3.3 인증/권한 및 멀티테넌시 (핵심 해결 과제)
 - **가족 단위 격리(Multi-tenancy)**: 모든 데이터는 `family_id`를 기준으로 완벽히 격리된다. (다른 가족의 데이터 접근 원천 차단)
@@ -109,9 +109,11 @@ REST API 대신 타입 안정성이 보장되는 Server Actions(`app/actions/`)�
 
 ---
 
-## 7. Supabase RLS 정책 SQL (완성본)
+## 7. 부록: Postgres RLS 정책 SQL (참고용)
 
-멀티테넌시(`family_id`)를 완벽히 지원하는 RLS입니다.
+> **현재 구현**은 Turso(SQLite 호환) + Drizzle이며, DB 레벨 RLS 대신 **서버(Server Actions)에서 `family_id`·세션을 검증**한다. 아래는 Postgres/Supabase 전제의 참고 스키마다.
+
+멀티테넌시(`family_id`)를 완벽히 지원하는 RLS 예시이다.
 
 ```sql
 -- 1. 현재 세션의 user가 속한 family_id를 가져오는 헬퍼 함수

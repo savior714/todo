@@ -1,6 +1,10 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-10: Git 정리: 타임라인·스펙·ai-log 워크플로·E2E 계약·`PLAN_STATUS.json` 커밋. `tools/ai_worklog` 로컬 심볼릭 링크는 `.gitignore`로 제외(절대 경로 공유 방지). `just ci`, `bun run lint`·`typecheck:strict`·`test` 통과 확인.
+- 2026-05-10: 로컬 Docker Supabase 스택(`supabase_*_todo` 컨테이너·볼륨·`supabase_network_todo`) 중지·삭제, 레포 `supabase/` 디렉터리 제거, `bun install`로 `bun.lock`에서 `@supabase/*` 잔존 제거. `docs/specs/PRD.md`·`TRD.md` 스택 설명을 Turso+Auth.js 기준으로 정리.
+- 2026-05-10: 대시보드 타임라인을 어제·오늘·내일 3열(가운데 날짜 기준) + « » 버튼·세 열 스와이프로 한 주씩 이동·날짜 입력으로 임의일 이동·선택 열에 `metadata.timelineDate`로 식사/투약 기록을 붙이도록 구현함. 서버는 최근 120일·최대 500건·`metadata` 포함 로드. 퀵 액션에 등·하원·양치 추가 및 기록 후 `router.refresh`로 타임라인 동기화. `bun run lint`, `bun run typecheck:strict`, `bun run test` 통과.
+- 2026-05-10: 운영 도메인에서 Google 로그인 성공·대시보드 진입을 사용자 측에서 직접 확인. OAuth 콜백 → Drizzle 어댑터 user/account/session insert → `events.createUser` 훅의 `ensureDefaultFamilyForUser`(가족·user_families·기본 프로필 2건 시드)까지 전 체인 정상 작동. `error=Configuration` 이슈 종결.
 - 2026-05-10: 운영 Turso 마이그레이션 적용 완료 — 강화된 `/api/health`로 `tables` 7개 모두 `false`임을 확인 후, Vercel CLI가 Sensitive 환경변수(TURSO_*)를 export/run으로 주입하지 않는 한계를 우회하기 위해 일회성 가드 라우트(`app/api/admin/migrate/route.ts`, `Authorization: Bearer ADMIN_MIGRATE_SECRET`, `CREATE TABLE/INDEX`만 허용)를 임시 배포해 22 statement를 적용(`tables` 전부 `true`로 전환), 직후 라우트 파일·env·로컬 시크릿(`.migrate-secret.local`)을 모두 철거. 향후 동일 한계 발견 시 같은 패턴(임시 가드 라우트 → 사용 → 즉시 제거 + 계약 테스트로 잔존 금지)을 적용한다.
 - 2026-05-10: 운영 도메인 `todo-nine-mu-90.vercel.app`에서 `error=Configuration` 재발. `GET /api/health`는 `ok:true / db:"ok"`로 반환되어 env·Turso 연결은 정상이나 `SELECT 1`만으로는 어댑터 테이블 적용 여부를 알 수 없는 한계가 드러남. `/api/health` 계약 테스트(Red→Green)와 `app/api/health/route.ts`에 `sqlite_master` 기반 `tables` 점검(`users/accounts/sessions/verificationTokens/families/user_families/profiles`) 추가, README의 빠른 점검 가이드에 `tables` false → `npm run db:migrate` 실행 안내를 명시.
 - 2026-05-10: `error=Configuration`이 DB(Adapter) 실패일 수 있음을 README에 명시하고, 배포 후 `GET /api/health`로 env 플래그·`SELECT 1` Turso ping을 확인할 수 있게 `app/api/health/route.ts`·계약 테스트 추가.
