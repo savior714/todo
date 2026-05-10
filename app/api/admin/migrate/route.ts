@@ -51,7 +51,24 @@ export async function POST(request: Request): Promise<Response> {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const FORBIDDEN = /\b(DROP|DELETE|UPDATE|ALTER|INSERT|REPLACE|TRUNCATE|ATTACH|DETACH|PRAGMA|VACUUM)\b/i;
+  // 명령형 SQL만 차단한다. 외래키 절(`ON DELETE CASCADE` 등)의 키워드 오탐을 피하기 위해
+  // 키워드 단독이 아닌 다음 토큰까지 패턴화한다.
+  const FORBIDDEN = new RegExp(
+    [
+      String.raw`\bDROP\s+(TABLE|INDEX|VIEW|TRIGGER|DATABASE)\b`,
+      String.raw`\bDELETE\s+FROM\b`,
+      String.raw`\bUPDATE\s+\S+\s+SET\b`,
+      String.raw`\bALTER\s+(TABLE|INDEX)\b`,
+      String.raw`\bINSERT\s+(OR\s+\S+\s+)?INTO\b`,
+      String.raw`\bREPLACE\s+(OR\s+\S+\s+)?INTO\b`,
+      String.raw`\bTRUNCATE\b`,
+      String.raw`\bATTACH\b`,
+      String.raw`\bDETACH\b`,
+      String.raw`\bPRAGMA\b`,
+      String.raw`\bVACUUM\b`,
+    ].join("|"),
+    "i"
+  );
   const ALLOWED_PREFIX = /^CREATE\s+(TABLE|UNIQUE\s+INDEX|INDEX)\b/i;
   for (const [i, stmt] of statements.entries()) {
     if (FORBIDDEN.test(stmt)) {
