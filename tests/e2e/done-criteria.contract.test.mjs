@@ -12,12 +12,26 @@ test("Turso 초기 마이그레이션에 핵심 테이블이 정의되어 있다
   assert.match(sql, /daily_pins_active_family_unique_idx/i);
 });
 
+test("퀵 액션용 follow-up 마이그레이션이 존재한다", () => {
+  const sql = read("db/migrations/0001_quick_actions.sql");
+  assert.match(sql, /CREATE TABLE quick_actions/i);
+  assert.match(sql, /quick_actions_family_active_sort_idx/i);
+});
+
 test("투약 안전장치 로직이 서버 액션에 존재한다", () => {
   const eventsAction = read("app/actions/events.ts");
-  const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
+  const recordModal = read("app/(dashboard)/RecordEventModal.tsx");
   assert.match(eventsAction, /payload\.actionType === "medication"/);
   assert.match(eventsAction, /blocked:\s*true/);
-  assert.match(quickAction, /metadata:\s*\{\s*override:\s*true\s*\}/);
+  assert.match(recordModal, /override:\s*true/);
+});
+
+test("이벤트 메타데이터 검증이 lib/event-metadata에 정의되어 있다", () => {
+  const meta = read("lib/event-metadata.ts");
+  const eventsAction = read("app/actions/events.ts");
+  assert.match(meta, /normalizeAndValidateEventMetadata/);
+  assert.match(meta, /medicationDetailSchema/);
+  assert.match(eventsAction, /normalizeAndValidateEventMetadata/);
 });
 
 test("접근성 기준(퀵 액션 최소 60px)이 유지된다", () => {
@@ -29,6 +43,7 @@ test("linked_action 가이드 힌트가 퀵 액션 패널에 노출된다", () =
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
   const dashboard = read("app/(dashboard)/dashboard/page.tsx");
   assert.match(dashboard, /linkedAction: careGuides\.linkedAction/);
+  assert.match(dashboard, /<QuickActionPanel\s+actions=\{/);
   assert.match(quickAction, /guideHints/);
   assert.match(quickAction, /연결 가이드/);
 });
@@ -40,6 +55,18 @@ test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한
   assert.match(feed, /type="date"/);
   assert.match(feed, /timelineDate/);
   assert.match(dashboard, /metadata: events\.metadata/);
+});
+
+test("실행 취소 정책이 액션 타입별 SSOT로 정의되고 서버·타임라인이 공유한다", () => {
+  const policy = read("lib/event-undo-policy.ts");
+  const eventsAction = read("app/actions/events.ts");
+  const feed = read("app/(dashboard)/TimelineFeed.tsx");
+  assert.match(policy, /getUndoWindowMsForActionType/);
+  assert.match(policy, /LOW_RISK_UNDO_WINDOW_MS/);
+  assert.match(policy, /MEDICATION_UNDO_WINDOW_MS/);
+  assert.match(eventsAction, /getUndoWindowMsForActionType/);
+  assert.match(eventsAction, /action_type:\s*events\.actionType/);
+  assert.match(feed, /getUndoWindowMsForActionType\(\s*event\.action_type\s*\)/);
 });
 
 test("PWA 매니페스트가 선언되어 있다", () => {

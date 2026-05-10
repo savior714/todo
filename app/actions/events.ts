@@ -4,6 +4,8 @@ import { and, desc, eq, gte } from "drizzle-orm";
 import { db } from "@/db/client";
 import { events } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
+import { formatMetadataValidationMessage, normalizeAndValidateEventMetadata } from "@/lib/event-metadata";
+import { getUndoWindowMsForActionType } from "@/lib/event-undo-policy";
 
 type CreateEventInput = {
   actionType: string;
@@ -16,7 +18,6 @@ type CreateEventResult =
   | { blocked: true; lastEventAt: string | null };
 
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
-const UNDO_WINDOW_MS = 5 * 60 * 1000;
 
 export async function createEvent(payload: CreateEventInput): Promise<CreateEventResult> {
   const profile = await getActiveProfileContext();
@@ -52,6 +53,20 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
     }
   }
 
+  const rawMeta = payload.metadata ?? {};
+  if (typeof rawMeta !== "object" || rawMeta === null || Array.isArray(rawMeta)) {
+    throw new Error("metadata 형식이 올바르지 않습니다.");
+  }
+
+  let metadataJson: string;
+  try {
+    metadataJson = JSON.stringify(
+      normalizeAndValidateEventMetadata(payload.actionType, rawMeta as Record<string, unknown>)
+    );
+  } catch (err) {
+    throw new Error(formatMetadataValidationMessage(err), { cause: err });
+  }
+
   const eventId = crypto.randomUUID();
   await db.insert(events).values({
     id: eventId,
@@ -59,7 +74,7 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
     profileId: profile.id,
     actionType: payload.actionType,
     target: payload.target,
-    metadata: JSON.stringify(payload.metadata ?? {}),
+    metadata: metadataJson,
     isReverted: false,
   });
 
@@ -74,7 +89,12 @@ export async function undoEvent(eventId: string) {
   }
 
   const [event] = await db
-    .select({ id: events.id, created_at: events.createdAt, is_reverted: events.isReverted })
+    .select({
+      id: events.id,
+      created_at: events.createdAt,
+      is_reverted: events.isReverted,
+      action_type: events.actionType,
+    })
     .from(events)
     .where(and(eq(events.id, eventId), eq(events.familyId, profile.familyId)));
 
@@ -87,7 +107,8 @@ export async function undoEvent(eventId: string) {
   }
 
   const createdAtMs = event.created_at;
-  const withinUndoWindow = Date.now() - createdAtMs <= UNDO_WINDOW_MS;
+  const undoWindowMs = getUndoWindowMsForActionType(event.action_type);
+  const withinUndoWindow = Date.now() - createdAtMs <= undoWindowMs;
 
   if (!withinUndoWindow) {
     throw new Error("Undo 가능 시간이 지났습니다.");

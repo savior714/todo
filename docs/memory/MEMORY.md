@@ -1,6 +1,10 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-10: 모바일 대시보드 반응형 깨짐 대응으로 `dashboard/page.tsx` 패딩/타이틀 크기를 모바일 우선(`px-4 py-5`, `text-2xl`)으로 조정하고, `TimelineFeed` 3열 최소폭을 `21rem`(모바일) / `28rem`(sm+)로 분리, `app/layout.tsx`에 명시적 viewport(`device-width`, `initialScale:1`)를 추가. `bun run lint`·`bun run typecheck:strict` 통과.
+- 2026-05-10: 퀵 액션·타임라인 하단 기록을 `RecordEventModal`(네이티브 `<dialog>` + 확장 애니메이션)로 통합. 투약은 대상·약별 용량·단위·메모를 `metadata.medication`에 저장, `lib/event-metadata.ts`(Zod)로 `createEvent` 정규화·검증. 타임라인 카드에 상세 요약 표시. `zod` 의존성 추가, 계약 테스트·`CRITICAL_LOGIC.md` 갱신. `npm test`·`npm run lint`·`npm run typecheck:strict`·`just memory-verify` 통과.
+- 2026-05-10: `quick_actions` 테이블·`0001_quick_actions.sql`·`scripts/migrate-turso.mjs`(정렬된 전체 `.sql` 적용) 추가. `lib/quick-actions-seed.ts`로 가족당 기본 5버튼 시드(등원 `school_dropoff` / 하원 `school_pickup` 분리). `/admin`에서 퀵 액션 추가·숨기기, 대시보드는 DB 기반 버튼 렌더. `TimelineFeed` 라벨에 신규 타입 반영, 레거시 `school_run` 표기 유지. `bun run test`·`lint`·`typecheck:strict` 통과.
+- 2026-05-10: 실행 취소를 액션별로 분리 — `lib/event-undo-policy.ts` SSOT(저위험 24h, 투약 30m). `app/actions/events.ts` `undoEvent`·`TimelineFeed` 버튼 노출이 동일 함수 사용. `CRITICAL_LOGIC.md`·`PRD.md`·`TRD.md` 정합, 계약 테스트 1건 추가. `npm test`·`bun run lint`·`bun run typecheck:strict` 통과.
 - 2026-05-10: `TimelineFeed` 타임라인 날짜 열 전체(헤더·빈 영역·「기록 없음」) 클릭으로 날짜 선택, `centerDate`를 해당 일로 맞춰 내일 등이 가운데 열로 오도록 변경. 좁은 뷰포트는 `min-w-[28rem]`+가로 스크롤+가운데 열 `scrollIntoView`로 정렬. 하단「선택한 날짜에 기록」안내 블록 클릭 시 📅와 동일하게 `type="date"` 입력 트리거. `bun run lint`, `bun run typecheck:strict` 통과.
 - 2026-05-10: `docs/CRITICAL_LOGIC.md` 신설 — 멀티테넌시·투약 2h·override·Undo·Auth.js·`/api/health`·타임라인 `metadata.timelineDate` 등 구현 기준 불변 정리. `README.md` SSOT 목록에 링크 추가.
 - 2026-05-10: Git 정리: 타임라인·스펙·ai-log 워크플로·E2E 계약·`PLAN_STATUS.json` 커밋. `tools/ai_worklog` 로컬 심볼릭 링크는 `.gitignore`로 제외(절대 경로 공유 방지). `just ci`, `bun run lint`·`typecheck:strict`·`test` 통과 확인.

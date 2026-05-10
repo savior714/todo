@@ -1,9 +1,41 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { and, eq, max } from "drizzle-orm";
 import { db } from "@/db/client";
-import { careGuides, dailyPins, homeworkLogs, homeworkTypes } from "@/db/schema";
+import { careGuides, dailyPins, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
+
+const PRESET_ACTION_TYPES = new Set([
+  "meal",
+  "medication",
+  "school_dropoff",
+  "school_pickup",
+  "brushing",
+]);
+
+function parseActionTypeFromForm(formData: FormData): string {
+  const preset = String(formData.get("actionPreset") ?? "").trim();
+  if (preset === "custom") {
+    const slug = String(formData.get("actionCustom") ?? "").trim();
+    if (!/^[a-z][a-z0-9_]{0,63}$/.test(slug)) {
+      throw new Error("커스텀 타입은 소문자 시작, 영문·숫자·밑줄만 사용할 수 있습니다.");
+    }
+    return slug;
+  }
+  if (!PRESET_ACTION_TYPES.has(preset)) {
+    throw new Error("액션 타입이 올바르지 않습니다.");
+  }
+  return preset;
+}
+
+function parseQuickActionTarget(formData: FormData): "kid7" | "kid4" | "family" {
+  const raw = String(formData.get("target") ?? "");
+  if (raw === "kid7" || raw === "kid4" || raw === "family") {
+    return raw;
+  }
+  throw new Error("대상이 올바르지 않습니다.");
+}
 
 async function resolveActiveAdmin() {
   const profile = await getActiveProfileContext();
@@ -98,5 +130,53 @@ export async function createGuide(formData: FormData) {
     imageUrl: null,
   });
 
+  return { success: true };
+}
+
+export async function createQuickAction(formData: FormData) {
+  const profile = await resolveActiveAdmin();
+  const label = String(formData.get("label") ?? "").trim();
+  if (!label) {
+    throw new Error("버튼 이름을 입력해 주세요.");
+  }
+
+  const actionType = parseActionTypeFromForm(formData);
+  const target = parseQuickActionTarget(formData);
+
+  const [maxRow] = await db
+    .select({ m: max(quickActions.sortOrder) })
+    .from(quickActions)
+    .where(eq(quickActions.familyId, profile.familyId));
+  const nextSort = (maxRow?.m ?? -1) + 1;
+
+  await db.insert(quickActions).values({
+    id: crypto.randomUUID(),
+    familyId: profile.familyId,
+    label,
+    actionType,
+    target,
+    sortOrder: nextSort,
+    isActive: true,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function deactivateQuickAction(formData: FormData) {
+  const profile = await resolveActiveAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) {
+    throw new Error("잘못된 요청입니다.");
+  }
+
+  await db
+    .update(quickActions)
+    .set({ isActive: false })
+    .where(and(eq(quickActions.id, id), eq(quickActions.familyId, profile.familyId)));
+
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
   return { success: true };
 }

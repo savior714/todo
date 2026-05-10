@@ -41,7 +41,8 @@
 
 - **스키마 요지**: `events`는 `family_id`, `profile_id`, `action_type`, `target`, `metadata`(JSON 문자열), `is_reverted`, `created_at`을 가진다.
 - **날짜 열 배치**: 대시보드 3열(어제/오늘/내일) 및 주 단위 이동은 **`metadata.timelineDate`** (`YYYY-MM-DD`)가 있으면 그날짜에 붙이고, 없으면 `created_at`의 **로컬 자정 기준 날짜**로 붙인다. (`lib/timeline-date.ts`의 `getEventDisplayDateKey`)
-- **투약 차단 쿼리**: `action_type = 'medication'`, 동일 `family_id`·`target`, `is_reverted = false`, `created_at >= now - 2h` 조건으로 최근 1건을 조회한다. (`app/actions/events.ts`)
+- **투약 상세 메타**: `action_type === "medication"`일 때 구조화 필드는 **`metadata.medication`** 에 둔다 (`subject`: `kid7` \| `kid4` \| `family`, `items[]`: 약 이름·용량·단위, 선택 `note`). 저장 전 검증은 `lib/event-metadata.ts`의 `normalizeAndValidateEventMetadata`가 수행한다. UI 기록은 `RecordEventModal`을 경유한다.
+- **투약 차단 쿼리**: `action_type = 'medication'`, 동일 `family_id`·`target`, `is_reverted = false`, `created_at >= now - 2h` 조건으로 최근 1건을 조회한다. (`app/actions/events.ts`) 모달에서 확정한 **투약 대상**과 동일한 값이 `events.target`으로 저장되어야 차단 키가 일치한다.
 
 ---
 
@@ -49,8 +50,11 @@
 
 - **방식**: `is_reverted = true` 업데이트. 물리 삭제 금지.
 - **권한·범위**: 동일 `family_id`에 속한 이벤트만 대상으로 한다.
-- **시간 윈도우**: 이벤트 생성 시각 기준 **5분**(`5 * 60 * 1000` ms). 서버 `undoEvent`와 타임라인 UI의 Undo 노출 조건이 이를 따른다.
-- **PRD 정합**: PRD에는 스낵바 **5초** 노출 등 표현이 있을 수 있다. **현재 구현의 허용 윈도우는 5분**이다. 5초로 맞출 제품 결정이면 상수·서버·계약 테스트를 함께 바꾸고 본 절을 갱신한다.
+- **시간 윈도우 (액션별)**: `lib/event-undo-policy.ts`의 `getUndoWindowMsForActionType`가 단일 SSOT이다.
+  - **투약** (`action_type === "medication"`): 생성 시각 기준 **30분**.
+  - **그 외** (식사·등하원 등 저위험): 생성 시각 기준 **24시간**.
+  서버 `undoEvent`와 타임라인 UI 노출이 동일 정책을 따른다.
+- **PRD 정합**: PRD에 고정 분 단위 표현이 있으면 본 절·TRD·상수를 기준으로 정합화한다.
 
 ---
 

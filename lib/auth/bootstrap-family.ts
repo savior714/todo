@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { families, profiles, userFamilies } from "@/db/schema";
+import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions-seed";
 
 function randomInviteCode(): string {
   const bytes = new Uint8Array(6);
@@ -42,4 +43,6 @@ export async function ensureDefaultFamilyForUser(userId: string, displayName: st
     { id: adminProfileId, familyId, name: primaryName, role: "admin" },
     { id: memberProfileId, familyId, name: "가족 구성원", role: "executor" },
   ]);
+
+  await ensureDefaultQuickActionsForFamily(familyId);
 }

@@ -208,3 +208,26 @@ export const careGuides = sqliteTable(
     familyCreatedIdx: index("care_guides_family_created_idx").on(table.familyId, table.createdAt),
   })
 );
+
+export const quickActions = sqliteTable(
+  "quick_actions",
+  {
+    id: text("id").primaryKey(),
+    familyId: text("family_id")
+      .notNull()
+      .references(() => families.id, { onDelete: "cascade" }),
+    label: text("label").notNull(),
+    actionType: text("action_type").notNull(),
+    target: text("target").notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => ({
+    familyActiveSortIdx: index("quick_actions_family_active_sort_idx").on(
+      table.familyId,
+      table.isActive,
+      table.sortOrder
+    ),
+  })
+);

@@ -2,7 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { createEvent, undoEvent } from "@/app/actions/events";
+import RecordEventModal, { type RecordDraft } from "@/app/(dashboard)/RecordEventModal";
+import { undoEvent } from "@/app/actions/events";
+import { summarizeEventMetadataForDisplay } from "@/lib/event-metadata";
+import { getUndoWindowMsForActionType } from "@/lib/event-undo-policy";
 import {
   addDays,
   formatDateKey,
@@ -25,13 +28,14 @@ type TimelineFeedProps = {
   initialEvents: TimelineItem[];
 };
 
-const UNDO_WINDOW_MS = 5 * 60 * 1000;
 const SWIPE_PX = 56;
 
 const ACTION_LABEL: Record<string, string> = {
   meal: "식사",
   medication: "투약",
   school_run: "등·하원",
+  school_dropoff: "등원",
+  school_pickup: "하원",
   brushing: "양치",
 };
 
@@ -46,6 +50,7 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [centerDate, setCenterDate] = useState(() => startOfLocalDay(new Date()));
   const [recordDateKey, setRecordDateKey] = useState<string | null>(null);
+  const [recordDraft, setRecordDraft] = useState<RecordDraft | null>(null);
   const touchStartX = useRef<number | null>(null);
   const dateInputRef = useRef<HTMLInputElement | null>(null);
   const centerColumnRef = useRef<HTMLDivElement | null>(null);
@@ -111,44 +116,6 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
       await undoEvent(eventId);
       setEvents((prev) => prev.map((item) => (item.id === eventId ? { ...item, is_reverted: true } : item)));
       refreshFromServer();
-    });
-  };
-
-  const runTimedRecord = (actionType: string, target: string, dateKey: string) => {
-    if (!navigator.onLine) {
-      showToast("인터넷 연결이 필요합니다.");
-      return;
-    }
-
-    startTransition(async () => {
-      const run = async (metadata?: Record<string, unknown>) => {
-        const result = await createEvent({ actionType, target, metadata });
-        if ("blocked" in result && result.blocked) {
-          const shouldOverride = window.confirm(
-            "최근 2시간 내 동일 투약 기록이 있습니다. 정말 강행하시겠습니까?"
-          );
-          if (!shouldOverride) {
-            return;
-          }
-          const overrideResult = await createEvent({
-            actionType,
-            target,
-            metadata: { ...(metadata ?? {}), override: true },
-          });
-          if ("blocked" in overrideResult && overrideResult.blocked) {
-            showToast("강행 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-            return;
-          }
-          showToast("강행으로 투약 이벤트를 기록했습니다.");
-          refreshFromServer();
-          return;
-        }
-        showToast("이벤트가 기록되었습니다.");
-        refreshFromServer();
-      };
-
-      const meta = { timelineDate: dateKey };
-      await run(meta);
     });
   };
 
@@ -249,7 +216,7 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
         }}
       >
         <div className="overflow-x-auto scroll-smooth sm:overflow-visible">
-          <div className="grid w-full min-w-[28rem] grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-700 sm:min-w-0">
+          <div className="grid w-full min-w-[21rem] grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-700 sm:min-w-[28rem]">
           {columnDays.map((day, colIndex) => {
             const key = formatDateKey(day);
             const items = eventsByDay.get(key) ?? [];
@@ -278,8 +245,10 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">기록 없음</p>
                   ) : (
                     items.map((event) => {
+                      const undoMs = getUndoWindowMsForActionType(event.action_type);
                       const canUndo =
-                        Date.now() - new Date(event.created_at).getTime() <= UNDO_WINDOW_MS;
+                        Date.now() - new Date(event.created_at).getTime() <= undoMs;
+                      const detailLines = summarizeEventMetadataForDisplay(event.metadata, event.action_type);
                       return (
                         <article
                           key={event.id}
@@ -289,6 +258,13 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
                             {labelForAction(event.action_type)}
                           </p>
                           <p className="text-xs text-neutral-600 dark:text-neutral-300">{event.target}</p>
+                          {detailLines.length > 0 && (
+                            <ul className="mt-1 list-inside list-disc text-[11px] text-neutral-600 dark:text-neutral-400">
+                              {detailLines.map((line, i) => (
+                                <li key={i}>{line}</li>
+                              ))}
+                            </ul>
+                          )}
                           <p className="text-[10px] text-neutral-500">
                             {new Date(event.created_at).toLocaleTimeString(undefined, {
                               hour: "2-digit",
@@ -336,7 +312,9 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
           <button
             type="button"
             disabled={isPending}
-            onClick={() => runTimedRecord("meal", "family", effectiveRecordKey)}
+            onClick={() =>
+              setRecordDraft({ actionType: "meal", target: "family", label: "식사" })
+            }
             className="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-blue-600 px-4 text-sm text-white disabled:opacity-60 sm:flex-none"
           >
             식사
@@ -344,13 +322,23 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
           <button
             type="button"
             disabled={isPending}
-            onClick={() => runTimedRecord("medication", "kid4", effectiveRecordKey)}
+            onClick={() =>
+              setRecordDraft({ actionType: "medication", target: "kid4", label: "투약" })
+            }
             className="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-rose-600 px-4 text-sm text-white disabled:opacity-60 sm:flex-none"
           >
             투약
           </button>
         </div>
       </div>
+
+      <RecordEventModal
+        draft={recordDraft}
+        onClose={() => setRecordDraft(null)}
+        timelineDate={effectiveRecordKey}
+        onRecorded={refreshFromServer}
+        showToast={showToast}
+      />
 
       {toastMessage && (
         <p

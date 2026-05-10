@@ -70,7 +70,7 @@
 
 ### 5.1 퀵 액션 및 Undo (실행 취소)
 - 액션 실행 시 `events` 테이블에 Insert 한다.
-- UI 하단에 5초간 스낵바(Undo)를 노출한다.
+- 실행 취소 허용 시간은 `lib/event-undo-policy.ts` 기준(투약 30분, 그 외 24시간)이며, 타임라인 등 UI는 해당 창 안에서만 버튼을 노출한다.
 - Undo 클릭 시, 해당 이벤트 레코드의 `is_reverted` 값을 `true`로 Update 한다. (물리적 삭제(`DELETE`)를 피하여 감사(Audit) 로그를 유지함)
 - 타임라인 쿼리는 항상 `WHERE is_reverted = false` 조건을 포함한다.
 
@@ -99,7 +99,7 @@ REST API 대신 타입 안정성이 보장되는 Server Actions(`app/actions/`)�
   - 동작: 쿠키에서 `profile_id` 추출 -> `family_id` 조회 -> 중복 투약 검사 -> `events` Insert.
   - 리턴: `{ success: true, eventId }` 또는 `{ blocked: true, message }`.
 - `undoEvent(eventId: string)`
-  - 동작: 해당 이벤트의 `is_reverted = true` 처리. (생성 후 5분 이내만 허용하는 서버 검증 포함)
+  - 동작: 해당 이벤트의 `is_reverted = true` 처리. (생성 후 허용 시간은 `lib/event-undo-policy.ts`: 투약 30분, 그 외 24시간)
 
 ### 6.3 관리자 기능 (`actions/admin.ts`)
 - `upsertDailyPin(content: string)`

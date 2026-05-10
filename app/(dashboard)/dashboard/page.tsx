@@ -1,16 +1,34 @@
-import { and, desc, eq, gte, isNotNull } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNotNull } from "drizzle-orm";
 import DailyPinBanner from "@/app/(dashboard)/DailyPinBanner";
 import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import TimelineFeed from "@/app/(dashboard)/TimelineFeed";
 import { db } from "@/db/client";
-import { careGuides, events } from "@/db/schema";
+import { careGuides, events, quickActions } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
+import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions-seed";
 
 const TIMELINE_LOOKBACK_MS = 120 * 24 * 60 * 60 * 1000;
 
 export default async function DashboardPage() {
   const profile = await getActiveProfileContext();
   const timelineSince = Date.now() - TIMELINE_LOOKBACK_MS;
+
+  if (profile) {
+    await ensureDefaultQuickActionsForFamily(profile.familyId);
+  }
+
+  const quickActionRows = profile
+    ? await db
+        .select({
+          id: quickActions.id,
+          label: quickActions.label,
+          actionType: quickActions.actionType,
+          target: quickActions.target,
+        })
+        .from(quickActions)
+        .where(and(eq(quickActions.familyId, profile.familyId), eq(quickActions.isActive, true)))
+        .orderBy(asc(quickActions.sortOrder), asc(quickActions.createdAt))
+    : [];
 
   const timelineRows = profile
     ? await db
@@ -58,13 +76,13 @@ export default async function DashboardPage() {
   }));
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-4 p-8">
-      <h1 className="text-3xl font-bold">FamilySync Dashboard</h1>
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 py-5 sm:p-8">
+      <h1 className="text-2xl font-bold sm:text-3xl">FamilySync Dashboard</h1>
       <p className="text-sm text-neutral-600 dark:text-neutral-300">
         active_profile_id 쿠키가 있는 경우에만 접근 가능합니다.
       </p>
       <DailyPinBanner />
-      <QuickActionPanel guideHints={guideHints} />
+      <QuickActionPanel actions={quickActionRows} guideHints={guideHints} />
       <TimelineFeed initialEvents={normalizedEvents} />
     </main>
   );

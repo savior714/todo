@@ -1,8 +1,5 @@
 ---
-situation: 설계 및 조사 워크플로우
-trigger: /plan
-level: Mandatory
-description: 완벽한 설계를 위한 Research & Blueprinting 프로토콜
+description: 전략적 설계 및 문서화 워크플로우 (/plan)
 ---
 
 # 🏗️ 전략적 설계 및 문서화 워크플로우 (/plan)
