@@ -10,6 +10,8 @@ const REQUIRED_TABLES = [
   "families",
   "user_families",
   "profiles",
+  /** 대시보드 퀵 액션 (`db/migrations/0001_quick_actions.sql`). 미적용 시 `/dashboard` SSR이 실패할 수 있다. */
+  "quick_actions",
 ] as const;
 
 type TableMap = Record<(typeof REQUIRED_TABLES)[number], boolean>;

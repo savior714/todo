@@ -105,6 +105,7 @@ test("/api/health는 Auth.js 어댑터 핵심 테이블의 마이그레이션 �
   assert.match(health, /users/);
   assert.match(health, /accounts/);
   assert.match(health, /sessions/);
+  assert.match(health, /quick_actions/);
   assert.match(health, /tables/);
 });
 

@@ -23,7 +23,13 @@ export async function getCurrentFamilyId(userId: string) {
 }
 
 export async function getActiveProfileContext() {
-  const userId = await requireUserId();
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return null;
+  }
+
   const cookieStore = await cookies();
   const profileId = cookieStore.get(ACTIVE_PROFILE_COOKIE)?.value;
 

@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-10: Vercel 모바일 “server error” 대응 — `getActiveProfileContext()`가 세션 없을 때 `requireUserId`로 예외를 던지던 문제를 세션 없으면 `null` 반환으로 수정, 대시보드는 `null` 시 `/login` 리다이렉트. `quick_actions` 미마이그레이션 시 SSR 500 방지를 위해 시드·조회를 try/catch하고 안내 배너 표시, `/api/health` 필수 테이블에 `quick_actions` 추가. `docs/CRITICAL_LOGIC.md`·계약 테스트 반영. `bun run lint`·`typecheck:strict`·`test`·`build` 통과.
 - 2026-05-10: 모바일 대시보드 반응형 깨짐 대응으로 `dashboard/page.tsx` 패딩/타이틀 크기를 모바일 우선(`px-4 py-5`, `text-2xl`)으로 조정하고, `TimelineFeed` 3열 최소폭을 `21rem`(모바일) / `28rem`(sm+)로 분리, `app/layout.tsx`에 명시적 viewport(`device-width`, `initialScale:1`)를 추가. `bun run lint`·`bun run typecheck:strict` 통과.
 - 2026-05-10: 퀵 액션·타임라인 하단 기록을 `RecordEventModal`(네이티브 `<dialog>` + 확장 애니메이션)로 통합. 투약은 대상·약별 용량·단위·메모를 `metadata.medication`에 저장, `lib/event-metadata.ts`(Zod)로 `createEvent` 정규화·검증. 타임라인 카드에 상세 요약 표시. `zod` 의존성 추가, 계약 테스트·`CRITICAL_LOGIC.md` 갱신. `npm test`·`npm run lint`·`npm run typecheck:strict`·`just memory-verify` 통과.
 - 2026-05-10: `quick_actions` 테이블·`0001_quick_actions.sql`·`scripts/migrate-turso.mjs`(정렬된 전체 `.sql` 적용) 추가. `lib/quick-actions-seed.ts`로 가족당 기본 5버튼 시드(등원 `school_dropoff` / 하원 `school_pickup` 분리). `/admin`에서 퀵 액션 추가·숨기기, 대시보드는 DB 기반 버튼 렌더. `TimelineFeed` 라벨에 신규 타입 반영, 레거시 `school_run` 표기 유지. `bun run test`·`lint`·`typecheck:strict` 통과.

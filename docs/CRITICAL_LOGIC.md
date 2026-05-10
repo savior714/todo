@@ -33,7 +33,7 @@
 
 - **프로바이더**: Google OAuth. 세션은 **DB 어댑터**를 사용한다(Auth.js 표준 테이블: `users`, `accounts`, `sessions`, `verificationTokens` 등).
 - **`AUTH_URL` 정책**: Vercel Preview에서는 `instrumentation.ts`가 `AUTH_URL`/`NEXTAUTH_URL`을 제거해 **현재 호스트** 기준 콜백을 쓴다. 로컬에서 `NEXT_PUBLIC_SITE_URL`이 localhost인데 `AUTH_URL`만 프로덕션 도메인이면 동일하게 제거해 **redirect 불일치**를 막는다.
-- **운영 점검**: `GET /api/health`는 비밀을 노출하지 않고, 필수 env 존재·DB ping·핵심 테이블 존재 여부를 반환한다. `tables` 중 하나라도 `false`이면 Auth/세션 경로가 실패할 수 있으므로 **마이그레이션 미적용**을 최우선 의심한다.
+- **운영 점검**: `GET /api/health`는 비밀을 노출하지 않고, 필수 env 존재·DB ping·핵심 테이블(Auth 어댑터 + 앱 스키마의 `quick_actions` 등) 존재 여부를 반환한다. `tables` 중 하나라도 `false`이면 Auth/세션·대시보드 경로가 실패할 수 있으므로 **마이그레이션 미적용**을 최우선 의심한다.
 
 ---
 
