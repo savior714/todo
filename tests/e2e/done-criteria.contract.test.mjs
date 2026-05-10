@@ -78,3 +78,14 @@ test("Drizzle 기반 DB 계층 파일이 존재한다", () => {
   assert.match(dbClient, /drizzle/);
   assert.match(dbSchema, /sqliteTable/);
 });
+
+test("admin migrate 라우트는 ADMIN_MIGRATE_SECRET Bearer로 가드되고 DDL-only sanity check를 갖는다", () => {
+  const route = read("app/api/admin/migrate/route.ts");
+  assert.match(route, /export const runtime = "nodejs"/);
+  assert.match(route, /export async function POST/);
+  assert.match(route, /ADMIN_MIGRATE_SECRET/);
+  assert.match(route, /Authorization/);
+  assert.match(route, /Bearer/);
+  assert.match(route, /CREATE\s+TABLE|CREATE\s+INDEX/i);
+  assert.match(route, /DROP|DELETE|UPDATE|ALTER/);
+});

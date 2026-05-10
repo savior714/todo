@@ -14,5 +14,9 @@ node_modules
 # TypeScript incremental
 tsconfig.tsbuildinfo
 
+# 일회성 어드민 마이그레이션 시크릿 (절대 커밋 금지)
+.migrate-secret.local
+
 # bun이 SSOT이면 npm lock은 추적하지 않음
 package-lock.json
+.env*.local
