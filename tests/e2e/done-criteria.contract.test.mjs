@@ -49,6 +49,7 @@ test("Auth.js 설정 파일과 라우트 핸들러가 존재한다", () => {
   const authConfig = read("auth.ts");
   const authRoute = read("app/api/auth/[...nextauth]/route.ts");
   assert.match(authConfig, /NextAuth\(/);
+  assert.match(authConfig, /secret:\s*process\.env\.AUTH_SECRET/);
   assert.match(authConfig, /Google/);
   assert.match(authConfig, /createUser/);
   assert.match(authRoute, /export const \{ GET, POST \} = handlers/);

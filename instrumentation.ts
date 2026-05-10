@@ -5,6 +5,19 @@
  * @see node_modules/next-auth/src/lib/env.ts — reqWithEnvURL
  */
 export function register(): void {
+  if (process.env.VERCEL === "1") {
+    if (!process.env.AUTH_SECRET?.trim()) {
+      console.error(
+        "[familysync/auth] AUTH_SECRET이 비어 있습니다. Auth.js는 설정 오류로 'Server error' 페이지를 반환합니다."
+      );
+    }
+    if (!process.env.TURSO_DATABASE_URL?.trim()) {
+      console.error(
+        "[familysync/db] TURSO_DATABASE_URL이 비어 있습니다. 인증·세션 저장이 실패할 수 있습니다."
+      );
+    }
+  }
+
   if (process.env.VERCEL === "1" && process.env.VERCEL_ENV === "preview") {
     delete process.env.AUTH_URL;
     delete process.env.NEXTAUTH_URL;

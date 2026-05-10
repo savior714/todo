@@ -6,6 +6,8 @@ import { accounts, authenticators, sessions, users, verificationTokens } from "@
 import { ensureDefaultFamilyForUser } from "@/lib/auth/bootstrap-family";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  /** 배포(Vercel)에서 누락 시 Auth.js가 "Server error / server configuration" 페이지를 반환합니다. */
+  secret: process.env.AUTH_SECRET,
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,

@@ -90,6 +90,17 @@ npm run db:migrate
 - `TURSO_AUTH_TOKEN`
 - `NEXT_PUBLIC_SITE_URL` (예: 로컬 `http://localhost:3000`, 프로덕션과 동일 도메인 권장)
 
+### Vercel에서 Auth.js `Server error`(There is a problem with the server configuration)
+
+이 화면은 대부분 **필수 env가 비어 있거나**, OAuth 콜백 처리 중 **DB 예외**가 나 Auth.js가 `Configuration` 오류로 처리할 때 뜹니다. 아래를 **Production**(및 사용 중인 Preview)에서 순서대로 확인하세요.
+
+1. **`AUTH_SECRET`**: Vercel 프로젝트에 반드시 설정(임의 긴 문자열, `openssl rand -base64 32` 등). 없으면 `MissingSecret`로 위 페이지가 납니다.
+2. **`TURSO_DATABASE_URL`**, **`TURSO_AUTH_TOKEN`**: 없으면 서버가 DB 모듈 로드 시 실패하거나, 로그인 콜백에서 세션 저장에 실패할 수 있습니다. 설정 후 `npm run db:migrate`로 스키마 적용.
+3. **`AUTH_GOOGLE_ID`**, **`AUTH_GOOGLE_SECRET`**: Google 콘솔의 클라이언트와 동일한지 확인.
+4. **`AUTH_URL`**: 프로덕션 도메인과 정확히 일치하는지 확인(다른 프로젝트 URL이면 OAuth·쿠키가 꼬입니다).
+
+원인 확인: Vercel 대시보드 → 해당 배포 → **Functions / Runtime Logs**에서 같은 시각의 스택 또는 Auth.js 로그를 확인합니다.
+
 ### Google OAuth (Auth.js)
 
 `AUTH_URL`은 **지금 브라우저로 접속한 도메인과 같아야** 합니다. NextAuth는 이 값이 있으면 OAuth `redirect_uri`를 고정하므로, Vercel Preview가 Production의 `AUTH_URL`(예: 다른 배포 URL)을 물려받으면 구글 로그인 뒤 그 주소로 넘어갑니다. 이 레포는 **Preview**에서 `instrumentation.ts`가 `AUTH_URL`을 제거해 현재 호스트를 쓰게 합니다(해당 Preview URL이 Google 콘솔에 없으면 `redirect_uri_mismatch`가 날 수 있어, 프리뷰 OAuth는 별도 OAuth 클라이언트·리다이렉트 등록이 필요할 수 있습니다).
