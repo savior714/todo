@@ -63,6 +63,15 @@ test("배포 점검용 /api/health 라우트가 Auth 필수 env 존재 여부를
   assert.match(health, /NextResponse\.json/);
 });
 
+test("/api/health는 Auth.js 어댑터 핵심 테이블의 마이그레이션 적용 여부도 함께 보고한다", () => {
+  const health = read("app/api/health/route.ts");
+  assert.match(health, /sqlite_master/);
+  assert.match(health, /users/);
+  assert.match(health, /accounts/);
+  assert.match(health, /sessions/);
+  assert.match(health, /tables/);
+});
+
 test("Drizzle 기반 DB 계층 파일이 존재한다", () => {
   const dbClient = read("db/client.ts");
   const dbSchema = read("db/schema.ts");

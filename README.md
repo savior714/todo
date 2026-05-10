@@ -94,7 +94,13 @@ npm run db:migrate
 
 이 화면은 대부분 **필수 env가 비어 있거나**, OAuth 콜백 처리 중 **DB 예외**가 나 Auth.js가 `Configuration` 오류로 처리할 때 뜹니다(Auth.js는 `AdapterError` 등을 사용자에게 그대로 보여주지 않고 같은 형태로 감쌉니다). 아래를 **Production**(및 사용 중인 Preview)에서 순서대로 확인하세요.
 
-**빠른 점검(배포 후)**: 브라우저 또는 `curl`로 `https://<배포-도메인>/api/health` 를 열어 `checks` 중 `false`인 항목과 `db`가 `"error"`인지 확인하세요. `db`가 `"error"`이면 Turso URL/토큰·방화벽·마이그레이션 미적용 등을 의심합니다.
+**빠른 점검(배포 후)**: 브라우저 또는 `curl`로 `https://<배포-도메인>/api/health` 를 열어 `checks`/`db`/`tables` 세 영역을 모두 확인하세요.
+
+- `checks`에 `false`가 있으면 → 해당 env가 비어있음 → Vercel 프로젝트 환경변수에 추가 후 재배포
+- `db`가 `"error"`이면 → Turso URL/토큰/네트워크 문제
+- `tables`에 `false`가 있으면 → **Turso DB에 마이그레이션 미적용** → 로컬에서 운영 Turso credential을 export한 뒤 `npm run db:migrate` 실행
+
+`error=Configuration` 페이지가 뜨는데 `/api/health`가 200이라면 거의 확실하게 `tables` 누락입니다(어댑터의 `users`/`accounts`/`sessions` 호출이 실패하면 Auth.js가 동일 페이지로 감싸서 보여줍니다).
 
 1. **`AUTH_SECRET`**: Vercel 프로젝트에 반드시 설정(임의 긴 문자열, `openssl rand -base64 32` 등). 없으면 `MissingSecret`로 위 페이지가 납니다.
 2. **`TURSO_DATABASE_URL`**, **`TURSO_AUTH_TOKEN`**: 없으면 서버가 DB 모듈 로드 시 실패하거나, 로그인 콜백에서 세션 저장에 실패할 수 있습니다. 설정 후 `npm run db:migrate`로 스키마 적용.

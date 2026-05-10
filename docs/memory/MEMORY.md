@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-10: 운영 도메인 `todo-nine-mu-90.vercel.app`에서 `error=Configuration` 재발. `GET /api/health`는 `ok:true / db:"ok"`로 반환되어 env·Turso 연결은 정상이나 `SELECT 1`만으로는 어댑터 테이블 적용 여부를 알 수 없는 한계가 드러남. `/api/health` 계약 테스트(Red→Green)와 `app/api/health/route.ts`에 `sqlite_master` 기반 `tables` 점검(`users/accounts/sessions/verificationTokens/families/user_families/profiles`) 추가, README의 빠른 점검 가이드에 `tables` false → `npm run db:migrate` 실행 안내를 명시.
 - 2026-05-10: `error=Configuration`이 DB(Adapter) 실패일 수 있음을 README에 명시하고, 배포 후 `GET /api/health`로 env 플래그·`SELECT 1` Turso ping을 확인할 수 있게 `app/api/health/route.ts`·계약 테스트 추가.
 - 2026-05-10: Auth.js 기본 `Server error`(Configuration) 대응으로 `auth.ts`에 `secret: process.env.AUTH_SECRET` 명시, README에 Vercel 점검 체크리스트 추가, `instrumentation.ts`에서 Vercel 시 `AUTH_SECRET`/`TURSO_DATABASE_URL` 공백 시 stderr 로그, 계약 테스트에 secret 바인딩 검증 추가.
 - 2026-05-10: 구글 로그인이 다른 배포로 넘어가는 원인(Auth.js가 `AUTH_URL`로 OAuth redirect 고정, Preview가 Production `AUTH_URL` 상속, 로컬에서 `AUTH_URL`만 프로덕션인 경우)에 대응해 루트 `instrumentation.ts`에서 Preview·로컬 호스트 불일치 시 `AUTH_URL`/`NEXTAUTH_URL` 제거, `scripts/sync-vercel-authjs-env.mjs`에 `AUTH_URL_PRODUCTION`/CLI URL·경고 추가, README에 배포 도메인·콘솔 redirect 정합성 안내 보강.
