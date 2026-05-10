@@ -55,6 +55,14 @@ test("Auth.js 설정 파일과 라우트 핸들러가 존재한다", () => {
   assert.match(authRoute, /export const \{ GET, POST \} = handlers/);
 });
 
+test("배포 점검용 /api/health 라우트가 Auth 필수 env 존재 여부를 반환한다", () => {
+  const health = read("app/api/health/route.ts");
+  assert.match(health, /AUTH_SECRET/);
+  assert.match(health, /TURSO_DATABASE_URL/);
+  assert.match(health, /SELECT 1/);
+  assert.match(health, /NextResponse\.json/);
+});
+
 test("Drizzle 기반 DB 계층 파일이 존재한다", () => {
   const dbClient = read("db/client.ts");
   const dbSchema = read("db/schema.ts");
