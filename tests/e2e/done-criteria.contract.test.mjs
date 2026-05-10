@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 const read = (path) => readFileSync(path, "utf8");
 
@@ -79,13 +79,11 @@ test("Drizzle 기반 DB 계층 파일이 존재한다", () => {
   assert.match(dbSchema, /sqliteTable/);
 });
 
-test("admin migrate 라우트는 ADMIN_MIGRATE_SECRET Bearer로 가드되고 DDL-only sanity check를 갖는다", () => {
-  const route = read("app/api/admin/migrate/route.ts");
-  assert.match(route, /export const runtime = "nodejs"/);
-  assert.match(route, /export async function POST/);
-  assert.match(route, /ADMIN_MIGRATE_SECRET/);
-  assert.match(route, /Authorization/);
-  assert.match(route, /Bearer/);
-  assert.match(route, /CREATE\s+TABLE|CREATE\s+INDEX/i);
-  assert.match(route, /DROP|DELETE|UPDATE|ALTER/);
+test("일회성 어드민 마이그레이션 라우트는 사용 직후 제거되어야 한다", () => {
+  // app/api/admin/* 경로의 어떤 라우트도 존재하지 않아야 한다 (Sensitive env 우회 채널 잔존 금지).
+  assert.equal(
+    existsSync("app/api/admin"),
+    false,
+    "app/api/admin 디렉토리가 남아있다. 어드민 라우트는 1회 사용 후 즉시 제거할 것."
+  );
 });

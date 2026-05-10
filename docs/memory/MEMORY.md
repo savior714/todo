@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-10: 운영 Turso 마이그레이션 적용 완료 — 강화된 `/api/health`로 `tables` 7개 모두 `false`임을 확인 후, Vercel CLI가 Sensitive 환경변수(TURSO_*)를 export/run으로 주입하지 않는 한계를 우회하기 위해 일회성 가드 라우트(`app/api/admin/migrate/route.ts`, `Authorization: Bearer ADMIN_MIGRATE_SECRET`, `CREATE TABLE/INDEX`만 허용)를 임시 배포해 22 statement를 적용(`tables` 전부 `true`로 전환), 직후 라우트 파일·env·로컬 시크릿(`.migrate-secret.local`)을 모두 철거. 향후 동일 한계 발견 시 같은 패턴(임시 가드 라우트 → 사용 → 즉시 제거 + 계약 테스트로 잔존 금지)을 적용한다.
 - 2026-05-10: 운영 도메인 `todo-nine-mu-90.vercel.app`에서 `error=Configuration` 재발. `GET /api/health`는 `ok:true / db:"ok"`로 반환되어 env·Turso 연결은 정상이나 `SELECT 1`만으로는 어댑터 테이블 적용 여부를 알 수 없는 한계가 드러남. `/api/health` 계약 테스트(Red→Green)와 `app/api/health/route.ts`에 `sqlite_master` 기반 `tables` 점검(`users/accounts/sessions/verificationTokens/families/user_families/profiles`) 추가, README의 빠른 점검 가이드에 `tables` false → `npm run db:migrate` 실행 안내를 명시.
 - 2026-05-10: `error=Configuration`이 DB(Adapter) 실패일 수 있음을 README에 명시하고, 배포 후 `GET /api/health`로 env 플래그·`SELECT 1` Turso ping을 확인할 수 있게 `app/api/health/route.ts`·계약 테스트 추가.
 - 2026-05-10: Auth.js 기본 `Server error`(Configuration) 대응으로 `auth.ts`에 `secret: process.env.AUTH_SECRET` 명시, README에 Vercel 점검 체크리스트 추가, `instrumentation.ts`에서 Vercel 시 `AUTH_SECRET`/`TURSO_DATABASE_URL` 공백 시 stderr 로그, 계약 테스트에 secret 바인딩 검증 추가.
