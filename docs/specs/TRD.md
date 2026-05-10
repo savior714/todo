@@ -176,7 +176,7 @@ app/
 ---
 
 ## 9. 배포 및 운영 요구사항
-- **환경 변수**: Vercel에 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` 세팅.
+- **환경 변수**: Vercel에 `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_URL`, `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` 세팅.
 - **성능**: 대시보드 FCP(First Contentful Paint) 1.5초 이내. (RSC 활용으로 충분히 달성 가능)
 - **장애 대응**: 사용자가 오프라인 상태일 때 퀵 액션을 누르면, `navigator.onLine`을 체크하여 "인터넷 연결이 필요합니다"라는 명시적 에러 토스트를 띄운다. (잘못된 로컬 캐싱으로 인한 투약 중복 사고 방지)
 

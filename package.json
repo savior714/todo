@@ -1,0 +1,42 @@
+{
+  "name": "familysync-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck:strict": "tsc --noEmit",
+    "test": "node --test tests/e2e/*.test.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node scripts/migrate-turso.mjs",
+    "vercel:sync-auth": "node scripts/sync-vercel-authjs-env.mjs"
+  },
+  "dependencies": {
+    "@auth/drizzle-adapter": "^1.11.2",
+    "@libsql/client": "^0.17.3",
+    "drizzle-orm": "^0.45.2",
+    "next": "latest",
+    "next-auth": "^5.0.0-beta.31",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
+    "@next/eslint-plugin-next": "^16.2.6",
+    "@tailwindcss/postcss": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "globals": "^17.6.0",
+    "tailwindcss": "latest",
+    "typescript": "latest",
+    "typescript-eslint": "^8.59.2",
+    "vercel": "^53.3.1"
+  }
+}

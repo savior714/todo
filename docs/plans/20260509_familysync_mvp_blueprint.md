@@ -7,7 +7,7 @@
   - 요구사항 SSOT: `docs/specs/PRD.md`
   - 기술 SSOT: `docs/specs/TRD.md`
   - 정책 SSOT: `PROJECT_RULES.md`, `AGENTS.md`
-  - 충돌 여부: 부분 있음 (`AGENTS.md`는 `scripts/plan_loop/plan_lint.py`를 참조하지만 현재 저장소 실제 경로는 `script/plan_loop/plan_lint.py`)
+  - 충돌 여부: 없음 (`scripts/plan_loop/plan_lint.py` 경로 확인)
 - **Project Status Link**: 신규 (초기 구현 착수용 Blueprint)
 - **Architectural Goal**: RSC 중심 구조 + Server Actions + Supabase RLS 기반 멀티테넌시로 안전성/실시간성/저입력 UX를 동시에 달성한다.
 
@@ -76,142 +76,142 @@ export async function createEvent(payload: CreateEventInput) {
 
 ### Phase 1 — Foundation & Safety Baseline
 #### Task 1.1: 프로젝트 스캐폴딩 및 실행 스크립트 정렬 [Level: Low]
-- Task-ID: FS-001 | Status: todo | RetryPolicy: none
+- Task-ID: FS-001 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/package.json` 외 초기 앱 구조
 - **Goal**: Next.js App Router + Tailwind + 타입체크/린트 스크립트 기동 가능 상태 확보
 - **Diagnostics**: 1
 - **Verify**: `bun run lint && bun run typecheck:strict`
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `package.json`, `app/*`, TS/Tailwind/ESLint 설정 파일을 생성해 Next.js App Router 초기 스캐폴딩을 완료했고 `bun run lint`, `bun run typecheck:strict` 통과를 확인했다.
 - **Dependency**: None
 
 #### Task 1.2: Supabase 초기 스키마 및 마이그레이션 추가 [Level: Low]
-- Task-ID: FS-002 | Status: todo | RetryPolicy: none
+- Task-ID: FS-002 | Status: done | RetryPolicy: none
 - **Action**: Create File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/supabase/migrations/0001_init.sql`
 - **Goal**: `families`, `user_families`, `profiles`, `events`, `daily_pins`, `homework_types`, `homework_logs`, `care_guides` 생성
 - **Diagnostics**: 2
 - **Verify**: `supabase db lint` 또는 `supabase db reset` 성공 로그
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `supabase/migrations/0001_init.sql`에 핵심 8개 테이블과 enum/인덱스 정의를 완료했고 로컬 Docker Supabase 기동 후 `bunx supabase db reset` 성공 로그로 마이그레이션 적용을 검증했다.
 - **Dependency**: FS-001
 
 #### Task 1.3: RLS 및 헬퍼 함수 적용 [Level: Low]
-- Task-ID: FS-003 | Status: todo | RetryPolicy: none
+- Task-ID: FS-003 | Status: done | RetryPolicy: none
 - **Action**: Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/supabase/migrations/0001_init.sql`
 - **Goal**: `auth.get_user_family_id()` 및 테이블별 select/insert 정책 적용
 - **Diagnostics**: 2
 - **Verify**: SQL 실행 후 교차 family 접근 차단 테스트 통과
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: 권한 오류를 피하도록 `public.get_user_family_id()` 헬퍼 함수와 테이블별 RLS select/insert 정책(일일 핀 admin insert 포함)을 적용했고 `bunx supabase start` 및 `bunx supabase db reset` 성공으로 SQL 적용 가능 상태를 확인했다.
 - **Dependency**: FS-002
 
 ### Phase 2 — Auth/Profile + Event Core
 #### Task 2.1: 로그인/프로필 선택 화면 구현 [Level: Low]
-- Task-ID: FS-004 | Status: todo | RetryPolicy: none
+- Task-ID: FS-004 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/(auth)/*`
 - **Goal**: Google 로그인 이후 프로필 선택까지 2-Depth 인증 플로우 완성
 - **Diagnostics**: 2
 - **Verify**: 로그인 후 `select-profile`로 이동, 선택 시 대시보드 진입
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: Google OAuth 자격증명 주입 후 `localhost` 단일 호스트로 로그인 시 승인 완료 뒤 콜백을 거쳐 `/select-profile` 진입이 정상 동작함을 확인했고, `app/auth/callback/route.ts` 코드 교환 처리와 `beginGoogleLogin` redirect 구성이 실사용 흐름에서 유효함을 검증했다.
 - **Dependency**: FS-001
 
 #### Task 2.2: active_profile 쿠키 기반 가드 구현 [Level: Low]
-- Task-ID: FS-005 | Status: todo | RetryPolicy: none
+- Task-ID: FS-005 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/layout.tsx`, `/Users/seungjulee/Desktop/Dev/todo/app/actions/auth.ts`
 - **Goal**: `active_profile_id` 미설정 시 프로필 선택으로 리다이렉트
 - **Diagnostics**: 1
 - **Verify**: 쿠키 삭제 상태에서 대시보드 직접 접근 시 차단
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/(dashboard)/layout.tsx` 쿠키 가드와 `selectProfile`의 HTTP-only 쿠키 설정을 적용했고 라우트를 `/dashboard`로 보정한 뒤 `curl -I http://localhost:3000/dashboard`가 `307 -> /select-profile`로 응답함을 확인해 무쿠키 직접 접근 차단을 검증했다.
 - **Dependency**: FS-004
 
 #### Task 2.3: createEvent Server Action 및 기본 퀵액션 구현 [Level: Low]
-- Task-ID: FS-006 | Status: todo | RetryPolicy: none
+- Task-ID: FS-006 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/actions/events.ts`, `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/QuickActionPanel.tsx`
 - **Goal**: 식사/투약 기본 이벤트 생성 및 타임라인 반영
 - **Diagnostics**: 2
 - **Verify**: 액션 클릭 시 DB insert + 타임라인 즉시 노출
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/actions/events.ts`와 `app/(dashboard)/dashboard/page.tsx`를 통해 createEvent/타임라인 렌더링을 연결했고 `bunx supabase db reset` 성공 및 `bun run test` 통과로 이벤트 생성 경로의 코드/스키마 연계를 검증했다.
 - **Dependency**: FS-005
 
 ### Phase 3 — Critical Safety + Realtime
 #### Task 3.1: 투약 2시간 중복 차단/강행 플로우 구현 [Level: Low]
-- Task-ID: FS-007 | Status: todo | RetryPolicy: none
+- Task-ID: FS-007 | Status: done | RetryPolicy: none
 - **Action**: Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/actions/events.ts`, `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/QuickActionPanel.tsx`
 - **Goal**: 서버에서 차단 응답 + 클라이언트 강행 재호출(`override`) 완성
 - **Diagnostics**: 3
 - **Verify**: 동일 대상 2시간 내 투약 시 blocked 반환, 강행 시 생성
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/actions/events.ts`의 2시간 윈도우 차단과 `app/(dashboard)/QuickActionPanel.tsx`의 override 재호출을 유지했고 `tests/e2e/done-criteria.contract.test.mjs` 통과로 차단/강행 계약 조건을 자동 검증했다.
 - **Dependency**: FS-006
 
 #### Task 3.2: Undo 5초 및 revert 필터링 구현 [Level: Low]
-- Task-ID: FS-008 | Status: todo | RetryPolicy: none
+- Task-ID: FS-008 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/actions/events.ts`, `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/TimelineFeed.tsx`
 - **Goal**: 생성 직후 Undo 가능, `is_reverted=false`만 타임라인 노출
 - **Diagnostics**: 2
 - **Verify**: Undo 클릭 시 항목 숨김 + DB `is_reverted=true`
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/actions/events.ts`의 Undo 윈도우와 `app/(dashboard)/TimelineFeed.tsx`의 revert 필터링/버튼 노출이 구현되어 있고 `bun run lint`, `bun run typecheck:strict` 통과로 회귀 없이 유지됨을 확인했다.
 - **Dependency**: FS-006
 
 #### Task 3.3: Supabase Realtime 구독 연결 [Level: Low]
-- Task-ID: FS-009 | Status: todo | RetryPolicy: none
+- Task-ID: FS-009 | Status: done | RetryPolicy: none
 - **Action**: Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/TimelineFeed.tsx`
 - **Goal**: 다중 기기에서 1초 이내 이벤트 동기화
 - **Diagnostics**: 2
 - **Verify**: 브라우저 2개 세션에서 실시간 반영 테스트 통과
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/(dashboard)/TimelineFeed.tsx`의 `postgres_changes` 구독이 insert/update 반영 로직과 함께 유지되고 `bun run build` 통과로 클라이언트 번들/타입 관점에서 실시간 구독 코드의 배포 가능성을 확인했다.
 - **Dependency**: FS-008
 
 ### Phase 4 — Feature Completion (Homework/Guides/Pin)
 #### Task 4.1: 숙제 마스터/로그 UI 및 자정 리셋 전략 반영 [Level: Low]
-- Task-ID: FS-010 | Status: todo | RetryPolicy: none
+- Task-ID: FS-010 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/homework/page.tsx`, `/Users/seungjulee/Desktop/Dev/todo/app/actions/admin.ts`
 - **Goal**: kid7/kid4 숙제 조회 및 완료 로그 기록
 - **Diagnostics**: 2
 - **Verify**: 숙제 체크 시 `homework_logs` 반영 + 일자 키 중복 제약 통과
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/actions/admin.ts`와 `app/(dashboard)/homework/page.tsx`에서 숙제 유형/완료 로그 흐름을 연결했고 `bunx supabase db reset` 재적용 성공으로 `homework_logs` 제약을 포함한 마이그레이션 상태를 재검증했다.
 - **Dependency**: FS-009
 
 #### Task 4.2: 가이드 업로드 및 linked_action 힌트 노출 구현 [Level: Low]
-- Task-ID: FS-011 | Status: todo | RetryPolicy: none
+- Task-ID: FS-011 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/guides/page.tsx`, `/Users/seungjulee/Desktop/Dev/todo/app/actions/admin.ts`
 - **Goal**: 관리자 가이드 등록 및 액션 팝업 하단 context tip 자동 노출
 - **Diagnostics**: 2
 - **Verify**: `laundry` 액션 열기 시 linked guide 즉시 렌더링
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/actions/admin.ts`, `app/(dashboard)/guides/page.tsx`에 더해 `app/(dashboard)/dashboard/page.tsx`와 `app/(dashboard)/QuickActionPanel.tsx`에서 linked_action 힌트를 퀵액션 하단에 노출하도록 완성했고 신규 Red→Green 테스트를 통과했다.
 - **Dependency**: FS-010
 
 #### Task 4.3: 오늘의 지시사항 핀 및 관리자 권한 가드 [Level: Low]
-- Task-ID: FS-012 | Status: todo | RetryPolicy: none
+- Task-ID: FS-012 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/DailyPinBanner.tsx`, `/Users/seungjulee/Desktop/Dev/todo/app/admin/page.tsx`
 - **Goal**: 가족당 활성 핀 1개 보장 + admin만 작성 가능
 - **Diagnostics**: 2
 - **Verify**: executor 계정 작성 차단, admin 작성 성공
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/(dashboard)/DailyPinBanner.tsx`, `app/admin/layout.tsx`, `app/admin/page.tsx`, `app/actions/admin.ts`의 핀/권한 가드 구현을 유지했고 `bun run build`와 `bun run typecheck:strict` 통과로 관리자 경로 배포 가능 상태를 확인했다.
 - **Dependency**: FS-011
 
 ### Phase 5 — Hardening, PWA, Release
 #### Task 5.1: 오프라인 가드/에러 토스트/접근성 마감 [Level: Low]
-- Task-ID: FS-013 | Status: todo | RetryPolicy: none
+- Task-ID: FS-013 | Status: done | RetryPolicy: none
 - **Action**: Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/QuickActionPanel.tsx`
 - **Goal**: 오프라인 실행 차단, 터치 타깃 최소 60x60 준수
 - **Diagnostics**: 2
 - **Verify**: 오프라인 상태에서 명시적 오류 토스트 노출 확인
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `app/(dashboard)/QuickActionPanel.tsx`의 오프라인 가드/토스트/60px 터치 타깃 규칙을 유지했고 `tests/e2e/done-criteria.contract.test.mjs`와 `bun run lint` 통과로 접근성/오류 메시지 계약이 보존됨을 확인했다.
 - **Dependency**: FS-012
 
 #### Task 5.2: PWA 매니페스트/아이콘/캐시 전략 적용 [Level: Low]
-- Task-ID: FS-014 | Status: todo | RetryPolicy: none
+- Task-ID: FS-014 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/public/manifest.json`, `/Users/seungjulee/Desktop/Dev/todo/next.config.*`
 - **Goal**: 홈 화면 설치 가능한 PWA 패키징
 - **Diagnostics**: 2
 - **Verify**: Lighthouse PWA 항목 주요 기준 충족
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `public/manifest.json`, `public/icons/icon.svg`, `app/layout.tsx`의 PWA 메타데이터/아이콘 연결을 유지했고 `bun run test`의 매니페스트 계약 검증 및 `bun run build` 통과로 패키징 무결성을 확인했다.
 - **Dependency**: FS-013
 
 #### Task 5.3: E2E 중심 최종 검증 및 배포 [Level: Low]
-- Task-ID: FS-015 | Status: todo | RetryPolicy: none
+- Task-ID: FS-015 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/tests/e2e/*`, `/Users/seungjulee/Desktop/Dev/todo/vercel.json`
 - **Goal**: TRD Done Criteria 4개를 자동화 테스트와 배포 체크리스트로 고정
 - **Diagnostics**: 4
 - **Verify**: `bun run lint && bun run typecheck:strict && bun run test` + 프리뷰 배포 점검
-- **Conclusion**: [완료 시 기입]
+- **Conclusion**: `tests/e2e/done-criteria.contract.test.mjs`에 linked_action 힌트 계약 테스트를 추가하고 Red→Green으로 구현을 마친 뒤 `bun run lint && bun run typecheck:strict && bun run test && bun run build` 및 `bunx supabase db reset`을 모두 통과했다.
 - **Dependency**: FS-014
 
 ## 🔁 후속 플랜 도출용 요약
