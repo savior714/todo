@@ -47,6 +47,8 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
   const [centerDate, setCenterDate] = useState(() => startOfLocalDay(new Date()));
   const [recordDateKey, setRecordDateKey] = useState<string | null>(null);
   const touchStartX = useRef<number | null>(null);
+  const dateInputRef = useRef<HTMLInputElement | null>(null);
+  const centerColumnRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setEvents(initialEvents);
@@ -93,6 +95,15 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
 
   const shiftWeek = useCallback((deltaDays: number) => {
     setCenterDate((c) => startOfLocalDay(addDays(c, deltaDays)));
+  }, []);
+
+  const selectDayColumn = useCallback((day: Date) => {
+    setCenterDate(startOfLocalDay(day));
+    setRecordDateKey(null);
+  }, []);
+
+  const openDatePicker = useCallback(() => {
+    dateInputRef.current?.click();
   }, []);
 
   const handleUndo = (eventId: string) => {
@@ -154,6 +165,19 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
     setRecordDateKey(null);
   };
 
+  const hasCenteredInitially = useRef(false);
+  useEffect(() => {
+    if (!hasCenteredInitially.current) {
+      hasCenteredInitially.current = true;
+      return;
+    }
+    centerColumnRef.current?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [centerDate]);
+
   return (
     <section className="mt-6 grid gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -188,6 +212,7 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
             </span>
             <span className="sr-only">날짜로 이동</span>
             <input
+              ref={dateInputRef}
               type="date"
               className="absolute inset-0 cursor-pointer opacity-0"
               value={formatDateKey(centerDate)}
@@ -223,26 +248,31 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
           }
         }}
       >
-        <div className="grid grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-700">
-          {columnDays.map((day) => {
+        <div className="overflow-x-auto scroll-smooth sm:overflow-visible">
+          <div className="grid w-full min-w-[28rem] grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-700 sm:min-w-0">
+          {columnDays.map((day, colIndex) => {
             const key = formatDateKey(day);
             const items = eventsByDay.get(key) ?? [];
             const isSelected = effectiveRecordKey === key;
             return (
               <div
                 key={key}
-                className={`flex min-h-[200px] flex-col gap-2 p-2 sm:p-3 ${isSelected ? "bg-blue-50/80 dark:bg-blue-950/30" : "bg-white dark:bg-neutral-950"}`}
+                ref={colIndex === 1 ? centerColumnRef : undefined}
+                onClick={(e) => {
+                  const t = e.target as HTMLElement;
+                  if (t.closest("article") || t.closest("button")) {
+                    return;
+                  }
+                  selectDayColumn(day);
+                }}
+                className={`flex min-h-[200px] cursor-pointer flex-col gap-2 p-2 sm:p-3 ${isSelected ? "bg-blue-50/80 ring-2 ring-inset ring-blue-400/50 dark:bg-blue-950/30 dark:ring-blue-500/40" : "bg-white dark:bg-neutral-950"}`}
               >
-                <button
-                  type="button"
-                  onClick={() => setRecordDateKey(key)}
-                  className="w-full rounded-lg border border-transparent px-1 py-2 text-left transition hover:border-neutral-300 dark:hover:border-neutral-600"
-                >
+                <div className="pointer-events-none w-full rounded-lg border border-transparent px-1 py-2 text-left">
                   <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                     {formatWeekdayLabel(day, todayKey, yesterdayKey, tomorrowKey)}
                   </p>
                   <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{key}</p>
-                </button>
+                </div>
                 <div className="flex flex-col gap-2">
                   {items.length === 0 ? (
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">기록 없음</p>
@@ -283,16 +313,25 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
               </div>
             );
           })}
+          </div>
         </div>
       </div>
 
       <div className="rounded-lg border border-dashed border-neutral-300 p-3 dark:border-neutral-600">
-        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-          선택한 날짜에 기록: <span className="text-blue-700 dark:text-blue-300">{effectiveRecordKey}</span>
-        </p>
-        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-          열 상단 날짜를 눌러 기록할 날짜를 바꿀 수 있습니다. 달력으로 먼저 이동한 뒤 기록해도 됩니다.
-        </p>
+        <button
+          type="button"
+          onClick={openDatePicker}
+          className="w-full rounded-md px-0 py-1 text-left transition hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50"
+        >
+          <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            선택한 날짜에 기록:{" "}
+            <span className="text-blue-700 dark:text-blue-300">{effectiveRecordKey}</span>
+          </p>
+          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+            이 영역이나 타임라인 열 아무 곳이나 눌러 날짜를 바꿀 수 있습니다. 달력(📅)으로 먼저 이동한 뒤
+            기록해도 됩니다.
+          </p>
+        </button>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"

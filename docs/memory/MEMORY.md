@@ -1,6 +1,8 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-10: `TimelineFeed` 타임라인 날짜 열 전체(헤더·빈 영역·「기록 없음」) 클릭으로 날짜 선택, `centerDate`를 해당 일로 맞춰 내일 등이 가운데 열로 오도록 변경. 좁은 뷰포트는 `min-w-[28rem]`+가로 스크롤+가운데 열 `scrollIntoView`로 정렬. 하단「선택한 날짜에 기록」안내 블록 클릭 시 📅와 동일하게 `type="date"` 입력 트리거. `bun run lint`, `bun run typecheck:strict` 통과.
+- 2026-05-10: `docs/CRITICAL_LOGIC.md` 신설 — 멀티테넌시·투약 2h·override·Undo·Auth.js·`/api/health`·타임라인 `metadata.timelineDate` 등 구현 기준 불변 정리. `README.md` SSOT 목록에 링크 추가.
 - 2026-05-10: Git 정리: 타임라인·스펙·ai-log 워크플로·E2E 계약·`PLAN_STATUS.json` 커밋. `tools/ai_worklog` 로컬 심볼릭 링크는 `.gitignore`로 제외(절대 경로 공유 방지). `just ci`, `bun run lint`·`typecheck:strict`·`test` 통과 확인.
 - 2026-05-10: 로컬 Docker Supabase 스택(`supabase_*_todo` 컨테이너·볼륨·`supabase_network_todo`) 중지·삭제, 레포 `supabase/` 디렉터리 제거, `bun install`로 `bun.lock`에서 `@supabase/*` 잔존 제거. `docs/specs/PRD.md`·`TRD.md` 스택 설명을 Turso+Auth.js 기준으로 정리.
 - 2026-05-10: 대시보드 타임라인을 어제·오늘·내일 3열(가운데 날짜 기준) + « » 버튼·세 열 스와이프로 한 주씩 이동·날짜 입력으로 임의일 이동·선택 열에 `metadata.timelineDate`로 식사/투약 기록을 붙이도록 구현함. 서버는 최근 120일·최대 500건·`metadata` 포함 로드. 퀵 액션에 등·하원·양치 추가 및 기록 후 `router.refresh`로 타임라인 동기화. `bun run lint`, `bun run typecheck:strict`, `bun run test` 통과.

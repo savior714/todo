@@ -7,6 +7,7 @@
 
 - **계획 문서**: `docs/plans/20260509_familysync_mvp_blueprint.md`
 - **요구사항 SSOT**: `docs/specs/PRD.md`, `docs/specs/TRD.md`
+- **핵심 불변·의사결정**: `docs/CRITICAL_LOGIC.md`
 - **구현 진행도**: Blueprint의 FS-001 ~ FS-015 **모두 done**
 - **핵심 검증 이력**:
   - `bun run lint && bun run typecheck:strict && bun run test && bun run build` 통과
