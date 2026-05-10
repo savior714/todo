@@ -37,8 +37,22 @@ export default async function DashboardPage() {
       .from(quickActions)
       .where(and(eq(quickActions.familyId, profile.familyId), eq(quickActions.isActive, true)))
       .orderBy(asc(quickActions.sortOrder), asc(quickActions.createdAt));
-  } catch {
+  } catch (err: unknown) {
     quickActionsLoadFailed = true;
+    const message = err instanceof Error ? err.message : String(err);
+    const code =
+      err &&
+      typeof err === "object" &&
+      "code" in err &&
+      (typeof (err as { code: unknown }).code === "string" ||
+        typeof (err as { code: unknown }).code === "number")
+        ? (err as { code: string | number }).code
+        : undefined;
+    console.error("[dashboard] quick_actions load failed", {
+      familyId: profile.familyId,
+      message,
+      ...(code !== undefined ? { code } : {}),
+    });
   }
 
   const timelineRows = await db

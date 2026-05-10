@@ -2,7 +2,7 @@
 
 | 항목 | 값 |
 |------|-----|
-| **Last Verified** | 2026-05-10 |
+| **Last Verified** | 2026-05-11 |
 | **제품 요구** | `docs/specs/PRD.md` |
 | **기술 요구** | `docs/specs/TRD.md` |
 | **실행 계획** | `docs/plans/20260509_familysync_mvp_blueprint.md` |
@@ -34,6 +34,7 @@
 - **프로바이더**: Google OAuth. 세션은 **DB 어댑터**를 사용한다(Auth.js 표준 테이블: `users`, `accounts`, `sessions`, `verificationTokens` 등).
 - **`AUTH_URL` 정책**: Vercel Preview에서는 `instrumentation.ts`가 `AUTH_URL`/`NEXTAUTH_URL`을 제거해 **현재 호스트** 기준 콜백을 쓴다. 로컬에서 `NEXT_PUBLIC_SITE_URL`이 localhost인데 `AUTH_URL`만 프로덕션 도메인이면 동일하게 제거해 **redirect 불일치**를 막는다.
 - **운영 점검**: `GET /api/health`는 비밀을 노출하지 않고, 필수 env 존재·DB ping·핵심 테이블(Auth 어댑터 + 앱 스키마의 `quick_actions` 등) 존재 여부를 반환한다. `tables` 중 하나라도 `false`이면 Auth/세션·대시보드 경로가 실패할 수 있으므로 **마이그레이션 미적용**을 최우선 의심한다.
+- **퀵 액션 장애 관측**: 대시보드 SSR에서 `quick_actions` 시드·조회가 실패하면 사용자에게는 마이그레이션 안내 배너만 노출하고, 민감 정보 없이 `console.error("[dashboard] quick_actions load failed", { familyId, message, code? })` 형태로 **서버 로그에만** 원인을 남긴다 (`app/(dashboard)/dashboard/page.tsx`).
 
 ---
 
