@@ -1,4 +1,9 @@
 node_modules
+
+# Python (로컬 스크립트 실행 시)
+__pycache__/
+*.py[cod]
+
 .next
 .env
 .env.*

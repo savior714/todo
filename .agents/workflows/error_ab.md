@@ -37,7 +37,7 @@ last_updated: 2026-05-06
 
 ## Phase 4: Implementation & Verification (Agent)
 1. **반영**: 승리한 답변(또는 통합안)을 실제 코드에 반영한다.
-2. **검증**: `just verify` 또는 테스트를 통해 에러 해결을 확인한다.
+2. **검증**: `bun run lint && bun run typecheck:strict` (+ 필요 시 `bun run test`) 및 `just ci`로 에러 해결을 확인한다.
 3. **Memory 업데이트**: `docs/memory/MEMORY.md`에 결과를 요약 기록한다.
 
 ---
@@ -46,4 +46,4 @@ last_updated: 2026-05-06
 - **독립성**: A안과 B안을 선입견 없이 객관적으로 비교한다.
 - **최종 책임**: 외부 답변을 맹신하지 않고, 프로젝트 규칙(`PROJECT_RULES.md`)에 부합하는지 에이전트가 최종 검증한다.
 
-상세 지침: [`docs/specs/technical/error_ab_protocol.md`](docs/specs/technical/error_ab_protocol.md)
+상세 지침: (레포에 별도 프로토콜 문서가 있으면 `docs/specs/`에서 링크한다.)

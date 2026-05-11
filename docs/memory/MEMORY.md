@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-11: `.gitignore`에 Python `__pycache__/`·`*.py[cod]` 추가; `bootstrap`·`error_ab`·`asset`·`index_knowledge`·`prevent_loop`·`ci-fia-automation` 워크플로를 FamilySync(`bun`/`just ci`) 기준으로 정리.
 - 2026-05-11: 레포 외부 템플릿 잔존 문서 정리 — `AGENTS.md`·`PROJECT_RULES.md` 검증 매트릭스·Reference Index를 `bun`/`just ci`/실제 `docs/specs` 구조에 맞춤; `go`·`audit`·`debug_error`·`asset`·`path_verification`·`jsx_casing_check`·`micro-improve`·`context_gap_scan`·`plan` 워크플로(`.agents`/`.clinerules`)의 타 스택 경로·명령을 FamilySync 기준으로 수정 또는 주석 처리.
 - 2026-05-11: `/git` 워크플로(`.agents/workflows/git.md`·`.clinerules/workflows/git.md`)를 FamilySync 레포 기준으로 정리 — Husky·`apps/renderer` 대신 `bun run lint`·`typecheck:strict`·`just ci`·`verify_korean_text.py` 안내, `MEMORY.md` 200라인·`just memory-verify`와 정합.
 - 2026-05-11: `DashboardPinchZoomLock` 강화(모바일 뷰포트 줌 고정) — 대시보드 마운트 시 `meta[name=viewport]` 런타임 재설정·멀티터치(`touches>1`)·더블탭(300ms) 차단, 기존 iOS `gesture*`·Ctrl+휠 차단 유지·언마운트 시 viewport 복원. `bun run lint`·`typecheck:strict` 통과.

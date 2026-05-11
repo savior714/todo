@@ -2,46 +2,25 @@
 situation: 환경 동기화
 trigger: /bootstrap
 level: Recommended
-description: 현재 프로젝트의 최신 개발 지침, TDD 게이트 로직, 검증 스크립트를 `dev/bootstrap/templates`로 동기화
-version: 1.0.0
-last_updated: 2026-05-06
+description: FamilySync MVP 로컬·검증 재현 체크리스트 (타 레포 bootstrap 템플릿 비적용)
+version: 2.0.0
+last_updated: 2026-05-11
 ---
 
-# Workflow: Bootstrap System Synchronization (/bootstrap)
+# `/bootstrap` — FamilySync MVP (`todo`)
 
-이 워크플로우는 현재 프로젝트의 최신 개발 지침, TDD 게이트 로직, 검증 스크립트를 상위 디렉토리인 `../bootstrap/templates`로 동기화하여 다른 프로젝트에서 언제든 최신 상태로 부트스트랩할 수 있도록 합니다.
+원래 이 트리거는 `../bootstrap`·`dev/bootstrap`·`verify.sh` 등 **외부 템플릿 동기화**를 가정한 워크플로였다. **본 레포에는 해당 디렉터리·스크립트가 없으므로**, 에이전트는 아래 **로컬 재현·검증 체크리스트**만 수행·안내한다.
 
-## 🎯 목표
-- 현재 프로젝트의 `AGENTS.md`, `PROJECT_RULES.md`, `Justfile`, `verify.sh`, `tools/`를 템플릿화
-- `just ci`를 표준 검증 인터페이스로 설정하여 부트스트랩된 프로젝트의 품질 보장
-- 프로젝트 특화 정보를 변수화(`[PLACEHOLDER]`)하여 범용성 확보
-- `dev/bootstrap` 패키지를 항상 최신 상태로 유지
+## 체크리스트
 
----
+1. **의존성**: `bun install`
+2. **환경 변수**: `.env.example`·`README.md`·Vercel 문서를 참고해 `AUTH_*`·`TURSO_*` 등 설정
+3. **앱 기동**: `bun run dev`
+4. **품질 게이트**: `bun run lint && bun run typecheck:strict` (+ 변경 시 `bun run test`·`bun run build`)
+5. **플랜·메모리**: `just ci` (`justfile`: 플랜 계약·`PLAN_STATUS`·`memory-verify`)
+6. **DB 스키마**: `README.md` 절차에 따라 `npm run db:migrate` (Turso)
 
-## 🛠️ 실행 절차
+## 주의
 
-### Step 1. 현재 시스템 분석
-- 최신 `AGENTS.md`, `PROJECT_RULES.md` 내용을 확인한다.
-- `Justfile`의 `ci`, `verify` 레시피와 `verify.sh`의 TDD 게이트 로직, `tools/tdd_gate_plugin.py`의 변경사항을 확인한다.
-
-### Step 2. 템플릿 추출 및 일반화
-- 각 파일을 `dev/bootstrap/templates/` 경로로 복사하되, 아래 규칙을 적용한다.
-- **AGENTS.md**: 프로젝트 고유의 컨텍스트를 제거하고 범용적인 TDD/SSOT 지침으로 변환.
-- **PROJECT_RULES.md**: 기술 스택 부분을 `[PLACEHOLDER]` 처리.
-- **verify.sh**: 복잡한 모듈화 기능을 제외하고 핵심 TDD 게이트 로직 위주로 추출.
-- **tools/tdd_gate_plugin.py**: 경로 검사 로직 등을 범용적으로 수정.
-- **docs/specs/technical/DESIGN.md**: 프로젝트 고유 브랜딩을 제거하고 `{{PLACEHOLDER}}` 처리하여 범용 디자인 명세로 변환.
-
-### Step 3. 부트스트랩 스크립트 업데이트
-- `dev/bootstrap/bootstrap.sh`가 새로운 파일 구조나 설치 단계를 반영해야 하는지 검토하고 업데이트한다.
-
-### Step 4. 검증 및 보고
-- `dev/bootstrap` 구조가 올바른지 확인한다.
-- 동기화된 주요 변경사항을 요약하여 사용자에게 보고한다.
-
----
-
-## 🚫 주의 사항
-- 현재 프로젝트의 DB 비밀번호, 특정 API 키 등 민감 정보가 템플릿에 포함되지 않도록 절대 주의한다.
-- 덮어쓰기 전 기존 템플릿과 큰 차이가 있다면 사용자에게 확인을 요청한다.
+- 민감 값(`.env`, Vercel pull 파일)은 **커밋하지 않는다** (`.gitignore` 준수).
+- 상위 폴더로 템플릿을 export하는 작업은 **이 레포 범위 밖**이다.

@@ -3,14 +3,16 @@ situation: CI 실패 자동화
 trigger: /ci-fia-auto
 level: Recommended
 description: 반복 문제 자동 감지 → FIA 호출 → 자산화
-version: 1.0.0
-last_updated: 2026-05-06
+version: 1.1.0
+last_updated: 2026-05-11
 ---
 
 # CI-FIA 자동화 워크플로우
 
 ## 0. 페르소나
 이 워크플로우는 **CI 실패 시 반복 문제 자동 감지 및 FIA 조사 자동 호출** 프로세스를 정의합니다.
+
+> **FamilySync MVP (`todo`)**: `scripts/ci_failure_detector.py`·`recurring_issue_tracker.py`·`fia_auto_trigger.py` 등은 **레포에 없을 수 있다**. 스크립트가 없으면 `just ci` / `bun run test` 실패 로그를 **수동**으로 분석하고, `/fia` 등으로 조사한 뒤 `docs/memory/MEMORY.md`에 요약한다. **§2 이하는 스크립트가 있을 때의 참고 템플릿**이다.
 
 ---
 
@@ -20,8 +22,8 @@ last_updated: 2026-05-06
 
 | 조건 | 설명 | 확인 방법 |
 |------|------|-----------|
-| C1 | CI 파이프라인 실패 (`just ci` 또는 `just verify`) | exitCode != 0 |
-| C2 | 동일 패턴 2회 이상 감지 | `recurring_issue_tracker.py` 매칭 |
+| C1 | CI 파이프라인 실패 (`just ci` 또는 `bun run test` 등) | exitCode != 0 |
+| C2 | 동일 패턴 2회 이상 감지 | (선택) `recurring_issue_tracker.py` 또는 `MEMORY`/이슈 트래커 수동 판단 |
 | C3 | 우선순위 P0 또는 P1 | 보안/기능 차단 문제 |
 
 ### 1.2 수동 호출 조건 (아래 중 하나 해당 시)
@@ -42,7 +44,7 @@ just ci 2>&1 | tee ci-failure.log || {
     echo "CI failed, analyzing failure..."
     
     # 패턴 분석
-    python scripts/ci_failure_detector.py \
+    python3 scripts/ci_failure_detector.py \
         --output ci-failure-analysis.json \
         < ci-failure.log
 }
@@ -56,7 +58,7 @@ just ci 2>&1 | tee ci-failure.log || {
 
 ```bash
 # 패턴 매칭 확인
-python scripts/recurring_issue_tracker.py \
+python3 scripts/recurring_issue_tracker.py \
     --pattern-hash $$(jq -r '.pattern_hash' ci-failure-analysis.json) \
     --ci-step $$(jq -r '.ci_step' ci-failure-analysis.json) \
     --output recurring-issue.json
@@ -72,7 +74,7 @@ python scripts/recurring_issue_tracker.py \
 
 ```bash
 # FIA 조사 시작
-python scripts/fia_auto_trigger.py \
+python3 scripts/fia_auto_trigger.py \
     --issue-description $$(jq -r '.failure_type' ci-failure-analysis.json) \
     --pattern-hash $$(jq -r '.pattern_hash' ci-failure-analysis.json) \
     --priority $$(jq -r '.priority' recurring-issue.json) \
@@ -91,7 +93,7 @@ python scripts/fia_auto_trigger.py \
 
 ```bash
 # FIA 결과 자산화
-python scripts/assetize_fia_result.py \
+python3 scripts/assetize_fia_result.py \
     --fia-report docs/reports/fia_investigations/fia_*.md \
     --issue-tracker recurring-issue.json \
     --decisions-dir docs/specs/technical/fia_decisions
@@ -184,7 +186,7 @@ cat ci-failure.log | sed 's/API_KEY=[^ ]*/API_KEY=***FILTERED***/g' > ci-failure
 
 ```bash
 # 주간 CI-FIA 리포트 생성
-python scripts/generate_improvement_report.py --include-ci-fia
+python3 scripts/generate_improvement_report.py --include-ci-fia
 ```
 
 ### 6.2 로깅

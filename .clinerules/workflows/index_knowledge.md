@@ -3,19 +3,19 @@ situation: 지식 인덱싱
 trigger: /index_knowledge
 level: Recommended
 description: docs/knowledge/ INDEX.md 자동 갱신 및 정합성 검증
-version: 1.0.0
-last_updated: 2026-05-06
+version: 1.1.0
+last_updated: 2026-05-11
 ---
 
 # docs/knowledge/ 인덱싱 워크플로우
 
-> **목적**: `docs/knowledge/` 폴더의 문서를 자동으로 인덱싱하여 `AGENTS.md` §2.1.1 (MEMORY Anti-Drift) 규칙을 준수하고, 빠른 네비게이션을 제공합니다.
+> **목적**: `docs/knowledge/` 문서를 정리·인덱싱하여 `AGENTS.md` §10.2 (`MEMORY.md` 위생)와 맞물리게 하고, 빠른 네비게이션을 제공합니다.
 
 ---
 
 ## 📋 개요
 
-`docs/knowledge/`는 외부 지식 아카이브로, 웹 검색 결과, 기술 리서치, 표준 매핑 등이 저장됩니다. 이 폴더는 **500라인 제한**을 초과하지 않도록 **인덱스 전용 파일(`INDEX.md`)**을 유지하고, 상세 내용은 각 문서에 분산 저장합니다.
+`docs/knowledge/`는 외부 지식 아카이브로, 웹 검색 결과·기술 리서치 등이 저장됩니다. `INDEX.md`는 **과대해지지 않도록** 링크 위주로 유지하고, 장문은 하위 문서로 분산합니다. (`MEMORY.md` 200라인 제한은 `just memory-verify` — 별도 문서.)
 
 ---
 
@@ -36,11 +36,11 @@ ls -la docs/knowledge/
 ### 2단계: 인덱스 생성
 
 ```bash
-# 자동 인덱싱 스크립트 실행
-python3 scripts/index_knowledge.py
+# (선택) 레포에 scripts/index_knowledge.py가 있을 때만
+# python3 scripts/index_knowledge.py
 ```
 
-**동작**:
+**동작** (스크립트 없으면 수동으로 `INDEX.md`에 링크 추가):
 1. `docs/knowledge/` 하위 모든 `.md` 파일 스캔
 2. 각 파일의 메타 헤더(`## 문서 메타`) 추출
 3. 카테고리별로 그룹화
@@ -49,14 +49,13 @@ python3 scripts/index_knowledge.py
 ### 3단계: 검증
 
 ```bash
-# 통합 검증 — 세션당 1회만 실행 (이미 실행했다면 JSON 참조)
-just verify
+bun run lint && bun run typecheck:strict && just ci
 ```
 
 **검증 항목**:
 - `docs/knowledge/INDEX.md` 존재 여부
-- **500라인 제한** 준수 (`AGENTS.md` 가드레일 동기화)
-- **인코딩 검증**: `python scripts/verify_korean_text.py --file docs/knowledge/INDEX.md` 실행
+- **INDEX 과대 여부** — 필요 시 섹션·파일 분할
+- **인코딩 검증**: `python3 scripts/verify_korean_text.py --file docs/knowledge/INDEX.md` (스크립트 있을 때)
 - **링크 유효성**: 생성된 모든 상대 경로 링크가 실제 파일에 도달하는지 확인
 
 ---

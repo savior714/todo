@@ -120,14 +120,14 @@ python3 scripts/index_knowledge.py
 ### 5단계: 검증
 
 ```bash
-# 통합 검증 — 세션당 1회만 실행 (이미 실행했다면 JSON 참조)
-just verify
+# 이 레포 표준 — 세션에서 아직 안 돌렸다면 실행
+bun run lint && bun run typecheck:strict && just ci
 ```
 
 **검증 항목**:
 - `docs/knowledge/COMMON_ERROR_RESOLUTIONS.md` 라인 수 (100라인 이내 권장)
 - 생성된 링크가 실제 파일에 도달하는지 확인
-- 한국어 텍스트 인코딩 (`python scripts/verify_korean_text.py --file docs/knowledge/COMMON_ERROR_RESOLUTIONS.md`)
+- 한국어 텍스트 인코딩 (`python3 scripts/verify_korean_text.py --file docs/knowledge/COMMON_ERROR_RESOLUTIONS.md`, 스크립트 있을 때)
 
 ---
 
