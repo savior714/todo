@@ -81,6 +81,7 @@
 - 2026-05-09: 자격증명 입력 이후 `client_id_looks_env_literal=False`를 확인해 Google OAuth 설정이 환경변수 값으로 치환됨을 검증함.
 - 2026-05-09: `bun run lint && bun run typecheck:strict && bun run test && bun run build` 전체 검증 패스.
 - 2026-05-09: FS-004 상태 갱신 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` PASS 확인.
+- 2026-05-11: `/login`에 인앱 브라우저(카카오톡 등)에서 Google `disallowed_useragent`가 날 수 있음을 안내하는 `role="note"` 박스 추가. `bun run lint`·`bun run typecheck:strict` 통과.
 
 ## Consistency Issues
 - 2026-05-09: `AGENTS.md`에서 필수로 참조하는 `docs/memory/ADAPTIVE_GUIDELINES.json` 파일이 현재 저장소에 없음. (영향: Guideline Compliance 항목 실적용 불가)

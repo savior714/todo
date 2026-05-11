@@ -21,6 +21,14 @@ export default async function LoginPage() {
       <p className="text-sm text-neutral-600 dark:text-neutral-300">
         Google 계정으로 로그인해 가족 프로필을 선택하세요.
       </p>
+      <div
+        role="note"
+        className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-3 text-xs leading-relaxed text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-300"
+      >
+        카카오톡·메신저 등 앱 안 브라우저에서는 Google이 보안 정책으로 로그인을 막는 경우가 있습니다.
+        Safari나 Chrome에서 이 주소를 연 뒤, 필요하면 링크를 길게 눌러 외부 브라우저로 여세요.
+        앱 오류가 아니라 Google 쪽 제한입니다.
+      </div>
       <form action={beginGoogleLogin}>
         <button
           type="submit"
