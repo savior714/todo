@@ -1,6 +1,8 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-11: 등원(`school_dropoff`)·하원(`school_pickup`) 기록 시 모달에서 **첫째/둘째**(kid7/kid4) 선택·**장소(선택)** 입력 추가. `metadata.schoolRun` 검증·표시(`summarizeEventMetadataForDisplay`)·`events.target === child`로 `lib/event-metadata.ts`·`RecordEventModal`·`TimelineFeed`(대상 한글 표기)·`CRITICAL_LOGIC.md` 반영. `bun run lint`·`typecheck:strict`·`test`·`verify_korean_text` 통과.
+- 2026-05-11: `RecordEventModal` 네이티브 `<dialog>`에 있던 `m-0`이 UA 기본 `margin:auto` 가운데 정렬을 덮어 PC에서 모달이 좌상단으로 붙던 문제를 `m-auto`로 수정. `bun run lint`·`typecheck:strict` 통과.
 - 2026-05-11: `.gitignore`에 Python `__pycache__/`·`*.py[cod]` 추가; `bootstrap`·`error_ab`·`asset`·`index_knowledge`·`prevent_loop`·`ci-fia-automation` 워크플로를 FamilySync(`bun`/`just ci`) 기준으로 정리.
 - 2026-05-11: 레포 외부 템플릿 잔존 문서 정리 — `AGENTS.md`·`PROJECT_RULES.md` 검증 매트릭스·Reference Index를 `bun`/`just ci`/실제 `docs/specs` 구조에 맞춤; `go`·`audit`·`debug_error`·`asset`·`path_verification`·`jsx_casing_check`·`micro-improve`·`context_gap_scan`·`plan` 워크플로(`.agents`/`.clinerules`)의 타 스택 경로·명령을 FamilySync 기준으로 수정 또는 주석 처리.
 - 2026-05-11: `/git` 워크플로(`.agents/workflows/git.md`·`.clinerules/workflows/git.md`)를 FamilySync 레포 기준으로 정리 — Husky·`apps/renderer` 대신 `bun run lint`·`typecheck:strict`·`just ci`·`verify_korean_text.py` 안내, `MEMORY.md` 200라인·`just memory-verify`와 정합.

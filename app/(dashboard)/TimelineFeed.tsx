@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import RecordEventModal, { type RecordDraft } from "@/app/(dashboard)/RecordEventModal";
 import { undoEvent } from "@/app/actions/events";
-import { summarizeEventMetadataForDisplay } from "@/lib/event-metadata";
+import { formatEventTargetForDisplay, summarizeEventMetadataForDisplay } from "@/lib/event-metadata";
 import { getUndoWindowMsForActionType } from "@/lib/event-undo-policy";
 import {
   addDays,
@@ -257,7 +257,9 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
                           <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                             {labelForAction(event.action_type)}
                           </p>
-                          <p className="text-xs text-neutral-600 dark:text-neutral-300">{event.target}</p>
+                          <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                            {formatEventTargetForDisplay(event.target)}
+                          </p>
                           {detailLines.length > 0 && (
                             <ul className="mt-1 list-inside list-disc text-[11px] text-neutral-600 dark:text-neutral-400">
                               {detailLines.map((line, i) => (

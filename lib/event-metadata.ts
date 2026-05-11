@@ -24,7 +24,19 @@ const genericDetailSchema = z.object({
   note: z.string().trim().max(2000).optional(),
 });
 
+/** 등원·하원: 아이(프로필 그룹) + 선택 장소. `events.target`은 `child`와 동일하게 둔다. */
+const schoolRunDetailSchema = z
+  .object({
+    child: z.enum(["kid7", "kid4"]),
+    place: z.string().trim().max(300).optional(),
+  })
+  .transform((o) => ({
+    child: o.child,
+    ...(o.place && o.place.length > 0 ? { place: o.place } : {}),
+  }));
+
 export type MedicationDetail = z.infer<typeof medicationDetailSchema>;
+export type SchoolRunDetail = z.infer<typeof schoolRunDetailSchema>;
 export type NormalizedEventMetadata = Record<string, unknown>;
 
 function pickTimelineFields(raw: Record<string, unknown>): NormalizedEventMetadata {
@@ -51,6 +63,10 @@ export function normalizeAndValidateEventMetadata(
   if (actionType === "medication") {
     const medication = medicationDetailSchema.parse(raw.medication);
     return { ...base, medication };
+  }
+  if (actionType === "school_dropoff" || actionType === "school_pickup") {
+    const schoolRun = schoolRunDetailSchema.parse(raw.schoolRun);
+    return { ...base, schoolRun };
   }
   if (actionType === "meal") {
     if (raw.meal !== undefined && raw.meal !== null) {
@@ -81,6 +97,22 @@ const TARGET_KO: Record<string, string> = {
   family: "가족",
 };
 
+const SCHOOL_CHILD_KO: Record<string, string> = {
+  kid7: "첫째 (7세 그룹)",
+  kid4: "둘째 (4세 그룹)",
+};
+
+/** 타임라인 카드의 `events.target` 한 줄 표기 (kid7/kid4/family 등). */
+export function formatEventTargetForDisplay(target: string): string {
+  if (target === "kid7" || target === "kid4") {
+    return SCHOOL_CHILD_KO[target] ?? target;
+  }
+  if (target === "family") {
+    return TARGET_KO.family;
+  }
+  return target;
+}
+
 /** Short lines for timeline cards (read-only). */
 export function summarizeEventMetadataForDisplay(metadataJson: string, actionType: string): string[] {
   try {
@@ -107,6 +139,22 @@ export function summarizeEventMetadataForDisplay(metadataJson: string, actionTyp
     if (actionType === "meal" && raw.meal && typeof raw.meal === "object") {
       const note = (raw.meal as { note?: string }).note;
       return note ? [note] : [];
+    }
+    if (
+      (actionType === "school_dropoff" || actionType === "school_pickup") &&
+      raw.schoolRun &&
+      typeof raw.schoolRun === "object"
+    ) {
+      const sr = raw.schoolRun as SchoolRunDetail;
+      const lines: string[] = [];
+      const who = sr.child ? (SCHOOL_CHILD_KO[sr.child] ?? sr.child) : "";
+      if (who) {
+        lines.push(`대상: ${who}`);
+      }
+      if (sr.place) {
+        lines.push(`장소: ${sr.place}`);
+      }
+      return lines;
     }
     if (raw.detail && typeof raw.detail === "object") {
       const note = (raw.detail as { note?: string }).note;

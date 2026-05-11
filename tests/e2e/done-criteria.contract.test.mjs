@@ -31,7 +31,17 @@ test("이벤트 메타데이터 검증이 lib/event-metadata에 정의되어 있
   const eventsAction = read("app/actions/events.ts");
   assert.match(meta, /normalizeAndValidateEventMetadata/);
   assert.match(meta, /medicationDetailSchema/);
+  assert.match(meta, /schoolRunDetailSchema/);
   assert.match(eventsAction, /normalizeAndValidateEventMetadata/);
+});
+
+test("등·하원 기록 모달이 대상·장소 입력과 schoolRun 메타를 사용한다", () => {
+  const modal = read("app/(dashboard)/RecordEventModal.tsx");
+  assert.match(modal, /school_dropoff/);
+  assert.match(modal, /school_pickup/);
+  assert.match(modal, /schoolRun/);
+  assert.match(modal, /장소 \(선택\)/);
+  assert.match(modal, /SCHOOL_CHILD_OPTIONS/);
 });
 
 test("접근성 기준(퀵 액션 최소 60px)이 유지된다", () => {

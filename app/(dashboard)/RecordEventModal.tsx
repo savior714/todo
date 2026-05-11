@@ -16,11 +16,24 @@ const TARGET_OPTIONS: { value: "kid7" | "kid4" | "family"; label: string }[] = [
   { value: "family", label: "가족 공통" },
 ];
 
+const SCHOOL_CHILD_OPTIONS: { value: "kid7" | "kid4"; label: string; hint: string }[] = [
+  { value: "kid7", label: "첫째", hint: "7세 그룹" },
+  { value: "kid4", label: "둘째", hint: "4세 그룹" },
+];
+
 function parseTarget(t: string): "kid7" | "kid4" | "family" {
   if (t === "kid7" || t === "kid4" || t === "family") {
     return t;
   }
   return "family";
+}
+
+function defaultSchoolChildFromDraftTarget(target: string): "kid7" | "kid4" {
+  const t = parseTarget(target);
+  if (t === "kid7" || t === "kid4") {
+    return t;
+  }
+  return "kid4";
 }
 
 type MedRow = { name: string; amount: number; unit: (typeof MEDICATION_UNITS)[number] };
@@ -47,6 +60,8 @@ export default function RecordEventModal({
   const [medItems, setMedItems] = useState<MedRow[]>([{ name: "", amount: 5, unit: "ml" }]);
   const [medNote, setMedNote] = useState("");
   const [genericNote, setGenericNote] = useState("");
+  const [schoolChild, setSchoolChild] = useState<"kid7" | "kid4">("kid4");
+  const [schoolPlace, setSchoolPlace] = useState("");
 
   useEffect(() => {
     const el = dialogRef.current;
@@ -69,6 +84,9 @@ export default function RecordEventModal({
       setSubject(t);
       setMedItems([{ name: "", amount: 5, unit: "ml" }]);
       setMedNote("");
+    } else if (draft.actionType === "school_dropoff" || draft.actionType === "school_pickup") {
+      setSchoolChild(defaultSchoolChildFromDraftTarget(draft.target));
+      setSchoolPlace("");
     } else {
       setGenericNote("");
     }
@@ -144,6 +162,14 @@ export default function RecordEventModal({
             meta.meal = { note: genericNote.trim() };
           }
           ok = await runCreate(draft.actionType, draft.target, meta);
+        } else if (draft.actionType === "school_dropoff" || draft.actionType === "school_pickup") {
+          const meta: Record<string, unknown> = {
+            schoolRun: {
+              child: schoolChild,
+              ...(schoolPlace.trim() ? { place: schoolPlace.trim() } : {}),
+            },
+          };
+          ok = await runCreate(draft.actionType, schoolChild, meta);
         } else {
           const meta: Record<string, unknown> = {};
           if (genericNote.trim()) {
@@ -168,12 +194,13 @@ export default function RecordEventModal({
   }
 
   const isMedication = draft.actionType === "medication";
+  const isSchoolRun = draft.actionType === "school_dropoff" || draft.actionType === "school_pickup";
   const title = isMedication ? `투약 — ${draft.label}` : `${draft.label} 기록`;
 
   return (
     <dialog
       ref={dialogRef}
-      className="dialog-record m-0 max-h-none w-[min(36rem,calc(100vw-1rem))] max-w-none border-0 bg-transparent p-0 shadow-none"
+      className="dialog-record m-auto max-h-none w-[min(36rem,calc(100vw-1rem))] max-w-none border-0 bg-transparent p-0 shadow-none"
       aria-labelledby="record-event-title"
       onClose={handleDialogClose}
     >
@@ -289,6 +316,48 @@ export default function RecordEventModal({
                   rows={2}
                   className="resize-y rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-600 dark:bg-neutral-900"
                   placeholder="식후 30분 등"
+                />
+              </label>
+            </>
+          ) : isSchoolRun ? (
+            <>
+              <fieldset className="grid gap-2 text-sm">
+                <legend className="font-medium text-neutral-700 dark:text-neutral-300">대상</legend>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  {SCHOOL_CHILD_OPTIONS.map((o) => (
+                    <label
+                      key={o.value}
+                      className={`flex min-h-[48px] flex-1 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 ${
+                        schoolChild === o.value
+                          ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600 dark:border-blue-400 dark:bg-blue-950/40 dark:ring-blue-400"
+                          : "border-neutral-300 dark:border-neutral-600"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="school-child"
+                        value={o.value}
+                        checked={schoolChild === o.value}
+                        onChange={() => setSchoolChild(o.value)}
+                        className="size-4 accent-blue-600"
+                      />
+                      <span>
+                        <span className="font-medium text-neutral-900 dark:text-neutral-100">{o.label}</span>
+                        <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400">({o.hint})</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <label className="grid gap-1 text-sm">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">장소 (선택)</span>
+                <input
+                  type="text"
+                  value={schoolPlace}
+                  onChange={(ev) => setSchoolPlace(ev.target.value)}
+                  className="min-h-[44px] rounded-lg border border-neutral-300 px-3 dark:border-neutral-600 dark:bg-neutral-900"
+                  placeholder="예: OO유치원, 태권도장"
+                  autoComplete="off"
                 />
               </label>
             </>
