@@ -14,8 +14,8 @@ test("Turso 초기 마이그레이션에 핵심 테이블이 정의되어 있다
 
 test("퀵 액션용 follow-up 마이그레이션이 존재한다", () => {
   const sql = read("db/migrations/0001_quick_actions.sql");
-  assert.match(sql, /CREATE TABLE quick_actions/i);
-  assert.match(sql, /quick_actions_family_active_sort_idx/i);
+  assert.match(sql, /CREATE TABLE IF NOT EXISTS quick_actions/i);
+  assert.match(sql, /CREATE INDEX IF NOT EXISTS quick_actions_family_active_sort_idx/i);
 });
 
 test("투약 안전장치 로직이 서버 액션에 존재한다", () => {
@@ -114,6 +114,20 @@ test("Drizzle 기반 DB 계층 파일이 존재한다", () => {
   const dbSchema = read("db/schema.ts");
   assert.match(dbClient, /drizzle/);
   assert.match(dbSchema, /sqliteTable/);
+});
+
+test("Turso 마이그레이션 스크립트가 Node 단독 실행 시 env 파일을 로드한다", () => {
+  const script = read("scripts/migrate-turso.mjs");
+  assert.match(script, /function loadEnvFiles/);
+  assert.match(script, /\.env\.local/);
+  assert.match(script, /\.env\.vercel\.dev/);
+  assert.match(script, /\.env\.vercel\.prod/);
+});
+
+test("Turso 마이그레이션 스크립트가 재실행 시 기존 DB와 충돌하지 않도록 적용 기록을 둔다", () => {
+  const script = read("scripts/migrate-turso.mjs");
+  assert.match(script, /_turso_applied_migrations/);
+  assert.match(script, /bootstrapLegacyApplied/);
 });
 
 test("일회성 어드민 마이그레이션 라우트는 사용 직후 제거되어야 한다", () => {

@@ -73,7 +73,7 @@ bun run test
 bun run build
 ```
 
-Turso 스키마 적용(원격 DB에 `TURSO_*` 설정 후):
+Turso 스키마 적용(원격 DB에 `TURSO_*` 설정 후). `npm run db:migrate`는 **`.env` → `.env.local` → `.env.vercel.dev` → `.env.vercel.prod`** 순으로 로드합니다(같은 키는 뒤 파일이 덮어씀). 운영 DB에 적용하려면 Vercel **Production**에 넣은 `TURSO_*`를 `.env.local`에 복사하거나, `vercel env pull .env.vercel.prod --environment production` 후 마이그레이션을 실행하세요. `--environment development`만 pull하면 `TURSO_*`가 비어 있을 수 있습니다. 스크립트는 `_turso_applied_migrations`에 적용된 `.sql` 파일명을 기록하므로 **이미 스키마가 있는 DB에서도** `0000` 재충돌 없이 이어서 적용할 수 있습니다.
 
 ```bash
 npm run db:migrate

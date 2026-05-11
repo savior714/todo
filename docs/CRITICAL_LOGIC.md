@@ -75,6 +75,7 @@
 ## 8. 운영·보안 결정
 
 - **일회성 마이그레이션 라우트 금지**: 운영 DB에 스키마를 맞추기 위해 **임시 관리자 HTTP 라우트를 배포했다가 두는 패턴**은 사용하지 않는다. 필요 시 로컬/CI에서 `npm run db:migrate` 등 **정식 경로**만 사용하고, 과거에 사용했다면 즉시 제거·계약 테스트로 잔존을 금지한다.
+- **Turso `npm run db:migrate`**: `scripts/migrate-turso.mjs`가 **`.env` → `.env.local` → `.env.vercel.dev` → `.env.vercel.prod`** 를 읽어 `TURSO_*`를 주입한다(`node`는 Next처럼 자동 로드하지 않음). 적용한 `db/migrations/*.sql` 파일명은 **`_turso_applied_migrations`** 테이블에 기록되며, 이미 기록된 파일은 재실행하지 않는다. 메타가 비어 있으나 **`users` 테이블이 이미 있으면** 레거시 DB로 보고 `0000_initial.sql`만 기록상 적용 처리한 뒤 이후 파일만 실행한다. `0001_quick_actions.sql`은 **`CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS`** 로 재적용이 안전하다.
 - **민감 파일**: `.env*`, 로컬 마이그레이션 시크릿(예: `.migrate-secret.local`), 로컬 전용 도구 심링크 등은 Git에 올리지 않는다.
 
 ---
