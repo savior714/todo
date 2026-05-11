@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-12: 대시보드 `QuickActionPanel` — 활성 `homework_types`가 없어도「오늘 숙제」헤더·관리자 `숙제 유형 관리` 링크·빈 안내 문구를 항상 노출. 퀵 액션 없을 때만 별도 안내 문단. `bun run lint`·`typecheck:strict`·`test`·`just ci` 통과.
 - 2026-05-11: Auth.js `/api/auth/error?error=Configuration` 문서 응답 HTTP **500**이 `@auth/core` 의도 동작임을 레포 SSOT로 고정 — `lib/auth/authjs-configuration-contract.ts`, `tests/unit/auth-configuration-diagnostics.test.ts`(upstream `error.js` 정합·`/api/health` 503·README 링크), `done-criteria.contract.test.mjs` 1건, README DevTools 참고 한 줄. `package.json`의 `bun test tests/unit/` 일괄 실행. `bun run test`·`lint`·`typecheck:strict` 통과.
 - 2026-05-11: 대시보드·`/admin` UI 타이포·툴바 정리 — 헤더 행 `items-end`→`items-center`, 「퀵 액션」·「오늘 숙제」제목 `panelBlockHeadingClass`로 동일 `text-lg`, 보조 링크 `h-11`·`text-[0.9375rem]` semibold, 타임라인 «오늘»·아이콘 `size-11` 정렬. 퀵 액션·숙제 주 버튼은 계약 `min-h-[60px]` 유지. `RecordEventModal`·admin 폼은 입력 `text-base`·본문 `leading-relaxed`. `bun run lint`·`typecheck:strict`·`test` 통과.
 - 2026-05-11: 퀵 액션·타임라인에서 `createEvent` 기록 후에도 타임라인이 비어 보이던 현상 — `router.refresh()`만으로는 `/dashboard` RSC가 stale할 수 있어 `completeHomework`와 달리 `createEvent`/`undoEvent`에 `revalidatePath("/dashboard")`가 없었음. `app/actions/events.ts`에 추가, 계약 테스트 1건. `typecheck:strict`·`test` 통과.

@@ -63,7 +63,6 @@ export default function QuickActionPanel({
 
   const hasEventActions = actions.length > 0;
   const hasHomework = homeworkShortcuts.length > 0;
-  const isEmpty = !hasEventActions && !hasHomework;
 
   const handleHomeworkComplete = (homeworkTypeId: string) => {
     if (!navigator.onLine) {
@@ -95,70 +94,73 @@ export default function QuickActionPanel({
           </Link>
         ) : null}
       </div>
-      {isEmpty ? (
-        <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          등록된 버튼이 없고 오늘 표시할 숙제도 없습니다. 관리자는{" "}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">/admin</span>
-          에서 퀵 액션·숙제 유형을 추가할 수 있습니다.
-        </p>
+      {hasEventActions ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {actions.map((action) => (
+            <button
+              key={action.id}
+              type="button"
+              onClick={() =>
+                setDraft({
+                  actionType: action.actionType,
+                  target: action.target,
+                  label: action.label,
+                })
+              }
+              className="inline-flex min-h-[60px] w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-[0.9375rem] font-semibold leading-snug tracking-tight text-white disabled:opacity-60 sm:text-base"
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
       ) : (
-        <>
-          {hasEventActions && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {actions.map((action) => (
-                <button
-                  key={action.id}
-                  type="button"
-                  onClick={() =>
-                    setDraft({
-                      actionType: action.actionType,
-                      target: action.target,
-                      label: action.label,
-                    })
-                  }
-                  className="inline-flex min-h-[60px] w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-[0.9375rem] font-semibold leading-snug tracking-tight text-white disabled:opacity-60 sm:text-base"
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
-          )}
-          {hasHomework && (
-            <div className="grid gap-2">
-              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-                <h3 className={panelBlockHeadingClass}>오늘 숙제</h3>
-                {showAdminSettingsLink ? (
-                  <Link href="/admin#homework-types-admin" className={toolbarSecondaryLinkClass}>
-                    숙제 유형 관리
-                  </Link>
-                ) : null}
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {homeworkShortcuts.map((hw) => {
-                  const busy = hwPendingId === hw.id;
-                  return (
-                    <article key={hw.id} className="grid gap-1">
-                      <button
-                        type="button"
-                        disabled={hw.completedToday || busy}
-                        onClick={() => handleHomeworkComplete(hw.id)}
-                        className="inline-flex min-h-[60px] w-full flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-4 py-3 text-center text-white disabled:opacity-60"
-                      >
-                        <span className="text-[0.9375rem] font-semibold leading-tight tracking-tight sm:text-base">
-                          {hw.title}
-                        </span>
-                        <span className="text-xs font-medium leading-snug text-white/90">
-                          {CHILD_GROUP_LABEL[hw.childGroup]}
-                        </span>
-                      </button>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </>
+        <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+          등록된 퀵 액션이 없습니다. 관리자는{" "}
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">/admin</span>의 퀵 액션
+          편집에서 추가할 수 있습니다.
+        </p>
       )}
+      <div className="grid gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <h3 className={panelBlockHeadingClass}>오늘 숙제</h3>
+          {showAdminSettingsLink ? (
+            <Link href="/admin#homework-types-admin" className={toolbarSecondaryLinkClass}>
+              숙제 유형 관리
+            </Link>
+          ) : null}
+        </div>
+        {hasHomework ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {homeworkShortcuts.map((hw) => {
+              const busy = hwPendingId === hw.id;
+              return (
+                <article key={hw.id} className="grid gap-1">
+                  <button
+                    type="button"
+                    disabled={hw.completedToday || busy}
+                    onClick={() => handleHomeworkComplete(hw.id)}
+                    className="inline-flex min-h-[60px] w-full flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-4 py-3 text-center text-white disabled:opacity-60"
+                  >
+                    <span className="text-[0.9375rem] font-semibold leading-tight tracking-tight sm:text-base">
+                      {hw.title}
+                    </span>
+                    <span className="text-xs font-medium leading-snug text-white/90">
+                      {CHILD_GROUP_LABEL[hw.childGroup]}
+                    </span>
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            표시할 숙제 유형이 없습니다.
+            {showAdminSettingsLink
+              ? " 위 링크에서 유형을 추가하면 버튼이 나타납니다."
+              : " 가족 관리자가 /admin 에서 숙제 유형을 등록하면 여기에 버튼이 나타납니다."}
+          </p>
+        )}
+      </div>
       <RecordEventModal
         draft={draft}
         onClose={() => setDraft(null)}
