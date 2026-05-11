@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-11: `/admin` 퀵 액션 편집 블록 UI 정리 — 안내 한 줄·목록은 `식사 · 승원이` 형태 한글 메타·추가 폼은 이름 + 기록 종류/대상 2열·커스텀 타입은 `<details>`로 접어 기본 화면 번잡함 감소(`app/admin/page.tsx`). `bun run lint`·`typecheck:strict`·`test` 통과.
 - 2026-05-11: 타임라인 열 스와이프 주 이동(`onTouchStart/onTouchEnd`) 제거. 날짜 열 터치 시 가운데 정렬(`selectDayColumn` + `scrollIntoView`)만 유지. 대시보드 루트(`html.dashboard-pinch-lock`)의 `touch-action`을 `pan-y`로 제한하고 `body`에도 `overflow-x:hidden`을 적용해 빈 영역 좌스와이프 시 우측 여백 노출을 차단. `bun run lint`·`typecheck:strict` 통과.
 - 2026-05-11: `/asset` 실행으로 `docs/knowledge/COMMON_ERROR_RESOLUTIONS.md` 신설(언어 게이트 주석 포함). Next.js Server Action 유효성 throw가 RSC 500으로 승격되는 패턴과 `{ success:false, error }` 반환 + 인라인 에러 표출 정석 해결을 지식 자산으로 기록.
 - 2026-05-11: `/admin` 퀵 액션 추가 유효성 실패(커스텀 타입 대문자/빈값) 시 Server Action throw로 RSC 500 페이지가 뜨던 이슈 수정. `createQuickAction`이 `{ success:false, error }`를 반환하도록 변경하고 `app/admin/page.tsx`에서 `quickActionError` 쿼리로 인라인 에러 표시 + 안전 리다이렉트 처리. 계약 테스트 1건(Red→Green) 추가 후 `bun run test`·`bun run lint`·`bun run typecheck:strict` 통과.
