@@ -2,21 +2,21 @@
 situation: JSX 컴포넌트 생성
 trigger: /jsx_casing_check
 level: Mandatory
-description: PascalCase 검증 + casing_scan.py 실행
-version: 1.0.0
-last_updated: 2026-05-06
+description: PascalCase 검증 + ESLint/grep (선택 casing_scan.py)
+version: 1.1.0
+last_updated: 2026-05-11
 ---
 
 ## 문서 메타 (Version SSOT)
 - **Last Verified**: 2026-05-02
 - **Tested Version**: v1.0 (Task D-2: CASING-LONGTERM-002)
 - **Min Supported**: JSX Casing Codemod Phase D 완료 후
-- **Reference**: `AGENTS.md` (§7.3, §5.1), `PROJECT_RULES.md` (§React Component Naming & Casing), `docs/specs/ui/react_casing_guardrail.md`
+- **Reference**: `AGENTS.md`, `PROJECT_RULES.md` §4 (TypeScript & Frontend Rules)
 
 ## 문서 경계(SSOT)
-- **규칙/운영**: `PROJECT_RULES.md` (§React Component Naming & Casing)
-- **설계 결정**: `docs/plans/archive/20260501_react_component_casing_guardrail_plan.md`
-- **실행 스크립트**: `scripts/casing_scan.py`
+- **규칙/운영**: `PROJECT_RULES.md` §4 (PascalCase·`any` 금지 등)
+- **설계 결정**: (선택) 별도 케이싱 플랜이 있으면 `docs/plans/` 참고
+- **실행 스크립트**: (선택) `scripts/casing_scan.py` — **본 레포에 없으면 `grep` + `bun run lint`로 대체**
 
 ---
 
@@ -24,16 +24,16 @@ last_updated: 2026-05-06
 
 이 워크플로우는 에이전트가 JSX 컴포넌트를 생성하거나 수정할 때 자동으로 PascalCase 검증과 소문자 JSX 태그 감지를 수행합니다.
 
-> **⚠️ Fatal Rule**: `/jsx_casing_check` 실행 시 반드시 **PascalCase 검증**과 **casing_scan.py 실행**을 모두 완료해야 합니다. 하나라도 누락 시 워크플로우 실패로 간주합니다.
+> **⚠️ Fatal Rule**: **PascalCase 검증**과 **`bun run lint` 통과**는 필수. `casing_scan.py`가 레포에 있으면 사전/사후 스캔도 수행한다.
 
 ---
 
 ## 📋 실행 파이프라인 (3 Phase)
 
 ```
-Phase 1: 생성/수정 파일 식별 → casing_scan.py 사전 스캔
+Phase 1: 생성/수정 파일 식별 → (선택) casing_scan.py 또는 `grep` 사전 스캔
 Phase 2: PascalCase 검증 → 컴포넌트명/파일명 일치 확인
-Phase 3: CI 검사 실행 → 전체 프로젝트 잔여 패턴 재스캔
+Phase 3: `bun run lint` → 전체 `app/**/*.tsx` 잔여 패턴 재확인
 ```
 
 ---
@@ -53,10 +53,8 @@ Phase 3: CI 검사 실행 → 전체 프로젝트 잔여 패턴 재스캔
 - **동작**: 변경된 파일에 대한 사전 케이싱 검사 실행
 - **명령어**:
   ```bash
-  python3 scripts/casing_scan.py \
-    --path apps/renderer/src \
-    --output docs/reports/pre_check_$(date +%Y%m%d_%H%M).json \
-    --fail-on-count 100
+  # 스크립트가 있을 때만:
+  # python3 scripts/casing_scan.py --path app --output docs/reports/pre_check_$(date +%Y%m%d_%H%M).json
   ```
 - **예상 결과**: 변경된 파일에서 소문자 JSX 태그 감지 시 경고 출력
 
@@ -84,8 +82,7 @@ Phase 3: CI 검사 실행 → 전체 프로젝트 잔여 패턴 재스캔
 - **동작**: 변경된 파일에 대한 상세 패턴 분석
 - **명령어**:
   ```bash
-  # 소문자 JSX 태그 검색 (컴포넌트만 해당)
-  grep -rn '<[a-z][a-z0-9]*\s' apps/renderer/src --include="*.tsx" | \
+  grep -rn '<[a-z][a-z0-9]*\s' app --include="*.tsx" | \
     grep -v 'HTML_ELEMENTS' | \
     grep -v 'TS_TYPE_KEYWORDS'
   ```
@@ -99,10 +96,8 @@ Phase 3: CI 검사 실행 → 전체 프로젝트 잔여 패턴 재스캔
 - **동작**: 변경 후 전체 프로젝트에 대한 케이싱 검사 실행
 - **명령어**:
   ```bash
-  python3 scripts/casing_scan.py \
-    --path apps/renderer/src \
-    --output docs/reports/post_check_$(date +%Y%m%d_%H%M).json \
-    --fail-on-count 100
+  bun run lint
+  # (선택) python3 scripts/casing_scan.py --path app --output docs/reports/post_check_$(date +%Y%m%d_%H%M).json
   ```
 
 ### 7단계: 보고서 생성 및 에러 처리
@@ -111,30 +106,18 @@ Phase 3: CI 검사 실행 → 전체 프로젝트 잔여 패턴 재스캔
 - **체크리스트**:
   - [ ] **0건 발견**: ✅ 통과, 작업 완료 보고
   - [ ] **소수 건 (≤5)**: 경고 출력, 수동 검토 권장
-  - [ ] **다수 건 (>5)**: ❌ 실패, `codemods/jsx-casing-fix.js` 실행 권장
+  - [ ] **다수 건 (>5)**: ❌ 실패, 수동 리네임·분할 또는 (레포에 있을 때만) 전용 codemod 검토
 
 ### 8단계: Codemod 자동 적용 제안 (필요 시)
 
-- **동작**: 잔여 패턴이 많을 경우 자동 변환 제안
-- **명령어**:
-  ```bash
-  # Dry-run 먼저 실행
-  npx jscodeshift --dry-run --print \
-    --transform codemods/jsx-casing-fix.js \
-    apps/renderer/src/**/*.tsx
-  
-  # 실제 적용 (Dry-run 확인 후)
-  npx jscodeshift --parallel --threads=4 \
-    --transform codemods/jsx-casing-fix.js \
-    apps/renderer/src/**/*.tsx
-  ```
+- **동작**: 잔여 패턴이 많을 경우 — **본 레포에 `codemods/jsx-casing-fix.js`가 있을 때만** jscodeshift 적용을 검토한다. 없으면 ESLint·수동 수정으로 처리한다.
 
 ---
 
 ## 📊 Definition of Done
 
 1. [ ] 변경된 모든 JSX 파일에 대한 PascalCase 검증 완료
-2. [ ] `casing_scan.py` 사전/사후 스캔 모두 실행 완료
+2. [ ] `casing_scan.py`가 있으면 사전/사후 스캔, 없으면 `grep` + `bun run lint`로 동등 검증
 3. [ ] 컴포넌트명/파일명 일치 확인 완료
 4. [ ] import/export 문 일관성 검증 완료
 5. [ ] 전체 프로젝트 재스캔 결과 보고 (0건 또는 알려진 한계 케이스만)
@@ -143,8 +126,5 @@ Phase 3: CI 검사 실행 → 전체 프로젝트 잔여 패턴 재스캔
 
 ## 🔗 관련 문서
 
-- **AGENTS.md §Execution Rules**: [`AGENTS.md`](AGENTS.md) §5.1 React Component Creation Guidelines
-- **PROJECT_RULES.md §React Component Naming & Casing**: [`PROJECT_RULES.md`](PROJECT_RULES.md)
-- **JSX Casing Guardrail Spec**: [`docs/specs/ui/react_casing_guardrail.md`](docs/specs/ui/react_casing_guardrail.md)
-- **Codemod Execution Plan**: [`docs/plans/20260501_jsx_casing_codemod_execution_plan.md`](docs/plans/20260501_jsx_casing_codemod_execution_plan.md)
-- **CI 워크플로우**: [`.github/workflows/casing-guardrail.yml`](.github/workflows/casing-guardrail.yml)
+- [`AGENTS.md`](../../AGENTS.md) §4 Verification Matrix (프론트: `bun run lint` 등)
+- [`PROJECT_RULES.md`](../../PROJECT_RULES.md) §4 TypeScript & Frontend Rules

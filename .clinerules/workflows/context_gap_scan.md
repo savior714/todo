@@ -20,7 +20,7 @@ last_updated: 2026-05-06
 1. Jira 티켓(설명/코멘트/재오픈 이력)
 2. Incident 기록(Postmortem 포함)
 3. PR 리뷰 코멘트 및 반복 수정 흔적
-4. 검증 실패 산출물(`verify-last-result.json`, `verify-pytest-failures.txt`)
+4. 검증 실패 기록(세션 터미널 로그, CI 링크, 또는 — 존재 시 — `verify-last-result.json` 등 임의 산출물)
 
 ## 2) 갭 후보 탐지 휴리스틱
 

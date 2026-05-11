@@ -77,7 +77,7 @@ description: 전략적 설계 및 문서화 워크플로우 (/plan)
 - Task-ID: [PLAN-001] | Status: todo | RetryPolicy: none
 - **Action**: [Read/Edit File] | **Target**: [절대 경로]
 - **Goal**: [구체적 목표] | **Diagnostics**: [진단 수]
-- **Verify**: [물리적 증거 확보 명령어 (just lint/ty/test 등)]
+- **Verify**: [물리적 증거 확보 명령어 — 이 레포: `bun run lint` / `typecheck:strict` / `test` / `just ci` 등]
 - **Conclusion**: [완료 시 기입]
 - **Dependency**: [선행 Task ID 또는 None]
 

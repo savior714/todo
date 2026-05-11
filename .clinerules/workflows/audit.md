@@ -18,6 +18,8 @@ last_updated: 2026-05-06
 - **결정/핵심 불변(대안/채택 이유/증적 경로)**: `docs/CRITICAL_LOGIC.md`
 - **세션 지식**: `docs/memory/`
 
+> **FamilySync MVP (`todo`) 적용 노트**: 본 문서는 원래 **EMR·다계층 Python 백엔드** 진단용 템플릿을 포함한다. 이 레포에는 `scripts/project_digest.py`·`scripts/audit_tool.py`·`scripts/run_import_linter.sh`·`scripts/verify_type_imports.py` 등이 **없을 수 있다**. `/audit` 실행 시 **자동 스크립트 Phase는 생략 가능**하며, 증거는 `README.md` 검증 명령, `app/`·`lib/`·`db/`·`docs/specs/` 구조 점검, `bun run lint`·`typecheck:strict`·`test`·`build`, `just ci`, (선택) `python3 scripts/verify_korean_text.py --dir docs`로 확보한다. EMR·59지표·Pydantic/Vault 등 항목은 **해당 제품에 맞게 가중치를 낮추거나 스킵**해도 된다.
+
 ---
 
 # 🏥 통합 심사 평가 및 프로젝트 진단 워크플로우 (/audit)
@@ -44,16 +46,16 @@ Phase 4: 리포트 생성 → MD + HTML 동시 출력 + SSOT 갱신
 ### Step 1.1: 프로젝트 구조 스캔 (Discovery)
 
 ```
-1. backend/src/ 의 3계층(domain/application/infrastructure/main) 분리 상태 확인
-2. frontend/src/ 의 컴포넌트 구조, 컨텍스트, 피처 모듈화 상태 확인
-3. docs/specs/ 의 스펙 문서 존재 여부 및 최신성(Last Verified) 확인
-4. tests/ 의 테스트 파일 수 및 지표 커버리지 파악
-5. scripts/cert_gap/ 의 증적 생성 스크립트 및 실행 이력 확인
+1. app/ 라우트·Server Actions·UI 경계와 lib/·db/ 스키마·쿼리 위치 확인
+2. docs/specs/(PRD·TRD)·docs/CRITICAL_LOGIC.md·docs/plans/ 존재 및 정합
+3. tests/e2e 계약 테스트 범위와 README 검증 명령과의 일치
+4. (선택) scripts/ 아래 Turso 마이그레이션·동기화 스크립트 유무
+5. 레거시 EMR용 scripts/cert_gap/ 등은 본 레포에 없으면 스킵
 ```
 
 ### Step 1.2: 메트릭 수집 (Digest)
 
-`python3 scripts/project_digest.py --all --output md` 실행
+`(선택) python3 scripts/project_digest.py --all --output md` — **스크립트가 없으면 건너뛴다.**
 
 - **생성 위치**: `docs/digest/project_digest_YYYYMMDD.md`
 - **5개 도메인 데이터**: 인증 준수도, 아키텍처 건강도, 구현 진척도, 문서 정합성, 외부 연동 성숙도
@@ -61,7 +63,7 @@ Phase 4: 리포트 생성 → MD + HTML 동시 출력 + SSOT 갱신
 
 ### Step 1.3: 종합 평가 도구 실행 (Audit Tool)
 
-`python3 scripts/audit_tool.py` 또는 `./audit.sh` 실행
+`(선택) python3 scripts/audit_tool.py` 또는 `./audit.sh` — **없으면 수동 평가로 대체**
 
 - **생성 위치**: `docs/audit/YYYYMMDD_HHMMSS/audit_report.md` 및 `.html`
 - **6-category scoring** (100점 만점): 문서화, 아키텍처, 인증 지표, 테스트, 보안, 코드 품질
@@ -74,7 +76,7 @@ Phase 4: 리포트 생성 → MD + HTML 동시 출력 + SSOT 갱신
 ### Step 2.1: 한글 텍스트 오염도 검사
 
 ```bash
-uv run python scripts/verify_korean_text.py --dir docs
+python3 scripts/verify_korean_text.py --dir docs
 ```
 
 - 스캔 대상: `docs/` 전체
@@ -83,18 +85,11 @@ uv run python scripts/verify_korean_text.py --dir docs
 
 ### Step 2.2: 아키텍처 의존성 검증
 
-```bash
-./scripts/run_import_linter.sh
-```
-
-- SDD 4계층 위반 여부 확인 (domain → application → infrastructure → main)
-- config 갱신 필요 시 `ValueError` 기록
+`(선택) ./scripts/run_import_linter.sh` — **본 레포에 없으면 건너뛴다.** Next/TS 경계는 `bun run typecheck:strict`로 대체.
 
 ### Step 2.3: 타입 임포트 정합성
 
-```bash
-uv run python scripts/verify_type_imports.py --dir backend/src/application/dtos
-```
+`(선택) uv run python scripts/verify_type_imports.py --dir …` — **본 레포에 없으면** `bun run typecheck:strict`만으로 대체한다.
 
 ---
 
@@ -106,9 +101,9 @@ uv run python scripts/verify_type_imports.py --dir backend/src/application/dtos
 | :--- | :--- |
 | **SSOT 경계 명확성** | `PROJECT_RULES.md` vs `CRITICAL_LOGIC.md` vs `docs/specs/` vs `docs/memory/` 역할 분리 |
 | **Decision Log 품질** | Context→Decision→Rationale→증적 형식 준수 |
-| **체크리스트 모듈화** | 500라인 가드레일 준수, 하위 문서 분리 |
+| **체크리스트 모듈화** | `MEMORY.md`·지식 문서 라인 한도 준수, 하위 문서 분리 |
 | **재점검 등급 체계** | `[x]` 항목의 A/B/C 신뢰도 등급 존재 여부 |
-| **MEMORY.md 밀도** | 500라인 제한, 인덱스 전용, Anti-Drift (`AGENTS.md` §2.1.1) |
+| **MEMORY.md 밀도** | 200라인 제한(`just memory-verify`), 인덱스·Anti-Drift (`AGENTS.md` §10.2) |
 | **스펙-구현 동기화** | Docs-First 원칙 준수 여부, 사후 업데이트 흔적 |
 
 **채점 가이드**: A(18~20), A-(15~17), B+(12~14), B(9~11), C(~8)
@@ -117,12 +112,12 @@ uv run python scripts/verify_type_imports.py --dir backend/src/application/dtos
 
 | 체크 항목 | 평가 기준 |
 | :--- | :--- |
-| **3계층 분리** | domain(정책) → application(유스케이스) → infrastructure(구현) |
-| **FHIR/KR Core 준수** | 도메인 모델이 FHIR R5 리소스와 매핑되는가 |
-| **라우팅 안정성** | 정적 라우트 우선, Direct Proxy, 회귀 방지 규칙 |
-| **모듈화 가드레일** | 500라인 초과 시 즉시 분리, Barrel Router 패턴 |
-| **디렉토리 과밀도** | 단일 디렉토리 파일 수 15개 초과 시 분리 권장 |
-| **DB 마이그레이션** | SQLite→PostgreSQL 경로 자동화 수준 |
+| **앱·라이브러리 경계** | `app/`(UI·라우트)·`lib/`(도메인·유틸)·`db/`(스키마·클라이언트) 책임 분리 |
+| **도메인 정합** | PRD/TRD·`CRITICAL_LOGIC`의 이벤트·투약·멀티테넌시 규칙이 코드에 반영되는가 |
+| **라우팅 안정성** | Next App Router·미들웨어·리다이렉트 회귀 방지 |
+| **모듈화 가드레일** | 단일 파일/컴포넌트 과대 시 분리, 레이어 혼선 방지 |
+| **디렉토리 과밀도** | 단일 디렉토리 파일 수 과다 시 분리 권장 |
+| **DB 마이그레이션** | `db/migrations/*.sql` + 적용 스크립트로 Turso 스키마가 추적 가능한가 |
 
 **채점 가이드**: A(18~20), B+(15~17), B(12~14), C+(9~11), C(~8)
 
@@ -153,9 +148,9 @@ uv run python scripts/verify_type_imports.py --dir backend/src/application/dtos
 | **테스트 파일 수** | 30개 이상이면 기본점수 충족 |
 | **지표 커버리지** | 59개 지표 중 테스트가 있는 지표 비율 |
 | **E2E 테스트** | Playwright 등 핵심 워크플로우 E2E 존재 여부 |
-| **통합 테스트** | 실제 DB(PostgreSQL) 기반 테스트 존재 여부 |
-| **Mock 의존도** | 외부 시스템 Mock 비율 (낮을수록 좋음) |
-| **커버리지 측정** | pytest-cov 등 정량 도구 도입 여부 |
+| **통합 테스트** | Turso/Auth 실사용에 가까운 계약·E2E(`bun run test`) 존재 여부 |
+| **Mock 의존도** | 외부 연동 Mock 비율 (낮을수록 좋음) |
+| **커버리지 측정** | (선택) c8/`node --test` 커버리지 등 — 미도입이어도 계약 테스트로 보완 가능 |
 
 **채점 가이드**: A(13~15), B+(10~12), B(7~9), C+(4~6), C(~3)
 
@@ -178,7 +173,7 @@ uv run python scripts/verify_type_imports.py --dir backend/src/application/dtos
 | :--- | :--- |
 | **TypeScript strict** | tsconfig.json strict: true 적용 |
 | **ESLint 규칙** | Next.js 권장 규칙 적용, 오류 0 |
-| **Pydantic v2** | 백엔드 전체 Pydantic v2 기반 |
+| **런타임 검증** | 서버 입력에 Zod 등 스키마 검증(해당 시) |
 | **빌드 오류** | tsc/build 오류 0, 경고 최소화 |
 | **스타일링 SSOT** | Tailwind + shadcn/ui + 모듈 CSS 경계 일관성 |
 | **Git 관리** | 일회성 로그 파일 .gitignore 적용 |
@@ -244,7 +239,7 @@ uv run python scripts/verify_type_imports.py --dir backend/src/application/dtos
 
 - **한자/일본어 오염도**: ??건 — 통과/실패
 - **SDD import 위반**: ??건 — 통과/실패
-- **MEMORY.md 라인**: ??라인 (500라인 제한 내)
+- **MEMORY.md 라인**: ??라인 (`just memory-verify` 200라인 한도 내)
 ```
 
 ### Step 4.2: HTML 리포트 생성 (High-Fidelity 필수)
@@ -298,7 +293,7 @@ uv run python scripts/verify_type_imports.py --dir backend/src/application/dtos
 - [ ] Phase 4.2: **HTML 리포트** 생성 (59개 지표 상세 테이블, toggle 기능 포함)
 - [ ] Next Action: `/plan` 트리거 프롬프트 포함
 - [ ] SSOT 업데이트: `AGENTS.md` §2.1.1 참조 — MEMORY.md(한 줄 링크), CRITICAL_LOGIC.md(필요 시), priority_tiers 반영
-- [ ] 리포트 라인 검증: MD 500라인 이내, HTML 구조 유효성
+- [ ] 리포트 가독성: MD 과대 시 섹션 분할, HTML 구조 유효성
 
 ---
 

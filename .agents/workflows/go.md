@@ -15,10 +15,9 @@ last_updated: 2026-05-06
 
 ## 1. 필수 검증 (반드시 수행)
 
-- `verify-last-result.json`이 존재하면 **그것만 읽어서** exitCode, failedStep 확인
-  - 이미 같은 세션에서 `just verify` (또는 `just ci`)를 실행했다면 **재실행하지 말고** 그 JSON을 참조
-  - 이전 세션의 결과라면 `verify-last-result.json`이 최신인지 확인 (시간 스탬프)
-- 실패 시에만 `verify-ruff-failures.txt` / `verify-ty-failures.txt` / `verify-pytest-failures.txt` 중 해당 파일 확인
+- 세션에서 **이미 통과한 검증**이 있으면 재실행 없이, 보고에 **실행한 명령과 exit 여부**만 명시한다.
+- **FamilySync (`todo`) 표준**: `bun run lint`, `bun run typecheck:strict`, 변경 범위에 따라 `bun run test`·`bun run build`, 그리고 `just ci` (`justfile` 참고).
+- `verify-last-result.json`, `verify-ruff-failures.txt`, `verify-ty-failures.txt`, `verify-pytest-failures.txt`는 **본 레포 필수 산출물이 아니다**. 존재하면 참고할 뿐이다.
 - 검증 실패 상태라면 이관 보고를 완료하지 않는다
 
 ---

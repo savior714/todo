@@ -13,35 +13,32 @@
 # 1. Architecture Rules
 
 ## MUST
-- DDD 의존 방향 유지: `main → application → domain`
-- bounded context 기반 점진적 migration
-- domain 계층에 infra/API concern 누수 금지
-- business logic 변경 시 tests 동기화
+- `docs/CRITICAL_LOGIC.md`·`docs/specs/PRD.md`·`TRD.md`에 정의한 **가족 데이터 격리·투약 안전·인증/프로필** 등 비기능 경계를 코드로 반영한다.
+- 데이터 접근·변경은 **서버**(Server Actions·Route Handlers·서버 유틸)에서 `family_id`·`active_profile_id` 문맥을 검증한 뒤에만 수행한다 (구현 SSOT: `docs/CRITICAL_LOGIC.md`).
+- 동작·계약을 바꾸면 `tests/e2e` 및 관련 스펙·`CRITICAL_LOGIC`을 동기화한다.
 
 ## MUST NOT
-- reverse dependency
-- infrastructure leakage into domain
-- contract-breaking implementation drift
+- 다른 가족 `family_id`로 이어지는 조회·쓰기 경로(멀티테넌시 붕괴).
+- 민감 제약(투약 간격 등)을 **클라이언트만** 믿도록 두는 설계.
+- 스펙·계약 없는 contract-breaking 변경.
 
 ---
 
 # 2. Stack & Runtime Policy
 
-## Docker-First
-- 표준 개발 환경: `docker-compose.dev.yml`, `./run_dev.sh`
-- 금지: undocumented local daemons, manual DB startup
+## 단일 앱 스택 (FamilySync MVP)
+- **프레임워크**: Next.js(App Router), React, TailwindCSS — 소스는 주로 `app/`·`lib/`·`db/` (`README.md` 디렉토리 맵).
+- **데이터**: Turso(libSQL) + Drizzle; 마이그레이션은 `db/migrations/*.sql`, 적용 절차는 `README.md`·`npm run db:migrate`.
+- **인증**: Auth.js + Google OAuth (세션·쿠키 정책은 `docs/CRITICAL_LOGIC.md`).
+- **본 레포는** 루트 `docker-compose.dev.yml`·`./run_dev.sh` 기반 로컬 풀스택을 두지 않는다(과거 템플릿 문구는 무시).
 
 ## Workspace File I/O Policy
 - 워크스페이스 파일 읽기·쓰기·목록·검색은 Built-in 파일 도구(`Read`, `Write`, `Grep`, `Glob`, `SemanticSearch`)를 우선 사용한다.
 - 위 경로로 처리 불가한 경우에만 Shell 접근을 허용한다.
 
-## Standard Infrastructure Ports (SoT)
-- `8000`: server, `5432`: postgres, `6379`: valkey, `8200`: vault
-- 원칙: Docker stack 외 포트 점유 금지. 변경 시 `run_dev.sh`와 동기화 필수.
-
-## Standard Runtime
-- Frontend: `bun run dev`
-- Infra: `./run_dev.sh`
+## Standard Runtime (로컬)
+- 앱: `bun run dev` (`package.json`)
+- 검증: `README.md`의 검증 명령 + `AGENTS.md` §4 Verification Matrix + `just ci` (`justfile`)
 
 ---
 
@@ -52,9 +49,9 @@
 - **TDD Red-First**: 구현 전 실패 테스트 작성 및 실행 로그 확인 필수. `Red -> Green -> Refactor` 사이클 준수.
 
 ## 3.2 Quality Gates
-- **Strict Lint/Type**: `Ruff`, `Biome`, `TypeScript` strict mode 통과 필수.
+- **Strict Lint/Type**: `bun run lint`(ESLint) 및 `bun run typecheck:strict`(`tsc --noEmit`) 통과 필수.
 - **No Bypass**: 검증 통과를 위한 severity 하향(`error -> warn`)이나 gate 우회 금지.
-- **Biome Strict**: `apps/renderer` 내 `noExplicitAny`, `noArrayIndexKey` 0건 유지.
+- **TS/React**: `habitual any`·무근거 `ts-ignore`·소문자 JSX 컴포넌트명 금지(§4 TypeScript & Frontend Rules).
 
 ---
 
@@ -102,6 +99,7 @@
 
 # 7. Reference Index
 
-- **Technical**: `aqg_protocol.md`, `ddd_migration_guide.md`, `tdd_policy.md`, `desktop_distribution_strategy.md`
-- **UI**: `react_casing_guardrail.md`, `consultation_screen_design.md`
-- **Verification**: `verification_protocol.md`
+- **제품·기술 요구**: `docs/specs/PRD.md`, `docs/specs/TRD.md`
+- **불변·운영 경계**: `docs/CRITICAL_LOGIC.md`
+- **실행 프로토콜**: `AGENTS.md`, `justfile`, `README.md`
+- **추가 명세**: `docs/specs/technical/` 등은 레포에 없을 수 있다 — 신규 도입 시 본 절과 SSOT 표를 함께 갱신한다.

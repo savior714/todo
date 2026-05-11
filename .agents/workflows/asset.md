@@ -169,7 +169,7 @@ python3 scripts/index_knowledge.py --check
 - **현상**: `error[invalid-argument-type]: Expected 'Reference', found 'dict[str, str]'`
 - **원인**: FHIR 리소스의 `patient`, `subject` 필드가 `Reference` 객체를 기대하는데 `{"reference": "Patient/..."}` 같은 딕셔너리를 전달함.
 - **해결**: `from fhir.resources.reference import Reference` 후 `Reference(reference="Patient/{id}")`로 생성하여 전달.
-- **적용 파일**: [`backend/src/application/services/allergy_service.py`](backend/src/application/services/allergy_service.py)
+- **적용 파일**: 예) [`app/actions/events.ts`](../../app/actions/events.ts) — **FamilySync**에서는 실제 수정 파일 경로로 바꾼다.
 ```
 
 ---

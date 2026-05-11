@@ -13,6 +13,7 @@ last_updated: 2026-05-06
 
 > **목적**: "내가 알고 있는 지도(Blueprint)와 실제 지형(File System)이 달라서" 발생하는 오류를 **MCP를 통한 실시간 구조 파악**으로 방지합니다.
 
+> **FamilySync MVP (`todo`)**: 아래 본문의 `backend/src/...` 경로는 **경로 검증 절차를 설명하기 위한 교육용 예시**이다. 실제 작업에서는 `app/`·`lib/`·`db/`·`tests/` 등 **이 저장소에 존재하는 경로**로 치환해 MCP·`read_file`에 사용한다.
 
 ---
 

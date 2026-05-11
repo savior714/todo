@@ -57,7 +57,7 @@ docs/plans/playwright_<scope>_<YYYYMMDD>.md
 **필수 준수 사항**:
 1. `docs/specs/technical/plan_blueprint_contract.md` 컨트랙트 준수
 2. 모든 Task에 `[Level: Low]`, `Task-ID`, `Status`, `RetryPolicy`, `Conclusion` 포함
-3. 생성 직후 `uv run python scripts/plan_loop/plan_lint.py <blueprint_path>` 실행 필수
+3. 생성 직후 `python3 scripts/plan_loop/plan_lint.py <blueprint_path>` 실행 필수
 
 ### 5단계 — 보고
 ```markdown

@@ -31,17 +31,18 @@
 
 ## 4. Verification Matrix
 
+본 매트릭스는 **FamilySync MVP (`todo`)** 레포의 `package.json`·`justfile` 기준이다. (`just lint`/`just ty`/`just tdd-fast` 등은 다른 워크스페이스용이며 **이 레포에 레시피가 없다**.)
+
 | Scope | Required |
 |---|---|
-| Docs | link/path 정합성 |
-| L1 small | `just lint` + `just ty` |
-| L2 feature | L1 + `just tdd-fast` |
+| Docs | link/path 정합성; 한글 `docs/**` 변경 시 (스크립트 존재 시) `python3 scripts/verify_korean_text.py --dir docs` |
+| L1 small | `bun run lint` + `bun run typecheck:strict` |
+| L2 feature | L1 + `bun run test` (+ 필요 시 `bun run build`) |
 | L3 structural | L2 + `just ci` |
-| Frontend UI | `bun run lint` + `bun run typecheck:strict` |
-| Grid/layout | `just grid-verify` |
-| Directory | `/directory_verify` |
+| Frontend UI | L1과 동일: `bun run lint` + `bun run typecheck:strict` |
+| Plan / memory | `just ci` (플랜 Blueprint 계약·`PLAN_STATUS.json`·`just memory-verify`) |
 
-산출물: `verify-last-result.json`, `docs/reports/verify_report.md`.
+산출물: **필수 고정 파일 없음** — 필요 시 세션 보고에 명령·exit 코드를 적는다. (`verify-last-result.json` 등은 본 레포 표준이 아님.)
 
 ## 5. Patch Integrity
 
@@ -90,7 +91,7 @@ Trigger: `terminated`, `timeout`, `context_length_exceeded`, `connection_reset`,
 
 **자동 검증 명령어**:
 ```bash
-uv run python scripts/plan_loop/plan_lint.py docs/plans/<파일명>.md
+python3 scripts/plan_loop/plan_lint.py docs/plans/<파일명>.md
 ```
 
 **Task 분할(Splitting) 시 필수 준수 사항**:
@@ -122,13 +123,13 @@ just plan-close plan=docs/plans/<target>.md verify="<cwd>::<cmd>|||..."
 - **기본**: 3~5줄 이내. 한 줄 요약 + 필요 시 변경 파일·검증 한 줄(`✓ [명령] passed`). 잔여 이슈 있으면 한 줄.
 - **상세**: 검증 실패·블로커·사용자가 명시적으로 요청한 경우에만.
 
-**금지**: 장문 템플릿 보고, 영문-only 리포트, "Final Completion Report" 헤더, evidence 없는 "완료" 선언, **사용자에게 가이드라인 업데이트 명령(just update-guidelines 등) 직접 실행 요구**.
+**금지**: 장문 템플릿 보고, 영문-only 리포트, "Final Completion Report" 헤더, evidence 없는 "완료" 선언, **사용자에게 가이드라인 갱신을 터미널로 직접 실행하라고 떠넘기기**.
 
 ### 10.1 Self-Evolution Protocol (Agent-Led Persistence)
 세션 종료 시 개선 제안 및 가이드라인 반영은 다음 절차를 따른다:
 1. **제안**: 에이전트가 개선안을 자연어로 제안.
 2. **동의**: 사용자가 자연어로 승인 (예: "반영해줘").
-3. **수행**: 에이전트가 직접 `just update-guidelines`를 실행하여 `ADAPTIVE_GUIDELINES.json`을 갱신. 사용자가 터미널 명령어를 직접 입력하게 하지 말 것.
+3. **수행**: 에이전트가 `docs/memory/ADAPTIVE_GUIDELINES.json`을 직접 편집·저장해 반영한다(레포에 전용 `just` 레시피·스크립트가 추가되면 그 경로를 사용해도 된다). 사용자에게 명령 입력을 요구하지 말 것.
 
 ### 10.2 Memory Hygiene Check (AAG-006)
 세션 종료 전 `docs/memory/MEMORY.md`의 라인 수(200라인 제한) 및 중복 링크 여부를 확인해야 한다.
@@ -184,7 +185,7 @@ just plan-close plan=docs/plans/<target>.md verify="<cwd>::<cmd>|||..."
    - Low: 개선 제안 (stale 버전 등)
 4. **Blueprint 생성**: `docs/plans/playwright_<scope>_<date>.md` 형식
    - **주의**: 문제를 해결하기 위해 코드를 수정하지 마십시오. 오직 계획 수립까지만 허용됩니다.
-5. **plan_lint 검증**: `uv run python scripts/plan_loop/plan_lint.py <blueprint_path>` 필수 실행
+5. **plan_lint 검증**: `python3 scripts/plan_loop/plan_lint.py <blueprint_path>` 필수 실행
 6. **보고**: 발견된 문제 요약 (severity별) + Blueprint 경로
 
 **출력 형식**: Blueprint 문서 (`docs/plans/`) - 기존 `/plan` 워크플로우와 동일한 컨트랙트 준수
@@ -196,9 +197,8 @@ just plan-close plan=docs/plans/<target>.md verify="<cwd>::<cmd>|||..."
 
 ## 12. Reference Index
 
-- **Core**: `PROJECT_RULES.md`, `.cursor/rules/Execution-Routine.mdc`
-- **Specs**: `docs/specs/technical/{aqg_protocol, demand_driven_context_protocol, ddd_migration_guide, tdd_policy}.md`
-- **Verification**: `docs/rules/verification_protocol.md`
-- **Plan Workflow**: `scripts/plan_loop/plan_lint.py`, `.agents/workflows/plan.md`, `docs/specs/technical/plan_blueprint_contract.md`
-- **Playwright Discovery**: `.agents/workflows/playwright.md`
-- **Adaptive Guidelines**: `docs/memory/ADAPTIVE_GUIDELINES.json`, `scripts/memory/update_adaptive_guidelines.py`
+- **Core**: `PROJECT_RULES.md`, `docs/CRITICAL_LOGIC.md`, `README.md`
+- **Specs**: `docs/specs/PRD.md`, `docs/specs/TRD.md`
+- **Plan Workflow**: `scripts/plan_loop/plan_lint.py`, `.agents/workflows/plan.md` (Blueprint 계약은 플랜 파일 메타·`plan_lint` 출력 기준)
+- **Playwright Discovery**: `.agents/workflows/playwright.md` (MCP 사용 시)
+- **Adaptive Guidelines**: `docs/memory/ADAPTIVE_GUIDELINES.json`

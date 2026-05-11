@@ -17,7 +17,7 @@ last_updated: 2026-05-06
 
 - **입력**: 브라우저 DevTools, 사용자 보고, HTTP 응답, 필요 시 기존 `error_logs/*.md` 붙여넣기
 - **초점**: 코드 경로 추적 → 근본 원인 → 수정 구현 및 문서화
-- **범위**: Frontend + Backend 전체 스택
+- **범위**: 브라우저·Next.js(App Router)·Server Actions·Route Handlers·Turso/Auth 전 구간
 - **출력**: `docs/knowledge/debug/` 전달 문서; 장기·다단계 해결안은 `docs/plans/` Blueprint (`/plan`)로 이어짐
 
 ---
@@ -30,45 +30,41 @@ last_updated: 2026-05-06
 
 - **동작**: 브라우저 DevTools Console 또는 네트워크 탭에서 에러 메시지 확인
 - **체크리스트**:
-  - [ ] API 호출 경로 (`GET /api/v1/...`)
+  - [ ] API 호출 경로 (`GET /api/...` 등)
   - [ ] HTTP 상태 코드 (403, 500, 401 등)
   - [ ] 에러 유형 (`ApiError`, `NetworkError` 등)
   - [ ] 에러 발생 위치 (파일:라인 번호)
 - **Output**: `[에러 유형]`, `[HTTP 경로]`, `[상태 코드]` 요약
 
-**예시 (B007)**:
+**예시 (FamilySync)**:
 ```
-에러 유형: ApiError
-HTTP 요청: GET /api/v1/interop/external-records/{patient_id}/list?reason_code=TRE
-에러 위치: src/lib/api/index.ts:279 → baseFetch() response.ok === false
+에러 유형: Server Action 실패 / 500
+HTTP 요청: POST /dashboard (또는 fetch /api/health)
+에러 위치: app/(dashboard)/… 또는 lib/… — 스택 트레이스의 파일:라인
 ```
 
 ---
 
 #### 2단계: 전체 스택 트레이스 추적
 
-- **동작**: Frontend → Backend 전체 호출 흐름을 `grep`, `read_file` 도구로 코드 기반 추적
+- **동작**: UI → Server Action / Route Handler → `lib/`·`db/` 를 `grep`·`read_file`로 추적
 - **추적 순서**:
-  1. Frontend 호출점 (컴포넌트 → API 클라이언트)
-  2. Backend 라우터 (`@router.get/POST`)
-  3. 의존성 주입 (DB 세션, 리포지토리, 어댑터)
-  4. 비즈니스 로직 (서비스 레이어)
-  5. 인프라 레이어 (DB, 외부 API, 캐시)
-  6. 예외 처리 및 HTTP 응답 매핑
+  1. UI 호출점 (`"use client"` 컴포넌트, `fetch`, 폼 `action`)
+  2. Server Action 또는 `app/api/**/route.ts`
+  3. `lib/auth`·`lib/*` 유효성·권한
+  4. Drizzle 쿼리·`db/client` (Turso)
+  5. 외부 연동(Auth.js, OAuth 콜백 등)
+  6. 에러·리다이렉트·HTTP 응답 매핑
 - **Output**: 호출 흐름 다이어그램 (텍스트 기반)
 
-**예시 (B007)**:
+**예시 (FamilySync)**:
 ```
-[Frontend] ExternalHieInquiryDialog.tsx:122
-  └─ api.get(`/interop/external-records/${patientId}/list`)
-     └─ ensureV1() → /api/v1/interop/external-records/{id}/list
-        └─ baseFetch() → response.ok === false → ApiError
+[UI] app/(dashboard)/QuickActionPanel.tsx
+  └─ form action → createEvent (Server Action)
 
-[Backend] interop_inquiry_router.py:53
-  └─ @router.get("/{patient_id}/list")
-     ├─ get_inquiry_service() → ExternalInquiryService
-     │  └─ consent_repo.get_by_patient_category() → ConsentRequiredError(403)
-     └─ 예외 처리: 403/502/500 매핑
+[Server] app/actions/events.ts
+  └─ getActiveProfileContext() → family_id 검증
+     └─ db.insert(events) … → Turso 오류 시 500 / 로그
 ```
 
 ---
@@ -76,18 +72,18 @@ HTTP 요청: GET /api/v1/interop/external-records/{patient_id}/list?reason_code=
 #### 3단계: 핵심 파일 목록 작성
 
 - **동작**: 관련 파일의 경로, 역할, 중요 코드 스니펫 정리
-- **분류**: Frontend / Backend 로 구분하여 표 형식 작성
+- **분류**: UI / 서버(`app/actions`, `app/api`) / `lib` / `db` 로 구분하여 표 형식 작성
 - **포함 항목**: 파일 경로, 역할 설명, 중요 코드 스니펫 (필요시)
 - **Output**: 핵심 파일 목록 테이블
 
-**예시 (B007)**:
+**예시 (FamilySync)**:
 | 파일 | 경로 | 역할 |
 |------|------|------|
-| `ExternalHieInquiryDialog.tsx` | `frontend/src/components/consultation/` | B007 HIE 조회 다이얼로그 UI + 호출 |
-| `index.ts` (API Client) | `frontend/src/lib/api/` | `baseFetch()`, `ApiError` 클래스 |
-| `interop_inquiry_router.py` | `src/api/v1/` | B007 API 라우터 |
-| `external_inquiry_service.py` | `src/application/services/` | B007 비즈니스 로직 (동의 검증, 캐싱) |
-| `central_repository_client.py` | `src/infrastructure/external/` | Mock 중앙 저장소 클라이언트 |
+| `dashboard/page.tsx` | `app/(dashboard)/dashboard/` | 대시보드 SSR·퀵 액션 데이터 로드 |
+| `events.ts` | `app/actions/` | 이벤트 생성·실행 취소 Server Actions |
+| `session.ts` | `lib/auth/` | 프로필·가족 문맥 (`getActiveProfileContext`) |
+| `schema.ts` | `db/` | Drizzle 스키마 |
+| `route.ts` | `app/api/health/` | DB·테이블 가용성 점검 |
 
 ---
 
@@ -173,17 +169,17 @@ Mock 데이터 (central_repository_client.py):
   - [ ] 환경 설정 변경
 - **Output**: 적용된 수정 사항 목록 + 적용 방법 (명령어)
 
-**예시 (B007)**:
+**예시 (FamilySync)**:
 ```bash
-# 1. 시드 데이터 재생
-uv run python scripts/seed/seed_b001_b002_interop_consent.py
+# 1. Turso 스키마·시드 이슈면 마이그레이션 재실행(README 참고)
+npm run db:migrate
 
-# 2. 백엔드 서버 재시작
-# 3. 브라우저 캐시 삭제 후 새로고침
+# 2. 로컬 앱 재기동
+bun run dev
 
-# 4. 디버깅 확인
-# - 브라우저 DevTools Console: [B007/Debug] 로그 검색
-# - 백엔드 서버 로그: [B007] consent check failed 검색
+# 3. 헬스·계약 테스트
+curl -sS http://localhost:3000/api/health
+bun run test
 ```
 
 ---

@@ -10,7 +10,7 @@ description: 사소한 증상 포착 및 아키텍처 개선 (Diagnose + Deepen)
 ## 🔄 루프 (The Loop)
 
 ### 1단계 — 탐색 및 선택 (마이크로 증상)
-`just micro-scan`을 사용하여 "마이크로 증상"을 식별합니다.
+`git diff`, `grep`, 최근 실패 로그 등으로 "마이크로 증상"을 식별한다(본 레포에 `just micro-scan` 없음).
 - **기준**: "얕거나(shallow)" "누수되는(leaky)" 느낌이 드는 대상을 선택합니다.
 - **삭제 테스트 (The Deletion Test)**: 스스로에게 질문하십시오: *"내가 지금 이 모듈을 삭제한다면, 그 복잡성은 어디로 가는가?"* 
     - N개의 호출자(caller)에게 흩어진다면, 해당 모듈은 **얕은(Shallow)** 상태입니다.
@@ -40,7 +40,7 @@ description: 사소한 증상 포착 및 아키텍처 개선 (Diagnose + Deepen)
 1. **Red**: 2단계의 신호가 Red임을 확인합니다.
 2. **Green**: 최소한의 심화 리팩토링을 구현합니다.
 3. **Refactor**: "지역성(Locality)"과 "클린 코드"를 위해 최적화합니다.
-4. **검증**: `just tdd-fast` + `just lint`.
+4. **검증**: `bun run test`(또는 대상 계약 테스트) + `bun run lint` + `bun run typecheck:strict` + 필요 시 `just ci`.
 
 ### 6단계 — 자산화 및 종료 (유산)
 - **워크플로우**: `@/asset`을 호출합니다.

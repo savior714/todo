@@ -75,7 +75,7 @@ bun run lint && bun run typecheck:strict && just ci
 - [ ] **앱 코드·UI 변경 시**: `bun run lint`와 `bun run typecheck:strict`를 통과시킨다. 동작·계약이 바뀌면 `bun run test`를 추가하고, 빌드 이슈가 있으면 `bun run build`로 확인한다.
 - [ ] **플랜·메모리 게이트**: `just ci`를 통과시킨다. (`just ci`가 내부에서 `just lint-fix`·`just plans-index`·`just memory-verify`를 수행한다.)
 - [ ] **문서 무결성**: 커밋에 한글 `docs/**`가 포함되면 `python3 scripts/verify_korean_text.py --dir docs`(또는 변경 범위에 맞는 `--dir` / `--file`)를 실행한다.
-- [ ] **산출 검증 파일**: 레포에 `verify-last-result.json` 등 별도 검증 산출물이 없으면 해당 단계는 생략한다. (`AGENTS.md` Verification Matrix의 `just lint`/`just ty` 등은 **다른 워크스페이스용**일 수 있으니, 이 레포에서는 위 `bun`·`just ci`를 우선한다.)
+- [ ] **산출 검증 파일**: 레포에 `verify-last-result.json` 등 별도 검증 산출물이 없으면 해당 단계는 생략한다. (검증 매트릭스는 `AGENTS.md` §4 — 이 레포: `bun`·`just ci`.)
 - [ ] **민감 정보 스캔**: `git status`를 통해 스테이징될 파일 목록 중 `.env`, `*.db`, `*.key`, `*.pem` 등 민감 데이터가 포함되지 않았는지 확인한다.
 - [ ] 오류 발생 시 커밋 전 반드시 수정하고 재검증한다. **`--no-verify`로 우회한 경우** 후속 커밋에서 `bun run lint`·`typecheck:strict`·`just ci`를 통과시킨다.
 
