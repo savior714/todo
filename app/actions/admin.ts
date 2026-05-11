@@ -80,6 +80,25 @@ export async function createHomeworkType(childGroup: "kid7" | "kid4", title: str
     isActive: true,
   });
 
+  revalidatePath("/admin");
+  revalidatePath("/homework");
+  return { success: true };
+}
+
+export async function deactivateHomeworkType(formData: FormData) {
+  const profile = await resolveActiveAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) {
+    throw new Error("잘못된 요청입니다.");
+  }
+
+  await db
+    .update(homeworkTypes)
+    .set({ isActive: false })
+    .where(and(eq(homeworkTypes.id, id), eq(homeworkTypes.familyId, profile.familyId)));
+
+  revalidatePath("/admin");
+  revalidatePath("/homework");
   return { success: true };
 }
 

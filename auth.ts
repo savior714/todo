@@ -4,6 +4,7 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db/client";
 import { accounts, authenticators, sessions, users, verificationTokens } from "@/db/schema";
 import { ensureDefaultFamilyForUser } from "@/lib/auth/bootstrap-family";
+import { promoteExecutorsToAdminForCoAdminEmail } from "@/lib/auth/promote-co-admins";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   /** 배포(Vercel)에서 누락 시 Auth.js가 "Server error / server configuration" 페이지를 반환합니다. */
@@ -29,6 +30,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return;
       }
       await ensureDefaultFamilyForUser(user.id, user.name);
+    },
+    async signIn({ user }) {
+      if (!user.id) {
+        return;
+      }
+      await promoteExecutorsToAdminForCoAdminEmail(user.id, user.email);
     },
   },
   callbacks: {

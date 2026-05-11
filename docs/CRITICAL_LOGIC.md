@@ -62,6 +62,8 @@
 ## 6. 권한 모델
 
 - **`profiles.role`**: `admin` | `executor`. Pin·가이드·숙제 설정 등 **관리자 전용 변이**는 서버에서 `admin`을 검증한다.
+- **공동 관리자(선택)**: 환경변수 **`FAMILY_CO_ADMIN_EMAILS`**(쉼표·공백 등 구분, 이메일 대소문자 무시)에 등록된 Google 계정으로 **로그인(`signIn`)할 때**, 해당 사용자의 `family_id`에 속한 **`executor` 프로필은 `admin`으로 멱등 승격**된다. 가족 내 executor를 유지해야 하는 비관리자 프로필이 있으면 allowlist에 넣지 않는다. (`lib/auth/promote-co-admins.ts`)
+- **숙제 유형**: 물리 삭제 대신 **`homework_types.is_active = false`** 로 숨긴다. 트래커 UI는 활성 행만 노출한다.
 - **실행자**: 퀵 액션·숙제 완료·타임라인 조회 등은 일반적으로 활성 프로필만 유효하면 된다(세부는 각 Server Action).
 
 ---

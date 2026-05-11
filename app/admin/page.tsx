@@ -2,13 +2,14 @@ import {
   createGuide,
   createHomeworkType,
   createQuickAction,
+  deactivateHomeworkType,
   deactivateQuickAction,
   upsertDailyPin,
 } from "@/app/actions/admin";
 import { db } from "@/db/client";
-import { quickActions } from "@/db/schema";
+import { homeworkTypes, quickActions } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 
 export default async function AdminPage() {
   const profile = await getActiveProfileContext();
@@ -26,6 +27,20 @@ export default async function AdminPage() {
           .from(quickActions)
           .where(eq(quickActions.familyId, profile.familyId))
           .orderBy(asc(quickActions.sortOrder), asc(quickActions.createdAt))
+      : [];
+
+  const homeworkRows =
+    profile?.role === "admin"
+      ? await db
+          .select({
+            id: homeworkTypes.id,
+            title: homeworkTypes.title,
+            childGroup: homeworkTypes.childGroup,
+            isActive: homeworkTypes.isActive,
+          })
+          .from(homeworkTypes)
+          .where(eq(homeworkTypes.familyId, profile.familyId))
+          .orderBy(desc(homeworkTypes.createdAt))
       : [];
 
   async function submitPin(formData: FormData) {
@@ -60,6 +75,11 @@ export default async function AdminPage() {
   async function submitDeactivateQuickAction(formData: FormData) {
     "use server";
     await deactivateQuickAction(formData);
+  }
+
+  async function submitDeactivateHomeworkType(formData: FormData) {
+    "use server";
+    await deactivateHomeworkType(formData);
   }
 
   return (
@@ -160,8 +180,38 @@ export default async function AdminPage() {
       </section>
 
       <section className="mt-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
-        <h2 className="text-lg font-semibold">숙제 유형 추가</h2>
-        <form action={submitHomeworkType} className="mt-3 grid gap-2">
+        <h2 className="text-lg font-semibold">숙제 유형</h2>
+        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+          잘못 추가한 유형은 숨기기로 비활성화합니다. (숙제 트래커에는 활성 유형만 표시됩니다.)
+        </p>
+        <ul className="mt-3 grid gap-2">
+          {homeworkRows.map((hw) => (
+            <li
+              key={hw.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-600"
+            >
+              <div>
+                <span className="font-medium">{hw.title}</span>
+                <span className="ml-2 text-xs text-neutral-500">
+                  {hw.childGroup}
+                  {!hw.isActive ? " · 비활성" : ""}
+                </span>
+              </div>
+              {hw.isActive ? (
+                <form action={submitDeactivateHomeworkType}>
+                  <input type="hidden" name="id" value={hw.id} />
+                  <button
+                    type="submit"
+                    className="inline-flex min-h-[44px] items-center rounded-md border border-neutral-400 px-3 text-sm dark:border-neutral-500"
+                  >
+                    숨기기
+                  </button>
+                </form>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+        <form action={submitHomeworkType} className="mt-4 grid gap-2">
           <input
             name="title"
             required

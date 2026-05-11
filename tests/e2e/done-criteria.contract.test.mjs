@@ -138,3 +138,19 @@ test("일회성 어드민 마이그레이션 라우트는 사용 직후 제거�
     "app/api/admin 디렉토리가 남아있다. 어드민 라우트는 1회 사용 후 즉시 제거할 것."
   );
 });
+
+test("공동 관리자 이메일 allowlist가 로그인 시 executor→admin 승격 훅과 연결된다", () => {
+  const promote = read("lib/auth/promote-co-admins.ts");
+  const authConfig = read("auth.ts");
+  assert.match(promote, /FAMILY_CO_ADMIN_EMAILS/);
+  assert.match(promote, /promoteExecutorsToAdminForCoAdminEmail/);
+  assert.match(promote, /set\(\{\s*role:\s*"admin"\s*\}\)/);
+  assert.match(authConfig, /promoteExecutorsToAdminForCoAdminEmail/);
+});
+
+test("관리자가 숙제 유형을 비활성화할 수 있는 서버 액션이 존재한다", () => {
+  const adminActions = read("app/actions/admin.ts");
+  assert.match(adminActions, /deactivateHomeworkType/);
+  assert.match(adminActions, /homeworkTypes/);
+  assert.match(adminActions, /isActive:\s*false/);
+});
