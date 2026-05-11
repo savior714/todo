@@ -58,6 +58,27 @@ test("linked_action 가이드 힌트가 퀵 액션 패널에 노출된다", () =
   assert.match(quickAction, /연결 가이드/);
 });
 
+test("대시보드 퀵 액션에 오늘 숙제 완료 바로가기가 연결된다", () => {
+  const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
+  assert.match(dashboard, /homeworkShortcuts=\{homeworkShortcuts\}/);
+  assert.match(dashboard, /homeworkLogs/);
+  assert.match(quickAction, /completeHomework/);
+  assert.match(quickAction, /오늘 숙제/);
+});
+
+test("관리자는 대시보드에서 퀵 액션·숙제 설정 링크를 받는다", () => {
+  const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
+  const adminPage = read("app/admin/page.tsx");
+  assert.match(dashboard, /showAdminSettingsLink=\{profile\.role === "admin"\}/);
+  assert.match(quickAction, /showAdminSettingsLink/);
+  assert.match(quickAction, /\/admin#quick-actions-admin/);
+  assert.match(quickAction, /\/admin#homework-types-admin/);
+  assert.match(adminPage, /id="quick-actions-admin"/);
+  assert.match(adminPage, /id="homework-types-admin"/);
+});
+
 test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한다", () => {
   const feed = read("app/(dashboard)/TimelineFeed.tsx");
   const dashboard = read("app/(dashboard)/dashboard/page.tsx");

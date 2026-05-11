@@ -5,7 +5,7 @@ import DailyPinBanner from "@/app/(dashboard)/DailyPinBanner";
 import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import TimelineFeed from "@/app/(dashboard)/TimelineFeed";
 import { db } from "@/db/client";
-import { careGuides, events, quickActions } from "@/db/schema";
+import { careGuides, events, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
 import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions-seed";
 
@@ -90,6 +90,30 @@ export default async function DashboardPage() {
     return acc;
   }, {});
 
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const homeworkTypeRows = await db
+    .select({
+      id: homeworkTypes.id,
+      title: homeworkTypes.title,
+      childGroup: homeworkTypes.childGroup,
+    })
+    .from(homeworkTypes)
+    .where(and(eq(homeworkTypes.familyId, profile.familyId), eq(homeworkTypes.isActive, true)))
+    .orderBy(asc(homeworkTypes.createdAt));
+
+  const homeworkLogsToday = await db
+    .select({ homeworkTypeId: homeworkLogs.homeworkTypeId })
+    .from(homeworkLogs)
+    .where(and(eq(homeworkLogs.familyId, profile.familyId), eq(homeworkLogs.dateKey, todayKey)));
+
+  const homeworkCompletedToday = new Set((homeworkLogsToday ?? []).map((r) => r.homeworkTypeId));
+  const homeworkShortcuts = homeworkTypeRows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    childGroup: row.childGroup,
+    completedToday: homeworkCompletedToday.has(row.id),
+  }));
+
   const normalizedEvents = timelineRows.map((row) => ({
     ...row,
     created_at: new Date(row.created_at).toISOString(),
@@ -145,7 +169,12 @@ export default async function DashboardPage() {
         </p>
       )}
       <DailyPinBanner />
-      <QuickActionPanel actions={quickActionRows} guideHints={guideHints} />
+      <QuickActionPanel
+        actions={quickActionRows}
+        guideHints={guideHints}
+        homeworkShortcuts={homeworkShortcuts}
+        showAdminSettingsLink={profile.role === "admin"}
+      />
       <TimelineFeed initialEvents={normalizedEvents} />
     </main>
   );

@@ -129,6 +129,8 @@ export async function completeHomework(homeworkTypeId: string) {
       },
     });
 
+  revalidatePath("/homework");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 

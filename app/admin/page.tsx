@@ -86,7 +86,10 @@ export default async function AdminPage() {
     <main className="mx-auto max-w-3xl p-6">
       <h1 className="text-2xl font-bold">관리자 설정</h1>
 
-      <section className="mt-6 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+      <section
+        id="quick-actions-admin"
+        className="scroll-mt-6 mt-6 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
+      >
         <h2 className="text-lg font-semibold">퀵 액션 버튼</h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           대시보드에 보이는 버튼을 추가합니다. 액션 타입은 타임라인·가이드 연결(linked_action)에 쓰입니다.
@@ -179,7 +182,10 @@ export default async function AdminPage() {
         </form>
       </section>
 
-      <section className="mt-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+      <section
+        id="homework-types-admin"
+        className="scroll-mt-6 mt-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
+      >
         <h2 className="text-lg font-semibold">숙제 유형</h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           잘못 추가한 유형은 숨기기로 비활성화합니다. (숙제 트래커에는 활성 유형만 표시됩니다.)
