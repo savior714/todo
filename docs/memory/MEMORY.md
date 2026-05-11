@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-11: `/git` 워크플로(`.agents/workflows/git.md`·`.clinerules/workflows/git.md`)를 FamilySync 레포 기준으로 정리 — Husky·`apps/renderer` 대신 `bun run lint`·`typecheck:strict`·`just ci`·`verify_korean_text.py` 안내, `MEMORY.md` 200라인·`just memory-verify`와 정합.
 - 2026-05-11: `DashboardPinchZoomLock` 강화(모바일 뷰포트 줌 고정) — 대시보드 마운트 시 `meta[name=viewport]` 런타임 재설정·멀티터치(`touches>1`)·더블탭(300ms) 차단, 기존 iOS `gesture*`·Ctrl+휠 차단 유지·언마운트 시 viewport 복원. `bun run lint`·`typecheck:strict` 통과.
 - 2026-05-11: 대시보드 `(dashboard)` 레이아웃에 `DashboardPinchZoomLock` 추가 — iOS `gesture*` 차단·Ctrl+휠 줌 차단, `globals.css`는 `touch-action:pan-x pan-y`로 `manipulation`(핀치 허용 가능) 제거·`html.dashboard-pinch-lock`에 `overscroll-behavior:none`. 계약 테스트 보강. `bun run lint`·`typecheck:strict`·`test`·`build` 통과.
 - 2026-05-11: 대시보드 헤더 우측에 `logoutProfile` 서버 액션 기반 로그아웃 아이콘 버튼 추가. `globals.css`에 폼 `max(16px,1em)`·`100dvh`·`layout.tsx`에 `interactiveWidget:resizes-content` 적용. 계약 테스트 2건 추가. `bun run lint`·`typecheck:strict`·`test`·`build` 통과.
