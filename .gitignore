@@ -28,3 +28,6 @@ package-lock.json
 
 # 로컬 전용 ai_worklog 심볼릭 링크(타 머신 경로) — 추적 금지
 tools/ai_worklog
+
+# Playwright MCP 실행 산출물
+.playwright-mcp/

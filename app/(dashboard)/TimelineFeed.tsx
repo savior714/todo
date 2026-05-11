@@ -28,8 +28,6 @@ type TimelineFeedProps = {
   initialEvents: TimelineItem[];
 };
 
-const SWIPE_PX = 56;
-
 const ACTION_LABEL: Record<string, string> = {
   meal: "식사",
   medication: "투약",
@@ -51,7 +49,6 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
   const [centerDate, setCenterDate] = useState(() => startOfLocalDay(new Date()));
   const [recordDateKey, setRecordDateKey] = useState<string | null>(null);
   const [recordDraft, setRecordDraft] = useState<RecordDraft | null>(null);
-  const touchStartX = useRef<number | null>(null);
   const dateInputRef = useRef<HTMLInputElement | null>(null);
   const centerColumnRef = useRef<HTMLDivElement | null>(null);
 
@@ -191,30 +188,11 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
       </div>
 
       <p className="text-xs text-neutral-600 dark:text-neutral-400">
-        가운데 열 기준으로 어제·오늘·내일을 한 번에 보고, « » 로 한 주씩 이동합니다. 모바일에서는 아래
-        세 열을 좌우로 스와이프해도 됩니다.
+        가운데 열 기준으로 어제·오늘·내일을 한 번에 보고, « » 로 한 주씩 이동합니다. 날짜 열을 터치하면
+        해당 날짜가 가운데로 정렬됩니다.
       </p>
 
-      <div
-        className="rounded-xl border border-neutral-200 dark:border-neutral-700"
-        onTouchStart={(e) => {
-          touchStartX.current = e.changedTouches[0]?.screenX ?? null;
-        }}
-        onTouchEnd={(e) => {
-          const start = touchStartX.current;
-          touchStartX.current = null;
-          if (start == null) {
-            return;
-          }
-          const end = e.changedTouches[0]?.screenX ?? start;
-          const dx = end - start;
-          if (dx > SWIPE_PX) {
-            shiftWeek(-7);
-          } else if (dx < -SWIPE_PX) {
-            shiftWeek(7);
-          }
-        }}
-      >
+      <div className="rounded-xl border border-neutral-200 dark:border-neutral-700">
         <div className="overflow-x-hidden scroll-smooth sm:overflow-visible">
           <div className="grid w-full min-w-[21rem] grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-700 sm:min-w-[28rem]">
           {columnDays.map((day, colIndex) => {

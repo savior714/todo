@@ -13,8 +13,12 @@ html {
 
 /* 대시보드 진입 시: 핀치 줌·바운스로 레이아웃이 흔들리지 않도록 보강 */
 html.dashboard-pinch-lock {
-  touch-action: pan-x pan-y;
+  touch-action: pan-y;
   overscroll-behavior: none;
+  overflow-x: hidden;
+}
+
+html.dashboard-pinch-lock body {
   overflow-x: hidden;
 }
 
