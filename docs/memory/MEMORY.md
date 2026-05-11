@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-12: 대시보드 로딩 최적화 — `getActiveProfileContext`를 `React.cache`로 요청당 중복 제거, `DailyPinBanner`는 `familyId` props만 조회, 퀵액션·숙제는 `DashboardDeferred`에서 `Promise.all` 병렬화, 타임라인은 `TimelineFeedSection`+`Suspense`로 스트리밍·핀·퀵과 병렬, `TIMELINE_LOOKBACK_MS` 90일·`TIMELINE_EVENT_LIMIT` 300, `0003_events_timeline_idx.sql` 부분 인덱스, `FAMILYSYNC_DASHBOARD_PERF=1` 구간 로그. `bun run lint`·`typecheck:strict`·`test`·`just ci` 통과.
 - 2026-05-12: 우리집 가이드 기능 제거 — `/admin` 가이드 추가 폼·`createGuide` 삭제, `careGuides` 스키마·`/guides` 페이지·`0000_initial`의 `care_guides` 생성 제거, `0002_drop_care_guides.sql`로 레거시 테이블 드롭, PRD/TRD/README/`CRITICAL_LOGIC`·계약 테스트 정합. 라우트 삭제 후 `tsconfig`가 참조하는 stale `.next/types`로 `tsc` 실패 시 `.next` 제거·재빌드로 해결. `bun run lint`·`typecheck:strict`·`test`·`build`·`just ci` 통과.
 - 2026-05-12: 대시보드 `QuickActionPanel` — 활성 `homework_types`가 없어도「오늘 숙제」헤더·관리자 `숙제 유형 관리` 링크·빈 안내 문구를 항상 노출. 퀵 액션 없을 때만 별도 안내 문단. `bun run lint`·`typecheck:strict`·`test`·`just ci` 통과.
 - 2026-05-11: Auth.js `/api/auth/error?error=Configuration` 문서 응답 HTTP **500**이 `@auth/core` 의도 동작임을 레포 SSOT로 고정 — `lib/auth/authjs-configuration-contract.ts`, `tests/unit/auth-configuration-diagnostics.test.ts`(upstream `error.js` 정합·`/api/health` 503·README 링크), `done-criteria.contract.test.mjs` 1건, README DevTools 참고 한 줄. `package.json`의 `bun test tests/unit/` 일괄 실행. `bun run test`·`lint`·`typecheck:strict` 통과.

@@ -1,10 +1,18 @@
 import { cookies } from "next/headers";
 import { and, eq } from "drizzle-orm";
+import { cache } from "react";
 import { auth } from "@/auth";
 import { db } from "@/db/client";
 import { profiles, userFamilies } from "@/db/schema";
 
 export const ACTIVE_PROFILE_COOKIE = "active_profile_id";
+
+export type ResolvedActiveProfile = {
+  id: string;
+  familyId: string;
+  role: "admin" | "executor";
+  name: string;
+};
 
 export async function requireUserId() {
   const session = await auth();
@@ -22,7 +30,7 @@ export async function getCurrentFamilyId(userId: string) {
   return row?.familyId ?? null;
 }
 
-export async function getActiveProfileContext() {
+async function loadActiveProfileContext(): Promise<ResolvedActiveProfile | null> {
   const session = await auth();
   const userId = session?.user?.id;
 
@@ -54,3 +62,6 @@ export async function getActiveProfileContext() {
 
   return profile ?? null;
 }
+
+/** 동일 RSC 요청 내 `auth`/프로필 조회 중복을 제거합니다. */
+export const getActiveProfileContext = cache(loadActiveProfileContext);

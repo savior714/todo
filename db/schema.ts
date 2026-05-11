@@ -126,6 +126,9 @@ export const events = sqliteTable(
       table.actionType,
       table.createdAt
     ),
+    familyActiveCreatedIdx: index("events_family_active_created_idx")
+      .on(table.familyId, table.createdAt)
+      .where(eq(table.isReverted, false)),
   })
 );
 

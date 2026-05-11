@@ -1,21 +1,22 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { dailyPins } from "@/db/schema";
-import { getActiveProfileContext } from "@/lib/auth/session";
+import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard-perf";
 
-export default async function DailyPinBanner() {
-  const profile = await getActiveProfileContext();
+type DailyPinBannerProps = Readonly<{
+  familyId: string;
+}>;
 
-  if (!profile) {
-    return null;
-  }
-
+export default async function DailyPinBanner({ familyId }: DailyPinBannerProps) {
+  const t0 = dashboardPerfNow();
   const [pin] = await db
     .select({ content: dailyPins.content })
     .from(dailyPins)
-    .where(and(eq(dailyPins.familyId, profile.familyId), eq(dailyPins.isActive, true)))
+    .where(and(eq(dailyPins.familyId, familyId), eq(dailyPins.isActive, true)))
     .orderBy(desc(dailyPins.createdAt))
     .limit(1);
+
+  logDashboardPerf("daily_pin", t0);
 
   if (!pin) {
     return null;

@@ -63,17 +63,17 @@ test("접근성 기준(퀵 액션 최소 60px)이 유지된다", () => {
 
 test("퀵 액션 패널은 버튼만 렌더하고 연결 가이드 문구는 쓰지 않는다", () => {
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
-  const dashboard = read("app/(dashboard)/dashboard/page.tsx");
-  assert.match(dashboard, /<QuickActionPanel\s+actions=\{/);
+  const deferred = read("app/(dashboard)/dashboard/DashboardDeferred.tsx");
+  assert.match(deferred, /<QuickActionPanel\s+actions=\{/);
   assert.match(quickAction, /actions\.map/);
   assert.doesNotMatch(quickAction, /연결 가이드/);
 });
 
 test("대시보드 퀵 액션에 오늘 숙제 완료 바로가기가 연결된다", () => {
-  const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  const deferred = read("app/(dashboard)/dashboard/DashboardDeferred.tsx");
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
-  assert.match(dashboard, /homeworkShortcuts=\{homeworkShortcuts\}/);
-  assert.match(dashboard, /homeworkLogs/);
+  assert.match(deferred, /homeworkShortcuts=\{homeworkShortcuts\}/);
+  assert.match(deferred, /homeworkLogs/);
   assert.match(quickAction, /completeHomework/);
   assert.match(quickAction, /오늘 숙제/);
 });
@@ -88,10 +88,10 @@ test("숙제 완료 시 타임라인용 events 행이 함께 기록된다", () =
 });
 
 test("관리자는 대시보드에서 퀵 액션·숙제 설정 링크를 받는다", () => {
-  const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  const deferred = read("app/(dashboard)/dashboard/DashboardDeferred.tsx");
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
   const adminPage = read("app/admin/page.tsx");
-  assert.match(dashboard, /showAdminSettingsLink=\{profile\.role === "admin"\}/);
+  assert.match(deferred, /showAdminSettingsLink=\{profile\.role === "admin"\}/);
   assert.match(quickAction, /showAdminSettingsLink/);
   assert.match(quickAction, /\/admin#quick-actions-admin/);
   assert.match(quickAction, /\/admin#homework-types-admin/);
@@ -106,12 +106,36 @@ test("관리자는 대시보드에서 퀵 액션·숙제 설정 링크를 받는
 test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한다", () => {
   const feed = read("app/(dashboard)/TimelineFeed.tsx");
   const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  const timelineSection = read("app/(dashboard)/TimelineFeedSection.tsx");
   const recordModal = read("app/(dashboard)/RecordEventModal.tsx");
   assert.match(feed, /grid-cols-3/);
   assert.match(feed, /type="date"/);
   assert.match(feed, /getEventDisplayDateKey/);
   assert.match(recordModal, /timelineDate/);
-  assert.match(dashboard, /metadata: events\.metadata/);
+  assert.match(timelineSection, /metadata: events\.metadata/);
+  assert.match(dashboard, /TimelineFeedSection/);
+  assert.match(dashboard, /Suspense/);
+});
+
+test("대시보드 로딩은 프로필 캐시·병렬 데이터 패치·핀 배너 familyId를 사용한다", () => {
+  const session = read("lib/auth/session.ts");
+  const banner = read("app/(dashboard)/DailyPinBanner.tsx");
+  const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  const deferred = read("app/(dashboard)/dashboard/DashboardDeferred.tsx");
+  assert.match(session, /from\s+["']react["']/);
+  assert.match(session, /\bcache\(/);
+  assert.match(banner, /familyId:\s*string/);
+  assert.match(deferred, /Promise\.all\(/);
+  assert.match(dashboard, /<DailyPinBanner\s+familyId=\{/);
+});
+
+test("타임라인 조회 상수와 이벤트 부분 인덱스 마이그레이션이 존재한다", () => {
+  const constants = read("lib/dashboard-timeline.ts");
+  const migration = read("db/migrations/0003_events_timeline_idx.sql");
+  assert.match(constants, /TIMELINE_EVENT_LIMIT/);
+  assert.match(constants, /TIMELINE_LOOKBACK_MS/);
+  assert.match(migration, /events_family_active_created_idx/i);
+  assert.match(migration, /is_reverted\s*=\s*0/i);
 });
 
 test("실행 취소 정책이 액션 타입별 SSOT로 정의되고 서버·타임라인이 공유한다", () => {
