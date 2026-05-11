@@ -95,6 +95,8 @@ npm run db:migrate
 
 이 화면은 대부분 **필수 env가 비어 있거나**, OAuth 콜백 처리 중 **DB 예외**가 나 Auth.js가 `Configuration` 오류로 처리할 때 뜹니다(Auth.js는 `AdapterError` 등을 사용자에게 그대로 보여주지 않고 같은 형태로 감쌉니다). 아래를 **Production**(및 사용 중인 Preview)에서 순서대로 확인하세요.
 
+**참고(DevTools)**: `/api/auth/error?error=Configuration` **문서** 응답이 HTTP **500**이어도, `@auth/core` 기본 HTML이 그렇게 내려주는 **정상 동작**일 수 있다(Next 라우트 전역 장애로 단정하지 말 것). 오판 방지 SSOT: `lib/auth/authjs-configuration-contract.ts` · 단위 테스트 `tests/unit/auth-configuration-diagnostics.test.ts`.
+
 **빠른 점검(배포 후)**: 브라우저 또는 `curl`로 `https://<배포-도메인>/api/health` 를 열어 `checks`/`db`/`tables` 세 영역을 모두 확인하세요.
 
 - `checks`에 `false`가 있으면 → 해당 env가 비어있음 → Vercel 프로젝트 환경변수에 추가 후 재배포

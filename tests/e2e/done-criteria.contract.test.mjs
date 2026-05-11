@@ -143,6 +143,13 @@ test("Auth.js 설정 파일과 라우트 핸들러가 존재한다", () => {
   assert.match(authRoute, /export const \{ GET, POST \} = handlers/);
 });
 
+test("Auth.js Configuration/500 혼동 방지 SSOT 모듈이 존재한다", () => {
+  const contract = read("lib/auth/authjs-configuration-contract.ts");
+  assert.match(contract, /AUTH_JS_CONFIGURATION_ERROR_PAGE_STATUS/);
+  assert.match(contract, /AUTH_JS_CONFIGURATION_ERROR_QUERY/);
+  assert.match(contract, /500/);
+});
+
 test("배포 점검용 /api/health 라우트가 Auth 필수 env 존재 여부를 반환한다", () => {
   const health = read("app/api/health/route.ts");
   assert.match(health, /AUTH_SECRET/);
