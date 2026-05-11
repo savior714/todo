@@ -26,6 +26,12 @@ test("투약 안전장치 로직이 서버 액션에 존재한다", () => {
   assert.match(recordModal, /override:\s*true/);
 });
 
+test("이벤트 생성·실행 취소 후 router.refresh가 새 타임라인을 받도록 대시보드를 revalidate한다", () => {
+  const eventsAction = read("app/actions/events.ts");
+  const matches = eventsAction.match(/revalidatePath\("\/dashboard"\)/g);
+  assert.ok(matches && matches.length >= 2, "createEvent·undoEvent 각각 revalidatePath(/dashboard) 필요");
+});
+
 test("이벤트 메타데이터 검증이 lib/event-metadata에 정의되어 있다", () => {
   const meta = read("lib/event-metadata.ts");
   const eventsAction = read("app/actions/events.ts");
@@ -49,13 +55,12 @@ test("접근성 기준(퀵 액션 최소 60px)이 유지된다", () => {
   assert.match(quickAction, /min-h-\[60px\]/);
 });
 
-test("linked_action 가이드 힌트가 퀵 액션 패널에 노출된다", () => {
+test("퀵 액션 패널은 버튼만 렌더하고 연결 가이드 문구는 쓰지 않는다", () => {
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
   const dashboard = read("app/(dashboard)/dashboard/page.tsx");
-  assert.match(dashboard, /linkedAction: careGuides\.linkedAction/);
   assert.match(dashboard, /<QuickActionPanel\s+actions=\{/);
-  assert.match(quickAction, /guideHints/);
-  assert.match(quickAction, /연결 가이드/);
+  assert.match(quickAction, /actions\.map/);
+  assert.doesNotMatch(quickAction, /연결 가이드/);
 });
 
 test("대시보드 퀵 액션에 오늘 숙제 완료 바로가기가 연결된다", () => {
@@ -67,6 +72,15 @@ test("대시보드 퀵 액션에 오늘 숙제 완료 바로가기가 연결된�
   assert.match(quickAction, /오늘 숙제/);
 });
 
+test("숙제 완료 시 타임라인용 events 행이 함께 기록된다", () => {
+  const admin = read("app/actions/admin.ts");
+  const meta = read("lib/event-metadata.ts");
+  assert.match(admin, /actionType:\s*"homework"/);
+  assert.match(admin, /\.insert\(events\)/);
+  assert.match(admin, /normalizeAndValidateEventMetadata\(\s*"homework"/);
+  assert.match(meta, /actionType === "homework"/);
+});
+
 test("관리자는 대시보드에서 퀵 액션·숙제 설정 링크를 받는다", () => {
   const dashboard = read("app/(dashboard)/dashboard/page.tsx");
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
@@ -75,16 +89,22 @@ test("관리자는 대시보드에서 퀵 액션·숙제 설정 링크를 받는
   assert.match(quickAction, /showAdminSettingsLink/);
   assert.match(quickAction, /\/admin#quick-actions-admin/);
   assert.match(quickAction, /\/admin#homework-types-admin/);
-  assert.match(adminPage, /id="quick-actions-admin"/);
-  assert.match(adminPage, /id="homework-types-admin"/);
+  const quickActionsSection = read("app/admin/quick-actions-admin-section.tsx");
+  const homeworkSection = read("app/admin/homework-types-admin-section.tsx");
+  assert.match(quickActionsSection, /id="quick-actions-admin"/);
+  assert.match(homeworkSection, /id="homework-types-admin"/);
+  assert.match(adminPage, /QuickActionsAdminSection/);
+  assert.match(adminPage, /HomeworkTypesAdminSection/);
 });
 
 test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한다", () => {
   const feed = read("app/(dashboard)/TimelineFeed.tsx");
   const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  const recordModal = read("app/(dashboard)/RecordEventModal.tsx");
   assert.match(feed, /grid-cols-3/);
   assert.match(feed, /type="date"/);
-  assert.match(feed, /timelineDate/);
+  assert.match(feed, /getEventDisplayDateKey/);
+  assert.match(recordModal, /timelineDate/);
   assert.match(dashboard, /metadata: events\.metadata/);
 });
 
@@ -95,6 +115,7 @@ test("실행 취소 정책이 액션 타입별 SSOT로 정의되고 서버·타�
   assert.match(policy, /getUndoWindowMsForActionType/);
   assert.match(policy, /LOW_RISK_UNDO_WINDOW_MS/);
   assert.match(policy, /MEDICATION_UNDO_WINDOW_MS/);
+  assert.match(policy, /HOMEWORK_UNDO_WINDOW_MS/);
   assert.match(eventsAction, /getUndoWindowMsForActionType/);
   assert.match(eventsAction, /action_type:\s*events\.actionType/);
   assert.match(feed, /getUndoWindowMsForActionType\(\s*event\.action_type\s*\)/);

@@ -10,11 +10,23 @@ const medicationItemSchema = z.object({
   unit: z.enum(MEDICATION_UNITS),
 });
 
-const medicationDetailSchema = z.object({
-  subject: z.enum(["kid7", "kid4", "family"]),
-  items: z.array(medicationItemSchema).min(1, "투약 항목을 1개 이상 추가해 주세요.").max(20),
-  note: z.string().trim().max(2000).optional(),
-});
+const medicationDetailSchema = z
+  .object({
+    subject: z.enum(["kid7", "kid4", "family"]),
+    items: z.array(medicationItemSchema).max(20).default([]),
+    note: z.string().trim().max(2000).optional(),
+  })
+  .superRefine((val, ctx) => {
+    const hasItems = val.items.length > 0;
+    const hasMemo = (val.note ?? "").trim().length > 0;
+    if (!hasItems && !hasMemo) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "투약 항목을 1개 이상 추가하거나 메모를 입력해 주세요.",
+        path: ["items"],
+      });
+    }
+  });
 
 const mealDetailSchema = z.object({
   note: z.string().trim().max(2000).optional(),
@@ -22,6 +34,11 @@ const mealDetailSchema = z.object({
 
 const genericDetailSchema = z.object({
   note: z.string().trim().max(2000).optional(),
+});
+
+const homeworkCompleteDetailSchema = z.object({
+  homeworkTypeId: z.string().trim().min(1).max(128),
+  title: z.string().trim().min(1).max(300),
 });
 
 /** 등원·하원: 아이(프로필 그룹) + 선택 장소. `events.target`은 `child`와 동일하게 둔다. */
@@ -72,7 +89,17 @@ export function normalizeAndValidateEventMetadata(
     if (raw.meal !== undefined && raw.meal !== null) {
       return { ...base, meal: mealDetailSchema.parse(raw.meal) };
     }
+    if (raw.detail !== undefined && raw.detail !== null) {
+      const detail = genericDetailSchema.parse(raw.detail);
+      if (detail.note !== undefined && detail.note.length > 0) {
+        return { ...base, meal: { note: detail.note } };
+      }
+    }
     return { ...base };
+  }
+  if (actionType === "homework") {
+    const homework = homeworkCompleteDetailSchema.parse(raw.homework);
+    return { ...base, homework };
   }
   if (raw.detail !== undefined && raw.detail !== null) {
     return { ...base, detail: genericDetailSchema.parse(raw.detail) };
@@ -139,6 +166,10 @@ export function summarizeEventMetadataForDisplay(metadataJson: string, actionTyp
     if (actionType === "meal" && raw.meal && typeof raw.meal === "object") {
       const note = (raw.meal as { note?: string }).note;
       return note ? [note] : [];
+    }
+    if (actionType === "homework" && raw.homework && typeof raw.homework === "object") {
+      const title = (raw.homework as { title?: string }).title;
+      return title ? [title] : [];
     }
     if (
       (actionType === "school_dropoff" || actionType === "school_pickup") &&

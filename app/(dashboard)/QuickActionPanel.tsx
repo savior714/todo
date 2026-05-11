@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { completeHomework } from "@/app/actions/admin";
-import RecordEventModal, { type RecordDraft } from "@/app/(dashboard)/RecordEventModal";
+import RecordEventModal, { type CreateEventAction, type RecordDraft } from "@/app/(dashboard)/RecordEventModal";
 
 export type QuickActionButton = {
   id: string;
@@ -27,17 +26,19 @@ const CHILD_GROUP_LABEL: Record<HomeworkQuickShortcut["childGroup"], string> = {
 
 type QuickActionPanelProps = {
   actions: QuickActionButton[];
-  guideHints?: Record<string, string>;
   homeworkShortcuts?: HomeworkQuickShortcut[];
   /** 관리자 프로필일 때만 `/admin` 편집 링크를 노출한다. */
   showAdminSettingsLink?: boolean;
+  completeHomeworkAction: (homeworkTypeId: string) => Promise<unknown>;
+  createEventAction: CreateEventAction;
 };
 
 export default function QuickActionPanel({
   actions,
-  guideHints = {},
   homeworkShortcuts = [],
   showAdminSettingsLink = false,
+  completeHomeworkAction,
+  createEventAction,
 }: QuickActionPanelProps) {
   const router = useRouter();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -64,7 +65,7 @@ export default function QuickActionPanel({
     setHwPendingId(homeworkTypeId);
     startHwTransition(async () => {
       try {
-        await completeHomework(homeworkTypeId);
+        await completeHomeworkAction(homeworkTypeId);
         showToast("숙제 완료로 기록했습니다.");
         router.refresh();
       } catch (err) {
@@ -99,26 +100,20 @@ export default function QuickActionPanel({
           {hasEventActions && (
             <div className="grid gap-3 sm:grid-cols-2">
               {actions.map((action) => (
-                <article key={action.id} className="grid gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setDraft({
-                        actionType: action.actionType,
-                        target: action.target,
-                        label: action.label,
-                      })
-                    }
-                    className="inline-flex min-h-[60px] items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-white disabled:opacity-60"
-                  >
-                    {action.label}
-                  </button>
-                  {guideHints[action.actionType] && (
-                    <p className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
-                      연결 가이드: {guideHints[action.actionType]}
-                    </p>
-                  )}
-                </article>
+                <button
+                  key={action.id}
+                  type="button"
+                  onClick={() =>
+                    setDraft({
+                      actionType: action.actionType,
+                      target: action.target,
+                      label: action.label,
+                    })
+                  }
+                  className="inline-flex min-h-[60px] items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-white disabled:opacity-60"
+                >
+                  {action.label}
+                </button>
               ))}
             </div>
           )}
@@ -148,7 +143,6 @@ export default function QuickActionPanel({
                       >
                         <span className="font-medium">{hw.title}</span>
                         <span className="text-xs opacity-90">{CHILD_GROUP_LABEL[hw.childGroup]}</span>
-                        {hw.completedToday && <span className="text-xs font-normal">오늘 완료</span>}
                       </button>
                     </article>
                   );
@@ -163,6 +157,7 @@ export default function QuickActionPanel({
         onClose={() => setDraft(null)}
         onRecorded={() => router.refresh()}
         showToast={showToast}
+        createEventAction={createEventAction}
       />
       {toastMessage && (
         <p

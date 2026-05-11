@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { createEvent } from "@/app/actions/events";
 import { MEDICATION_UNITS } from "@/lib/event-metadata";
 
 export type RecordDraft = {
@@ -9,6 +8,18 @@ export type RecordDraft = {
   target: string;
   label: string;
 };
+
+type CreateEventInput = {
+  actionType: string;
+  target: string;
+  metadata?: Record<string, unknown>;
+};
+
+type CreateEventResult =
+  | { success: true; eventId: string }
+  | { blocked: true; lastEventAt: string | null };
+
+export type CreateEventAction = (payload: CreateEventInput) => Promise<CreateEventResult>;
 
 const TARGET_OPTIONS: { value: "kid7" | "kid4" | "family"; label: string }[] = [
   { value: "kid7", label: "주원이" },
@@ -44,6 +55,7 @@ type RecordEventModalProps = {
   timelineDate?: string | null;
   onRecorded: () => void;
   showToast: (message: string) => void;
+  createEventAction: CreateEventAction;
 };
 
 export default function RecordEventModal({
@@ -52,6 +64,7 @@ export default function RecordEventModal({
   timelineDate,
   onRecorded,
   showToast,
+  createEventAction,
 }: RecordEventModalProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -98,7 +111,7 @@ export default function RecordEventModal({
 
   const runCreate = async (actionType: string, target: string, metadata: Record<string, unknown>) => {
     const tryCreate = async (meta: Record<string, unknown>) => {
-      return createEvent({ actionType, target, metadata: meta });
+      return createEventAction({ actionType, target, metadata: meta });
     };
 
     let meta = { ...metadata };

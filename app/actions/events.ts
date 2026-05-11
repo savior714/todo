@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { db } from "@/db/client";
 import { events } from "@/db/schema";
@@ -78,6 +79,7 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
     isReverted: false,
   });
 
+  revalidatePath("/dashboard");
   return { success: true, eventId };
 }
 
@@ -119,5 +121,6 @@ export async function undoEvent(eventId: string) {
     .set({ isReverted: true })
     .where(and(eq(events.id, eventId), eq(events.familyId, profile.familyId)));
 
+  revalidatePath("/dashboard");
   return { success: true };
 }

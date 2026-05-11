@@ -2,8 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import RecordEventModal, { type RecordDraft } from "@/app/(dashboard)/RecordEventModal";
-import { undoEvent } from "@/app/actions/events";
 import { formatEventTargetForDisplay, summarizeEventMetadataForDisplay } from "@/lib/event-metadata";
 import { getUndoWindowMsForActionType } from "@/lib/event-undo-policy";
 import {
@@ -15,7 +13,7 @@ import {
   startOfLocalDay,
 } from "@/lib/timeline-date";
 
-type TimelineItem = {
+export type TimelineItem = {
   id: string;
   action_type: string;
   target: string;
@@ -26,6 +24,7 @@ type TimelineItem = {
 
 type TimelineFeedProps = {
   initialEvents: TimelineItem[];
+  undoEventAction: (eventId: string) => Promise<unknown>;
 };
 
 const ACTION_LABEL: Record<string, string> = {
@@ -35,20 +34,18 @@ const ACTION_LABEL: Record<string, string> = {
   school_dropoff: "등원",
   school_pickup: "하원",
   brushing: "양치",
+  homework: "숙제",
 };
 
 function labelForAction(actionType: string): string {
   return ACTION_LABEL[actionType] ?? actionType;
 }
 
-export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
+export default function TimelineFeed({ initialEvents, undoEventAction }: TimelineFeedProps) {
   const router = useRouter();
   const [events, setEvents] = useState<TimelineItem[]>(initialEvents);
   const [isPending, startTransition] = useTransition();
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [centerDate, setCenterDate] = useState(() => startOfLocalDay(new Date()));
-  const [recordDateKey, setRecordDateKey] = useState<string | null>(null);
-  const [recordDraft, setRecordDraft] = useState<RecordDraft | null>(null);
   const dateInputRef = useRef<HTMLInputElement | null>(null);
   const centerColumnRef = useRef<HTMLDivElement | null>(null);
 
@@ -82,14 +79,7 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
 
   const columnDays = useMemo(() => [-1, 0, 1].map((o) => addDays(centerDate, o)), [centerDate]);
 
-  const effectiveRecordKey = recordDateKey ?? formatDateKey(centerDate);
-
-  const showToast = useCallback((message: string) => {
-    setToastMessage(message);
-    window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-  }, []);
+  const centerDateKey = formatDateKey(centerDate);
 
   const refreshFromServer = useCallback(() => {
     router.refresh();
@@ -101,16 +91,11 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
 
   const selectDayColumn = useCallback((day: Date) => {
     setCenterDate(startOfLocalDay(day));
-    setRecordDateKey(null);
-  }, []);
-
-  const openDatePicker = useCallback(() => {
-    dateInputRef.current?.click();
   }, []);
 
   const handleUndo = (eventId: string) => {
     startTransition(async () => {
-      await undoEvent(eventId);
+      await undoEventAction(eventId);
       setEvents((prev) => prev.map((item) => (item.id === eventId ? { ...item, is_reverted: true } : item)));
       refreshFromServer();
     });
@@ -121,12 +106,10 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
       return;
     }
     setCenterDate(parseDateKey(value));
-    setRecordDateKey(null);
   };
 
   const jumpToToday = () => {
     setCenterDate(startOfLocalDay(new Date()));
-    setRecordDateKey(null);
   };
 
   const hasCenteredInitially = useRef(false);
@@ -198,7 +181,7 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
           {columnDays.map((day, colIndex) => {
             const key = formatDateKey(day);
             const items = eventsByDay.get(key) ?? [];
-            const isSelected = effectiveRecordKey === key;
+            const isSelected = centerDateKey === key;
             return (
               <div
                 key={key}
@@ -210,7 +193,7 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
                   }
                   selectDayColumn(day);
                 }}
-                className={`flex min-h-[200px] cursor-pointer flex-col gap-2 p-2 sm:p-3 ${isSelected ? "bg-blue-50/80 ring-2 ring-inset ring-blue-400/50 dark:bg-blue-950/30 dark:ring-blue-500/40" : "bg-white dark:bg-neutral-950"}`}
+                className={`flex min-h-[280px] cursor-pointer flex-col gap-2 p-2 sm:p-3 ${isSelected ? "bg-blue-50/80 ring-2 ring-inset ring-blue-400/50 dark:bg-blue-950/30 dark:ring-blue-500/40" : "bg-white dark:bg-neutral-950"}`}
               >
                 <div className="pointer-events-none w-full rounded-lg border border-transparent px-1 py-2 text-left">
                   <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
@@ -272,63 +255,6 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
           </div>
         </div>
       </div>
-
-      <div className="rounded-lg border border-dashed border-neutral-300 p-3 dark:border-neutral-600">
-        <button
-          type="button"
-          onClick={openDatePicker}
-          className="w-full rounded-md px-0 py-1 text-left transition hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50"
-        >
-          <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-            선택한 날짜에 기록:{" "}
-            <span className="text-blue-700 dark:text-blue-300">{effectiveRecordKey}</span>
-          </p>
-          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-            이 영역이나 타임라인 열 아무 곳이나 눌러 날짜를 바꿀 수 있습니다. 달력(📅)으로 먼저 이동한 뒤
-            기록해도 됩니다.
-          </p>
-        </button>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() =>
-              setRecordDraft({ actionType: "meal", target: "family", label: "식사" })
-            }
-            className="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-blue-600 px-4 text-sm text-white disabled:opacity-60 sm:flex-none"
-          >
-            식사
-          </button>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() =>
-              setRecordDraft({ actionType: "medication", target: "kid4", label: "투약" })
-            }
-            className="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-rose-600 px-4 text-sm text-white disabled:opacity-60 sm:flex-none"
-          >
-            투약
-          </button>
-        </div>
-      </div>
-
-      <RecordEventModal
-        draft={recordDraft}
-        onClose={() => setRecordDraft(null)}
-        timelineDate={effectiveRecordKey}
-        onRecorded={refreshFromServer}
-        showToast={showToast}
-      />
-
-      {toastMessage && (
-        <p
-          role="status"
-          aria-live="polite"
-          className="rounded-lg bg-neutral-900 px-4 py-3 text-sm text-white dark:bg-neutral-100 dark:text-neutral-900"
-        >
-          {toastMessage}
-        </p>
-      )}
     </section>
   );
 }

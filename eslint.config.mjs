@@ -5,7 +5,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [".next/**", "node_modules/**"],
+    ignores: [".next/**", "node_modules/**", "storybook-static/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

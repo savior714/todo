@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, max } from "drizzle-orm";
 import { db } from "@/db/client";
-import { careGuides, dailyPins, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
+import { careGuides, dailyPins, events, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
+import { normalizeAndValidateEventMetadata } from "@/lib/event-metadata";
 
 const PRESET_ACTION_TYPES = new Set([
   "meal",
@@ -112,25 +113,74 @@ export async function completeHomework(homeworkTypeId: string) {
     throw new Error("프로필을 찾을 수 없습니다.");
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  const logId = crypto.randomUUID();
-  await db
-    .insert(homeworkLogs)
-    .values({
-      id: logId,
-      familyId: profile.familyId,
-      homeworkTypeId,
-      dateKey: today,
-      completedBy: profile.id,
-      completedAt: Date.now(),
+  const [hwType] = await db
+    .select({
+      id: homeworkTypes.id,
+      title: homeworkTypes.title,
+      childGroup: homeworkTypes.childGroup,
     })
-    .onConflictDoUpdate({
-      target: [homeworkLogs.homeworkTypeId, homeworkLogs.dateKey],
-      set: {
+    .from(homeworkTypes)
+    .where(and(eq(homeworkTypes.id, homeworkTypeId), eq(homeworkTypes.familyId, profile.familyId)))
+    .limit(1);
+
+  if (!hwType) {
+    throw new Error("숙제 유형을 찾을 수 없습니다.");
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [existingLog] = await db
+    .select({ id: homeworkLogs.id })
+    .from(homeworkLogs)
+    .where(
+      and(
+        eq(homeworkLogs.familyId, profile.familyId),
+        eq(homeworkLogs.homeworkTypeId, homeworkTypeId),
+        eq(homeworkLogs.dateKey, today)
+      )
+    )
+    .limit(1);
+  const alreadyCompleteToday = Boolean(existingLog);
+
+  const logId = crypto.randomUUID();
+  const metadataJson = JSON.stringify(
+    normalizeAndValidateEventMetadata("homework", {
+      timelineDate: today,
+      homework: { homeworkTypeId, title: hwType.title },
+    })
+  );
+
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(homeworkLogs)
+      .values({
+        id: logId,
+        familyId: profile.familyId,
+        homeworkTypeId,
+        dateKey: today,
         completedBy: profile.id,
         completedAt: Date.now(),
-      },
-    });
+      })
+      .onConflictDoUpdate({
+        target: [homeworkLogs.homeworkTypeId, homeworkLogs.dateKey],
+        set: {
+          completedBy: profile.id,
+          completedAt: Date.now(),
+        },
+      });
+
+    if (!alreadyCompleteToday) {
+      await tx.insert(events).values({
+        id: crypto.randomUUID(),
+        familyId: profile.familyId,
+        profileId: profile.id,
+        actionType: "homework",
+        target: hwType.childGroup,
+        metadata: metadataJson,
+        isReverted: false,
+      });
+    }
+  });
 
   revalidatePath("/homework");
   revalidatePath("/dashboard");

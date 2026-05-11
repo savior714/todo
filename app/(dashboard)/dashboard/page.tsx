@@ -1,11 +1,13 @@
-import { and, asc, desc, eq, gte, isNotNull } from "drizzle-orm";
+import { and, asc, desc, eq, gte } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { completeHomework } from "@/app/actions/admin";
 import { logoutProfile } from "@/app/actions/auth";
+import { createEvent, undoEvent } from "@/app/actions/events";
 import DailyPinBanner from "@/app/(dashboard)/DailyPinBanner";
 import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import TimelineFeed from "@/app/(dashboard)/TimelineFeed";
 import { db } from "@/db/client";
-import { careGuides, events, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
+import { events, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
 import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions-seed";
 
@@ -75,20 +77,6 @@ export default async function DashboardPage() {
     )
     .orderBy(desc(events.createdAt))
     .limit(500);
-
-  const guides = await db
-    .select({ linkedAction: careGuides.linkedAction, title: careGuides.title })
-    .from(careGuides)
-    .where(and(eq(careGuides.familyId, profile.familyId), isNotNull(careGuides.linkedAction)))
-    .orderBy(desc(careGuides.createdAt));
-
-  const guideHints = guides.reduce<Record<string, string>>((acc, guide) => {
-    if (!guide.linkedAction || acc[guide.linkedAction]) {
-      return acc;
-    }
-    acc[guide.linkedAction] = guide.title;
-    return acc;
-  }, {});
 
   const todayKey = new Date().toISOString().slice(0, 10);
   const homeworkTypeRows = await db
@@ -171,11 +159,12 @@ export default async function DashboardPage() {
       <DailyPinBanner />
       <QuickActionPanel
         actions={quickActionRows}
-        guideHints={guideHints}
         homeworkShortcuts={homeworkShortcuts}
         showAdminSettingsLink={profile.role === "admin"}
+        completeHomeworkAction={completeHomework}
+        createEventAction={createEvent}
       />
-      <TimelineFeed initialEvents={normalizedEvents} />
+      <TimelineFeed initialEvents={normalizedEvents} undoEventAction={undoEvent} />
     </main>
   );
 }

@@ -45,6 +45,7 @@
 - **투약 상세 메타**: `action_type === "medication"`일 때 구조화 필드는 **`metadata.medication`** 에 둔다 (`subject`: `kid7`(주원이) \| `kid4`(승원이) \| `family`, `items[]`: 약 이름·용량·단위, 선택 `note`). 저장 전 검증은 `lib/event-metadata.ts`의 `normalizeAndValidateEventMetadata`가 수행한다. UI 기록은 `RecordEventModal`을 경유한다.
 - **등·하원 메타**: `action_type`이 **`school_dropoff`** 또는 **`school_pickup`** 일 때 **`metadata.schoolRun`** 에 `child`(`kid7`=주원이 \| `kid4`=승원이)와 선택 **`place`**(장소 문자열)를 둔다. **`events.target`** 은 `schoolRun.child` 와 동일하게 저장해 타임라인·집계에서 대상이 일치하도록 한다.
 - **투약 차단 쿼리**: `action_type = 'medication'`, 동일 `family_id`·`target`, `is_reverted = false`, `created_at >= now - 2h` 조건으로 최근 1건을 조회한다. (`app/actions/events.ts`) 모달에서 확정한 **투약 대상**과 동일한 값이 `events.target`으로 저장되어야 차단 키가 일치한다.
+- **대시보드 RSC 갱신**: `events`를 변경하는 Server Action(`createEvent`, `undoEvent` 등)은 성공 경로에서 **`revalidatePath("/dashboard")`** 를 호출한다. 상단 퀵 액션 기록 후 `router.refresh()`만으로 타임라인이 비어 보이던 현상은, 동일 페이지의 다른 변이(예: `completeHomework`)에만 revalidate가 있을 때 재현될 수 있으므로 **이벤트 변이에도 동일 패턴**으로 맞춘다.
 
 ---
 
@@ -86,7 +87,7 @@
 
 ## 9. 검증 기준 (회귀 방지)
 
-- **계약 테스트**: `tests/e2e/done-criteria.contract.test.mjs`가 투약 로직·가이드 힌트·타임라인·헬스·마이그레이션 금지 등 핵심 불변을 문자열/구조 레벨에서 검증한다. 이 테스트를 약화시키는 변경은 본 문서와 PRD/TRD를 동시에 갱신해야 한다.
+- **계약 테스트**: `tests/e2e/done-criteria.contract.test.mjs`가 투약 로직·대시보드 revalidate·타임라인·헬스·마이그레이션 금지 등 핵심 불변을 문자열/구조 레벨에서 검증한다. 이 테스트를 약화시키는 변경은 본 문서와 PRD/TRD를 동시에 갱신해야 한다.
 
 ---
 
