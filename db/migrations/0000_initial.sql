@@ -126,16 +126,3 @@ CREATE TABLE homework_logs (
 );
 CREATE UNIQUE INDEX homework_logs_type_date_unique_idx ON homework_logs (homework_type_id, date_key);
 CREATE INDEX homework_logs_family_date_idx ON homework_logs (family_id, date_key);
-
-CREATE TABLE care_guides (
-  id TEXT PRIMARY KEY NOT NULL,
-  family_id TEXT NOT NULL,
-  category TEXT NOT NULL,
-  title TEXT NOT NULL,
-  body TEXT NOT NULL,
-  image_url TEXT,
-  linked_action TEXT,
-  created_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
-  FOREIGN KEY (family_id) REFERENCES families(id) ON DELETE CASCADE
-);
-CREATE INDEX care_guides_family_created_idx ON care_guides (family_id, created_at DESC);

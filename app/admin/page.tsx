@@ -1,5 +1,4 @@
 import {
-  createGuide,
   createHomeworkType,
   createQuickAction,
   deactivateHomeworkType,
@@ -72,11 +71,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     await createHomeworkType(childGroup, title);
   }
 
-  async function submitGuide(formData: FormData) {
-    "use server";
-    await createGuide(formData);
-  }
-
   async function submitQuickAction(formData: FormData) {
     "use server";
     const result = await createQuickAction(formData);
@@ -131,41 +125,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         submitHomeworkType={submitHomeworkType}
         submitDeactivateHomeworkType={submitDeactivateHomeworkType}
       />
-
-      <section className="mt-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
-        <h2 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">가이드 추가</h2>
-        <form action={submitGuide} className="mt-3 grid gap-2">
-          <input
-            name="category"
-            required
-            placeholder="카테고리"
-            className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
-          />
-          <input
-            name="title"
-            required
-            placeholder="제목"
-            className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
-          />
-          <textarea
-            name="body"
-            required
-            placeholder="본문"
-            className="min-h-[100px] rounded-md border border-neutral-300 bg-transparent p-2 text-base leading-relaxed dark:border-neutral-700"
-          />
-          <input
-            name="linkedAction"
-            placeholder="linked action (예: school_pickup, meal)"
-            className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
-          />
-          <button
-            type="submit"
-            className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white"
-          >
-            저장
-          </button>
-        </form>
-      </section>
     </main>
   );
 }

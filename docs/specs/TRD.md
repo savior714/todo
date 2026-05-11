@@ -24,7 +24,7 @@
 ### 3.2 백엔드/데이터 (Turso + Drizzle)
 - 단일 진실 소스(SSOT)로 Turso(libSQL 호환)를 사용하며, 스키마·쿼리는 Drizzle로 관리한다.
 - **동기화**: MVP는 Server Actions + 라우터 갱신 등으로 타임라인을 맞추며, 별도 Realtime 구독은 후속 과제로 둔다.
-- 사진 자산은 `care_guides.image_url` 등 URL 필드로 참조하며, 저장소는 Vercel Blob·외부 스토리지 등으로 선택한다.
+- 바이너리 자산(사진 등)이 필요해지면 별도 스토리지(Blob 등)와 URL 필드 설계를 후속으로 둔다.
 
 ### 3.3 인증/권한 및 멀티테넌시 (핵심 해결 과제)
 - **가족 단위 격리(Multi-tenancy)**: 모든 데이터는 `family_id`를 기준으로 완벽히 격리된다. (다른 가족의 데이터 접근 원천 차단)
@@ -57,9 +57,6 @@
 7. **`homework_logs`** (숙제 완료 기록)
    - `id (uuid pk)`, `family_id (uuid fk)`, `homework_type_id (uuid fk)`, `date_key (date)`, `completed_by (uuid fk to profiles)`, `completed_at`
    - *제약*: `UNIQUE(homework_type_id, date_key)`
-8. **`care_guides`** (우리집 가이드)
-   - `id (uuid pk)`, `family_id (uuid fk)`, `category (text)`, `title (text)`, `body (text)`, `image_url (text)`, `linked_action (text)`, `created_at`
-
 ### 4.2 데이터 무결성
 - 모든 FK는 `ON DELETE CASCADE` (가족 삭제 시) 또는 `RESTRICT` 정책을 명확히 한다.
 - 시간 기준은 `timestamptz` (UTC)로 저장하고, 클라이언트에서 `Intl.DateTimeFormat`을 사용해 기기 로컬 타임존으로 렌더링한다.
@@ -79,8 +76,8 @@
 - 기록이 존재하면 Action은 `{ blocked: true, lastEventAt: "..." }` 에러를 반환한다.
 - 클라이언트는 경고 모달을 띄우고, 사용자가 '강행'을 누르면 `metadata: { override: true }` 플래그를 달아 Action을 재호출하여 기록을 강제 생성한다.
 
-### 5.3 가이드 연동 (Contextual Hints)
-- 사용자가 `action_type = 'laundry'` 팝업을 열면, 클라이언트는 서버 컴포넌트에서 미리 페칭해둔 `care_guides` 중 `linked_action == 'laundry'`인 데이터를 찾아 팝업 하단에 즉시 렌더링한다. (지연 로딩 없음)
+### 5.3 ~~가이드 연동 (Contextual Hints)~~
+- 현재 MVP에서는 제외. (`care_guides` 테이블·`/guides` 라우트 없음)
 
 ---
 
@@ -104,8 +101,6 @@ REST API 대신 타입 안정성이 보장되는 Server Actions(`app/actions/`)�
 ### 6.3 관리자 기능 (`actions/admin.ts`)
 - `upsertDailyPin(content: string)`
   - 동작: 기존 활성 핀 `is_active = false` 처리 후 새 핀 Insert. (`admin` 롤 검증 필수)
-- `createGuide(formData: FormData)`
-  - 동작: Storage에 이미지 업로드 -> URL 획득 -> `care_guides` Insert.
 
 ---
 
@@ -127,7 +122,6 @@ alter table families enable row level security;
 alter table profiles enable row level security;
 alter table events enable row level security;
 alter table daily_pins enable row level security;
-alter table care_guides enable row level security;
 
 -- 3. 정책: 모든 테이블은 "자신의 가족(family_id) 데이터만" 읽고 쓸 수 있다.
 -- Events 테이블 예시
@@ -168,11 +162,10 @@ app/
  │    │    ├── StatusBoard.tsx       # 세탁 등 상태 보드
  │    │    ├── QuickActionPanel.tsx  #[Client] 퀵 액션 버튼 그룹 모달
  │    │    └── TimelineFeed.tsx      # [Client] Realtime 구독 및 이벤트 렌더링
- │    ├── homework/page.tsx          # 숙제 트래커
- │    └── guides/page.tsx            # 우리집 가이드 목록
+ │    └── homework/page.tsx          # 숙제 트래커
  └── admin/
       ├── layout.tsx                 # Admin Role 검증 Guard
-      └── page.tsx                   # 핀, 가이드, 숙제 마스터 설정 폼
+      └── page.tsx                   # 핀, 숙제 마스터 설정 폼
 ```
 
 ---

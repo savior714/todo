@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, max } from "drizzle-orm";
 import { db } from "@/db/client";
-import { careGuides, dailyPins, events, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
+import { dailyPins, events, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
 import { normalizeAndValidateEventMetadata } from "@/lib/event-metadata";
 
@@ -184,26 +184,6 @@ export async function completeHomework(homeworkTypeId: string) {
 
   revalidatePath("/homework");
   revalidatePath("/dashboard");
-  return { success: true };
-}
-
-export async function createGuide(formData: FormData) {
-  const profile = await resolveActiveAdmin();
-  const category = String(formData.get("category") ?? "").trim();
-  const title = String(formData.get("title") ?? "").trim();
-  const body = String(formData.get("body") ?? "").trim();
-  const linkedAction = String(formData.get("linkedAction") ?? "").trim();
-
-  await db.insert(careGuides).values({
-    id: crypto.randomUUID(),
-    familyId: profile.familyId,
-    category,
-    title,
-    body,
-    linkedAction: linkedAction || null,
-    imageUrl: null,
-  });
-
   return { success: true };
 }
 

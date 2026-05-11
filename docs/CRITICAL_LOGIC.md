@@ -63,7 +63,7 @@
 
 ## 6. 권한 모델
 
-- **`profiles.role`**: `admin` | `executor`. Pin·가이드·숙제 설정 등 **관리자 전용 변이**는 서버에서 `admin`을 검증한다.
+- **`profiles.role`**: `admin` | `executor`. Pin·숙제 설정 등 **관리자 전용 변이**는 서버에서 `admin`을 검증한다.
 - **공동 관리자(선택)**: 환경변수 **`FAMILY_CO_ADMIN_EMAILS`**(쉼표·공백 등 구분, 이메일 대소문자 무시)에 등록된 Google 계정으로 **로그인(`signIn`)할 때**, 해당 사용자의 `family_id`에 속한 **`executor` 프로필은 `admin`으로 멱등 승격**된다. 가족 내 executor를 유지해야 하는 비관리자 프로필이 있으면 allowlist에 넣지 않는다. (`lib/auth/promote-co-admins.ts`)
 - **숙제 유형**: 물리 삭제 대신 **`homework_types.is_active = false`** 로 숨긴다. 트래커 UI는 활성 행만 노출한다.
 - **숙제 vs 이벤트 퀵 액션**: `quick_actions` 한 줄은 **`RecordEventModal` → `createEvent` → `events`** 흐름만 탄다. **일일 숙제 완료**의 SSOT는 **`homework_logs`** 이며 대시보드 숙제 바로가기는 **`completeHomework`** 를 호출한다(타임라인 이벤트와 혼동 금지). **`/admin` 편집 링크**는 활성 프로필이 **`profiles.role === "admin"`** 일 때만 UI에 노출한다.
@@ -80,7 +80,7 @@
 ## 8. 운영·보안 결정
 
 - **일회성 마이그레이션 라우트 금지**: 운영 DB에 스키마를 맞추기 위해 **임시 관리자 HTTP 라우트를 배포했다가 두는 패턴**은 사용하지 않는다. 필요 시 로컬/CI에서 `npm run db:migrate` 등 **정식 경로**만 사용하고, 과거에 사용했다면 즉시 제거·계약 테스트로 잔존을 금지한다.
-- **Turso `npm run db:migrate`**: `scripts/migrate-turso.mjs`가 **`.env` → `.env.local` → `.env.vercel.dev` → `.env.vercel.prod`** 를 읽어 `TURSO_*`를 주입한다(`node`는 Next처럼 자동 로드하지 않음). 적용한 `db/migrations/*.sql` 파일명은 **`_turso_applied_migrations`** 테이블에 기록되며, 이미 기록된 파일은 재실행하지 않는다. 메타가 비어 있으나 **`users` 테이블이 이미 있으면** 레거시 DB로 보고 `0000_initial.sql`만 기록상 적용 처리한 뒤 이후 파일만 실행한다. `0001_quick_actions.sql`은 **`CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS`** 로 재적용이 안전하다.
+- **Turso `npm run db:migrate`**: `scripts/migrate-turso.mjs`가 **`.env` → `.env.local` → `.env.vercel.dev` → `.env.vercel.prod`** 를 읽어 `TURSO_*`를 주입한다(`node`는 Next처럼 자동 로드하지 않음). 적용한 `db/migrations/*.sql` 파일명은 **`_turso_applied_migrations`** 테이블에 기록되며, 이미 기록된 파일은 재실행하지 않는다. 메타가 비어 있으나 **`users` 테이블이 이미 있으면** 레거시 DB로 보고 `0000_initial.sql`만 기록상 적용 처리한 뒤 이후 파일만 실행한다. `0001_quick_actions.sql`은 **`CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS`** 로 재적용이 안전하다. `0002_drop_care_guides.sql`은 **`DROP TABLE IF EXISTS care_guides`** 로 레거시 테이블만 제거한다.
 - **민감 파일**: `.env*`, 로컬 마이그레이션 시크릿(예: `.migrate-secret.local`), 로컬 전용 도구 심링크 등은 Git에 올리지 않는다.
 
 ---

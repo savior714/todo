@@ -190,25 +190,6 @@ export const homeworkLogs = sqliteTable(
   })
 );
 
-export const careGuides = sqliteTable(
-  "care_guides",
-  {
-    id: text("id").primaryKey(),
-    familyId: text("family_id")
-      .notNull()
-      .references(() => families.id, { onDelete: "cascade" }),
-    category: text("category").notNull(),
-    title: text("title").notNull(),
-    body: text("body").notNull(),
-    imageUrl: text("image_url"),
-    linkedAction: text("linked_action"),
-    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
-  },
-  (table) => ({
-    familyCreatedIdx: index("care_guides_family_created_idx").on(table.familyId, table.createdAt),
-  })
-);
-
 export const quickActions = sqliteTable(
   "quick_actions",
   {
