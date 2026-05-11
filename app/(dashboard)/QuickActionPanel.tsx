@@ -24,6 +24,14 @@ const CHILD_GROUP_LABEL: Record<HomeworkQuickShortcut["childGroup"], string> = {
   kid4: "승원이",
 };
 
+/** 패널 내 블록 제목 (퀵 액션 / 오늘 숙제) — 동일 크기 */
+const panelBlockHeadingClass =
+  "text-lg font-semibold leading-none tracking-tight text-neutral-900 dark:text-neutral-50";
+
+/** 섹션 헤더 오른쪽 보조 링크: 높이·글자 크기 통일 (대시보드 툴바) */
+const toolbarSecondaryLinkClass =
+  "inline-flex h-11 shrink-0 items-center justify-center rounded-lg border border-neutral-300 bg-white px-3.5 text-[0.9375rem] font-semibold leading-none text-neutral-800 transition hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900";
+
 type QuickActionPanelProps = {
   actions: QuickActionButton[];
   homeworkShortcuts?: HomeworkQuickShortcut[];
@@ -79,20 +87,18 @@ export default function QuickActionPanel({
 
   return (
     <section className="grid gap-3">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <h2 className="text-xl font-semibold">퀵 액션</h2>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h2 className={panelBlockHeadingClass}>퀵 액션</h2>
         {showAdminSettingsLink ? (
-          <Link
-            href="/admin#quick-actions-admin"
-            className="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-800 transition hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
-          >
+          <Link href="/admin#quick-actions-admin" className={toolbarSecondaryLinkClass}>
             퀵 액션 편집
           </Link>
         ) : null}
       </div>
       {isEmpty ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          등록된 버튼이 없고 오늘 표시할 숙제도 없습니다. 관리자는 <span className="font-medium">/admin</span>
+        <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+          등록된 버튼이 없고 오늘 표시할 숙제도 없습니다. 관리자는{" "}
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">/admin</span>
           에서 퀵 액션·숙제 유형을 추가할 수 있습니다.
         </p>
       ) : (
@@ -110,7 +116,7 @@ export default function QuickActionPanel({
                       label: action.label,
                     })
                   }
-                  className="inline-flex min-h-[60px] items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-white disabled:opacity-60"
+                  className="inline-flex min-h-[60px] w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-[0.9375rem] font-semibold leading-snug tracking-tight text-white disabled:opacity-60 sm:text-base"
                 >
                   {action.label}
                 </button>
@@ -119,13 +125,10 @@ export default function QuickActionPanel({
           )}
           {hasHomework && (
             <div className="grid gap-2">
-              <div className="flex flex-wrap items-end justify-between gap-2">
-                <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">오늘 숙제</h3>
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                <h3 className={panelBlockHeadingClass}>오늘 숙제</h3>
                 {showAdminSettingsLink ? (
-                  <Link
-                    href="/admin#homework-types-admin"
-                    className="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-800 transition hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
-                  >
+                  <Link href="/admin#homework-types-admin" className={toolbarSecondaryLinkClass}>
                     숙제 유형 관리
                   </Link>
                 ) : null}
@@ -139,10 +142,14 @@ export default function QuickActionPanel({
                         type="button"
                         disabled={hw.completedToday || busy}
                         onClick={() => handleHomeworkComplete(hw.id)}
-                        className="inline-flex min-h-[60px] flex-col items-center justify-center gap-0.5 rounded-xl bg-emerald-600 px-4 py-3 text-center text-white disabled:opacity-60"
+                        className="inline-flex min-h-[60px] w-full flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-4 py-3 text-center text-white disabled:opacity-60"
                       >
-                        <span className="font-medium">{hw.title}</span>
-                        <span className="text-xs opacity-90">{CHILD_GROUP_LABEL[hw.childGroup]}</span>
+                        <span className="text-[0.9375rem] font-semibold leading-tight tracking-tight sm:text-base">
+                          {hw.title}
+                        </span>
+                        <span className="text-xs font-medium leading-snug text-white/90">
+                          {CHILD_GROUP_LABEL[hw.childGroup]}
+                        </span>
                       </button>
                     </article>
                   );
@@ -163,7 +170,7 @@ export default function QuickActionPanel({
         <p
           role="status"
           aria-live="polite"
-          className="rounded-lg bg-neutral-900 px-4 py-3 text-sm text-white dark:bg-neutral-100 dark:text-neutral-900"
+          className="rounded-lg bg-neutral-900 px-4 py-3 text-sm leading-relaxed text-white dark:bg-neutral-100 dark:text-neutral-900"
         >
           {toastMessage}
         </p>

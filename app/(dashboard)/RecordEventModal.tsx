@@ -218,24 +218,29 @@ export default function RecordEventModal({
       onClose={handleDialogClose}
     >
       <div className="dialog-record-panel flex max-h-[min(90dvh,48rem)] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white text-neutral-900 shadow-2xl dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100">
-        <header className="border-b border-neutral-200 px-4 py-3 dark:border-neutral-700">
-          <h2 id="record-event-title" className="text-lg font-semibold">
+        <header className="border-b border-neutral-200 px-4 py-3.5 dark:border-neutral-700">
+          <h2
+            id="record-event-title"
+            className="text-lg font-semibold leading-snug tracking-tight text-neutral-900 dark:text-neutral-50"
+          >
             {title}
           </h2>
           {timelineDate && (
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">날짜: {timelineDate}</p>
+            <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+              날짜: {timelineDate}
+            </p>
           )}
         </header>
 
-        <form onSubmit={handleSubmit} className="grid min-h-0 flex-1 gap-4 overflow-y-auto p-4">
+        <form onSubmit={handleSubmit} className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-4">
           {isMedication ? (
             <>
-              <label className="grid gap-1 text-sm">
+              <label className="grid gap-1.5 text-sm leading-normal">
                 <span className="font-medium text-neutral-700 dark:text-neutral-300">투약 대상</span>
                 <select
                   value={subject}
                   onChange={(ev) => setSubject(ev.target.value as typeof subject)}
-                  className="min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3 dark:border-neutral-600 dark:bg-neutral-900"
+                  className="min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3 text-base leading-normal dark:border-neutral-600 dark:bg-neutral-900"
                 >
                   {TARGET_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
@@ -246,15 +251,17 @@ export default function RecordEventModal({
               </label>
 
               <div className="grid gap-2">
-                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">약 · 용량</span>
+                <span className="text-sm font-medium leading-normal text-neutral-700 dark:text-neutral-300">
+                  약 · 용량
+                </span>
                 <ul className="grid gap-3">
                   {medItems.map((row, idx) => (
                     <li
                       key={idx}
                       className="flex flex-wrap items-end gap-2 rounded-lg border border-neutral-200 p-2 dark:border-neutral-700"
                     >
-                      <label className="grid min-w-[8rem] flex-1 gap-1 text-xs">
-                        이름
+                      <label className="grid min-w-[8rem] flex-1 gap-1 text-xs leading-normal">
+                        <span className="font-medium text-neutral-600 dark:text-neutral-400">이름</span>
                         <input
                           type="text"
                           value={row.name}
@@ -262,13 +269,13 @@ export default function RecordEventModal({
                             const v = ev.target.value;
                             setMedItems((prev) => prev.map((r, i) => (i === idx ? { ...r, name: v } : r)));
                           }}
-                          className="min-h-[40px] rounded-md border border-neutral-300 px-2 dark:border-neutral-600 dark:bg-neutral-900"
+                          className="min-h-[40px] rounded-md border border-neutral-300 px-2 text-base leading-normal dark:border-neutral-600 dark:bg-neutral-900"
                           placeholder="예: 해열제"
                           autoComplete="off"
                         />
                       </label>
-                      <label className="grid w-24 gap-1 text-xs">
-                        양
+                      <label className="grid w-24 gap-1 text-xs leading-normal">
+                        <span className="font-medium text-neutral-600 dark:text-neutral-400">양</span>
                         <input
                           type="number"
                           min={0}
@@ -280,18 +287,18 @@ export default function RecordEventModal({
                               prev.map((r, i) => (i === idx ? { ...r, amount: Number.isNaN(v) ? 0 : v } : r))
                             );
                           }}
-                          className="min-h-[40px] rounded-md border border-neutral-300 px-2 dark:border-neutral-600 dark:bg-neutral-900"
+                          className="min-h-[40px] rounded-md border border-neutral-300 px-2 text-base tabular-nums leading-normal dark:border-neutral-600 dark:bg-neutral-900"
                         />
                       </label>
-                      <label className="grid w-20 gap-1 text-xs">
-                        단위
+                      <label className="grid w-20 gap-1 text-xs leading-normal">
+                        <span className="font-medium text-neutral-600 dark:text-neutral-400">단위</span>
                         <select
                           value={row.unit}
                           onChange={(ev) => {
                             const u = ev.target.value as MedRow["unit"];
                             setMedItems((prev) => prev.map((r, i) => (i === idx ? { ...r, unit: u } : r)));
                           }}
-                          className="min-h-[40px] rounded-md border border-neutral-300 px-1 dark:border-neutral-600 dark:bg-neutral-900"
+                          className="min-h-[40px] rounded-md border border-neutral-300 px-1 text-base leading-normal dark:border-neutral-600 dark:bg-neutral-900"
                         >
                           {MEDICATION_UNITS.map((u) => (
                             <option key={u} value={u}>
@@ -303,7 +310,7 @@ export default function RecordEventModal({
                       {medItems.length > 1 && (
                         <button
                           type="button"
-                          className="min-h-[40px] rounded-md border border-neutral-300 px-2 text-xs dark:border-neutral-600"
+                          className="min-h-[40px] rounded-md border border-neutral-300 px-2 text-xs font-medium leading-none dark:border-neutral-600"
                           onClick={() => setMedItems((prev) => prev.filter((_, i) => i !== idx))}
                         >
                           삭제
@@ -314,27 +321,27 @@ export default function RecordEventModal({
                 </ul>
                 <button
                   type="button"
-                  className="mt-1 inline-flex min-h-[40px] items-center justify-center rounded-lg border border-dashed border-neutral-400 text-sm dark:border-neutral-500"
+                  className="mt-1 inline-flex min-h-[40px] items-center justify-center rounded-lg border border-dashed border-neutral-400 text-sm font-medium leading-snug dark:border-neutral-500"
                   onClick={() => setMedItems((prev) => [...prev, { name: "", amount: 5, unit: "ml" }])}
                 >
                   약 추가
                 </button>
               </div>
 
-              <label className="grid gap-1 text-sm">
+              <label className="grid gap-1.5 text-sm leading-normal">
                 <span className="font-medium text-neutral-700 dark:text-neutral-300">메모 (선택)</span>
                 <textarea
                   value={medNote}
                   onChange={(ev) => setMedNote(ev.target.value)}
                   rows={2}
-                  className="resize-y rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-600 dark:bg-neutral-900"
+                  className="resize-y rounded-lg border border-neutral-300 px-3 py-2 text-base leading-relaxed dark:border-neutral-600 dark:bg-neutral-900"
                   placeholder="식후 30분 등"
                 />
               </label>
             </>
           ) : isSchoolRun ? (
             <>
-              <fieldset className="grid gap-2 text-sm">
+              <fieldset className="grid gap-2 text-sm leading-normal">
                 <legend className="font-medium text-neutral-700 dark:text-neutral-300">대상</legend>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   {SCHOOL_CHILD_OPTIONS.map((o) => (
@@ -354,43 +361,45 @@ export default function RecordEventModal({
                         onChange={() => setSchoolChild(o.value)}
                         className="size-4 accent-blue-600"
                       />
-                      <span>
-                        <span className="font-medium text-neutral-900 dark:text-neutral-100">{o.label}</span>
-                        <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400">({o.hint})</span>
+                      <span className="leading-snug">
+                        <span className="font-semibold text-neutral-900 dark:text-neutral-100">{o.label}</span>
+                        <span className="ml-1 text-xs font-normal text-neutral-500 dark:text-neutral-400">
+                          ({o.hint})
+                        </span>
                       </span>
                     </label>
                   ))}
                 </div>
               </fieldset>
-              <label className="grid gap-1 text-sm">
+              <label className="grid gap-1.5 text-sm leading-normal">
                 <span className="font-medium text-neutral-700 dark:text-neutral-300">장소 (선택)</span>
                 <input
                   type="text"
                   value={schoolPlace}
                   onChange={(ev) => setSchoolPlace(ev.target.value)}
-                  className="min-h-[44px] rounded-lg border border-neutral-300 px-3 dark:border-neutral-600 dark:bg-neutral-900"
+                  className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-base leading-normal dark:border-neutral-600 dark:bg-neutral-900"
                   placeholder="예: OO유치원, 태권도장"
                   autoComplete="off"
                 />
               </label>
             </>
           ) : (
-            <label className="grid gap-1 text-sm">
+            <label className="grid gap-1.5 text-sm leading-normal">
               <span className="font-medium text-neutral-700 dark:text-neutral-300">메모 (선택)</span>
               <textarea
                 value={genericNote}
                 onChange={(ev) => setGenericNote(ev.target.value)}
                 rows={3}
-                className="resize-y rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-600 dark:bg-neutral-900"
+                className="resize-y rounded-lg border border-neutral-300 px-3 py-2 text-base leading-relaxed dark:border-neutral-600 dark:bg-neutral-900"
                 placeholder="필요 시 상세 내용을 적어 주세요."
               />
             </label>
           )}
 
-          <footer className="sticky bottom-0 mt-auto flex flex-wrap gap-2 border-t border-neutral-200 bg-white pt-3 dark:border-neutral-700 dark:bg-neutral-950">
+          <footer className="sticky bottom-0 mt-auto flex flex-wrap gap-2 border-t border-neutral-200 bg-white pt-3.5 dark:border-neutral-700 dark:bg-neutral-950">
             <button
               type="button"
-              className="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-neutral-300 px-4 dark:border-neutral-600"
+              className="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-neutral-300 px-4 text-sm font-medium leading-snug dark:border-neutral-600"
               onClick={() => dialogRef.current?.close()}
             >
               취소
@@ -398,7 +407,7 @@ export default function RecordEventModal({
             <button
               type="submit"
               disabled={isPending}
-              className="inline-flex min-h-[48px] flex-[2] items-center justify-center rounded-xl bg-blue-600 px-4 font-medium text-white disabled:opacity-60"
+              className="inline-flex min-h-[48px] flex-[2] items-center justify-center rounded-xl bg-blue-600 px-4 text-sm font-semibold leading-snug tracking-tight text-white disabled:opacity-60 sm:text-base"
             >
               {isPending ? "저장 중…" : "기록하기"}
             </button>

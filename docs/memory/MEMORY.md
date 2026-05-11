@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-11: 대시보드·`/admin` UI 타이포·툴바 정리 — 헤더 행 `items-end`→`items-center`, 「퀵 액션」·「오늘 숙제」제목 `panelBlockHeadingClass`로 동일 `text-lg`, 보조 링크 `h-11`·`text-[0.9375rem]` semibold, 타임라인 «오늘»·아이콘 `size-11` 정렬. 퀵 액션·숙제 주 버튼은 계약 `min-h-[60px]` 유지. `RecordEventModal`·admin 폼은 입력 `text-base`·본문 `leading-relaxed`. `bun run lint`·`typecheck:strict`·`test` 통과.
 - 2026-05-11: 퀵 액션·타임라인에서 `createEvent` 기록 후에도 타임라인이 비어 보이던 현상 — `router.refresh()`만으로는 `/dashboard` RSC가 stale할 수 있어 `completeHomework`와 달리 `createEvent`/`undoEvent`에 `revalidatePath("/dashboard")`가 없었음. `app/actions/events.ts`에 추가, 계약 테스트 1건. `typecheck:strict`·`test` 통과.
 - 2026-05-11: `/ai-log` 실행 — Storybook 세팅 중 서버 액션 직접 import를 prop 주입 경계로 바꿔 UI 고립 렌더링을 가능하게 한 판단을 Golden Log로 기록(`lineage=familysync-dashboard-storybook-20260511`).
 - 2026-05-11: 대시보드 UI 사전 확인용 Storybook 세팅 추가 — `@storybook/nextjs`·`storybook` 스크립트, `.storybook/` 설정, `app/(dashboard)/Dashboard.stories.tsx` 샘플 데이터 기반 미리보기 추가. `QuickActionPanel`·`TimelineFeed`·`RecordEventModal`은 서버 액션을 prop으로 주입받게 분리해 Storybook에서는 mock 액션 사용. `bun run lint`·`typecheck:strict`·`build-storybook` 통과.

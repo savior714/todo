@@ -127,13 +127,15 @@ export default function TimelineFeed({ initialEvents, undoEventAction }: Timelin
 
   return (
     <section className="mt-6 grid gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-semibold">타임라인</h2>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h2 className="text-lg font-semibold leading-none tracking-tight text-neutral-900 dark:text-neutral-50">
+          타임라인
+        </h2>
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => shiftWeek(-7)}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 text-lg dark:border-neutral-600 dark:bg-neutral-900"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-neutral-300 bg-white text-lg font-semibold leading-none dark:border-neutral-600 dark:bg-neutral-900"
             aria-label="이전 주"
           >
             «
@@ -141,7 +143,7 @@ export default function TimelineFeed({ initialEvents, undoEventAction }: Timelin
           <button
             type="button"
             onClick={() => shiftWeek(7)}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 text-lg dark:border-neutral-600 dark:bg-neutral-900"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-neutral-300 bg-white text-lg font-semibold leading-none dark:border-neutral-600 dark:bg-neutral-900"
             aria-label="다음 주"
           >
             »
@@ -149,11 +151,11 @@ export default function TimelineFeed({ initialEvents, undoEventAction }: Timelin
           <button
             type="button"
             onClick={jumpToToday}
-            className="inline-flex min-h-[44px] items-center rounded-lg border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-600 dark:bg-neutral-900"
+            className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg border border-neutral-300 bg-white px-3.5 text-[0.9375rem] font-semibold leading-none dark:border-neutral-600 dark:bg-neutral-900"
           >
             오늘
           </button>
-          <label className="relative inline-flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 dark:border-neutral-600 dark:bg-neutral-900">
+          <label className="relative inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-900">
             <span className="text-lg leading-none" aria-hidden>
               📅
             </span>
@@ -170,7 +172,7 @@ export default function TimelineFeed({ initialEvents, undoEventAction }: Timelin
         </div>
       </div>
 
-      <p className="text-xs text-neutral-600 dark:text-neutral-400">
+      <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
         가운데 열 기준으로 어제·오늘·내일을 한 번에 보고, « » 로 한 주씩 이동합니다. 날짜 열을 터치하면
         해당 날짜가 가운데로 정렬됩니다.
       </p>
@@ -196,14 +198,16 @@ export default function TimelineFeed({ initialEvents, undoEventAction }: Timelin
                 className={`flex min-h-[280px] cursor-pointer flex-col gap-2 p-2 sm:p-3 ${isSelected ? "bg-blue-50/80 ring-2 ring-inset ring-blue-400/50 dark:bg-blue-950/30 dark:ring-blue-500/40" : "bg-white dark:bg-neutral-950"}`}
               >
                 <div className="pointer-events-none w-full rounded-lg border border-transparent px-1 py-2 text-left">
-                  <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                  <p className="text-xs font-medium leading-snug text-neutral-500 dark:text-neutral-400">
                     {formatWeekdayLabel(day, todayKey, yesterdayKey, tomorrowKey)}
                   </p>
-                  <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{key}</p>
+                  <p className="mt-0.5 text-sm font-semibold tabular-nums tracking-tight text-neutral-900 dark:text-neutral-100">
+                    {key}
+                  </p>
                 </div>
                 <div className="flex flex-col gap-2">
                   {items.length === 0 ? (
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">기록 없음</p>
+                    <p className="text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">기록 없음</p>
                   ) : (
                     items.map((event) => {
                       const undoMs = getUndoWindowMsForActionType(event.action_type);
@@ -213,22 +217,22 @@ export default function TimelineFeed({ initialEvents, undoEventAction }: Timelin
                       return (
                         <article
                           key={event.id}
-                          className="rounded-lg border border-neutral-200 bg-neutral-50 p-2 text-left dark:border-neutral-700 dark:bg-neutral-900/40"
+                          className="rounded-lg border border-neutral-200 bg-neutral-50 p-2.5 text-left dark:border-neutral-700 dark:bg-neutral-900/40"
                         >
-                          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                          <p className="text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
                             {labelForAction(event.action_type)}
                           </p>
-                          <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                          <p className="mt-0.5 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
                             {formatEventTargetForDisplay(event.target)}
                           </p>
                           {detailLines.length > 0 && (
-                            <ul className="mt-1 list-inside list-disc text-[11px] text-neutral-600 dark:text-neutral-400">
+                            <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
                               {detailLines.map((line, i) => (
                                 <li key={i}>{line}</li>
                               ))}
                             </ul>
                           )}
-                          <p className="text-[10px] text-neutral-500">
+                          <p className="mt-1.5 text-xs tabular-nums text-neutral-500 dark:text-neutral-400">
                             {new Date(event.created_at).toLocaleTimeString(undefined, {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -239,7 +243,7 @@ export default function TimelineFeed({ initialEvents, undoEventAction }: Timelin
                               type="button"
                               disabled={isPending}
                               onClick={() => handleUndo(event.id)}
-                              className="mt-1 inline-flex min-h-[40px] items-center rounded-md bg-neutral-200 px-2 text-xs dark:bg-neutral-800"
+                              className="mt-1.5 inline-flex min-h-[40px] items-center rounded-md bg-neutral-200 px-2.5 text-xs font-medium leading-none dark:bg-neutral-800"
                             >
                               실행 취소
                             </button>
