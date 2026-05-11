@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, gte, isNotNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { logoutProfile } from "@/app/actions/auth";
 import DailyPinBanner from "@/app/(dashboard)/DailyPinBanner";
 import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import TimelineFeed from "@/app/(dashboard)/TimelineFeed";
@@ -98,10 +99,39 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 py-5 sm:p-8">
-      <h1 className="text-2xl font-bold sm:text-3xl">FamilySync Dashboard</h1>
-      <p className="text-sm text-neutral-600 dark:text-neutral-300">
-        active_profile_id 쿠키가 있는 경우에만 접근 가능합니다.
-      </p>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold sm:text-3xl">FamilySync Dashboard</h1>
+          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+            active_profile_id 쿠키가 있는 경우에만 접근 가능합니다.
+          </p>
+        </div>
+        <form action={logoutProfile} className="shrink-0 pt-0.5">
+          <button
+            type="submit"
+            aria-label="로그아웃"
+            title="로그아웃"
+            className="inline-flex size-11 items-center justify-center rounded-xl border border-neutral-300 bg-white text-neutral-800 transition hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.75}
+              stroke="currentColor"
+              aria-hidden
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
+              />
+            </svg>
+          </button>
+        </form>
+      </header>
       {quickActionsLoadFailed && (
         <p
           role="alert"

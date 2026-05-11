@@ -154,3 +154,26 @@ test("관리자가 숙제 유형을 비활성화할 수 있는 서버 액션이 
   assert.match(adminActions, /homeworkTypes/);
   assert.match(adminActions, /isActive:\s*false/);
 });
+
+test("대시보드에서 로그아웃 폼(server action)·접근성 라벨이 노출된다", () => {
+  const dashboard = read("app/(dashboard)/dashboard/page.tsx");
+  assert.match(dashboard, /logoutProfile/);
+  assert.match(dashboard, /action=\{logoutProfile\}/);
+  assert.match(dashboard, /aria-label="로그아웃"/);
+});
+
+test("글로벌 스타일이 모바일 자동 줌 완화(폼 최소 폰트)·핀치 완화(touch pan)·동적 뷰포트 높이를 사용한다", () => {
+  const globals = read("app/globals.css");
+  assert.match(globals, /max\(16px,\s*1em\)|max\(1em,\s*16px\)/);
+  assert.match(globals, /touch-action:\s*pan-x\s+pan-y/);
+  assert.match(globals, /100dvh/);
+  assert.match(globals, /dashboard-pinch-lock/);
+});
+
+test("대시보드 레이아웃이 핀치 줌 잠금 클라이언트 가드를 마운트한다", () => {
+  const layout = read("app/(dashboard)/layout.tsx");
+  const lock = read("app/(dashboard)/DashboardPinchZoomLock.tsx");
+  assert.match(layout, /DashboardPinchZoomLock/);
+  assert.match(lock, /gesturestart/);
+  assert.match(lock, /ctrlKey/);
+});

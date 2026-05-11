@@ -18,6 +18,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
+  /** 소프트 키보드·주소줄 때문에 레이아웃만 덜컥 바뀌는 느낌(준 확대처럼 보이는 현상) 완화 */
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
