@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-11: 모바일 핀치 줌 완화를 위해 `app/layout.tsx` viewport에 `minimumScale: 1`·`userScalable: false`를 추가해 `maximumScale: 1`과 함께 메타 태그를 보강함. `bun run lint`·`typecheck:strict`·`just ci` 통과.
 - 2026-05-11: 공동 관리자용 `FAMILY_CO_ADMIN_EMAILS`(쉼표 구분) — 로그인 시 해당 사용자 `family_id`의 **executor** 프로필을 `admin`으로 멱등 승격(`lib/auth/promote-co-admins.ts`·`auth.ts` `signIn`). `/admin`에서 숙제 유형 **숨기기**(`deactivateHomeworkType`, `is_active=false`) 추가. `bun run lint`·`typecheck:strict`·계약 테스트 통과.
 - 2026-05-11: 프로덕션 `https://todo-nine-mu-90.vercel.app` 점검 — `curl /api/health`가 `db:ok`·나머지 `tables` true인데 **`quick_actions`만 false**·HTTP 503. 즉 배포가 붙은 Turso에 `quick_actions` 마이그레이션 미적용 상태. 브라우저로 `/dashboard`는 비로그인 시 `/login` 리다이렉트 확인.
 - 2026-05-11: 대시보드 퀵 액션 try/catch 실패 시 `console.error("[dashboard] quick_actions load failed", { familyId, message, code? })`로 서버 로그에만 원인 남김(클라이언트 비노출). `bun run lint`·`bun run typecheck:strict` 통과.
