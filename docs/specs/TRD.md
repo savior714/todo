@@ -53,7 +53,7 @@
    - `id (uuid pk)`, `family_id (uuid fk)`, `content (text)`, `is_active (boolean)`, `created_by (uuid fk to profiles)`, `created_at`
    - *제약*: `CREATE UNIQUE INDEX ON daily_pins (family_id) WHERE is_active = true;` (가족당 활성 핀 1개 보장)
 6. **`homework_types`** (숙제 마스터)
-   - `id (uuid pk)`, `family_id (uuid fk)`, `child_group (enum: kid7|kid4)`, `title (text)`, `is_active (boolean)`, `created_at`
+   - `id (uuid pk)`, `family_id (uuid fk)`, `child_group (enum: kid7=주원이 | kid4=승원이)`, `title (text)`, `is_active (boolean)`, `created_at`
 7. **`homework_logs`** (숙제 완료 기록)
    - `id (uuid pk)`, `family_id (uuid fk)`, `homework_type_id (uuid fk)`, `date_key (date)`, `completed_by (uuid fk to profiles)`, `completed_at`
    - *제약*: `UNIQUE(homework_type_id, date_key)`

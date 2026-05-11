@@ -215,7 +215,7 @@ export default function TimelineFeed({ initialEvents }: TimelineFeedProps) {
           }
         }}
       >
-        <div className="overflow-x-auto scroll-smooth sm:overflow-visible">
+        <div className="overflow-x-hidden scroll-smooth sm:overflow-visible">
           <div className="grid w-full min-w-[21rem] grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-700 sm:min-w-[28rem]">
           {columnDays.map((day, colIndex) => {
             const key = formatDateKey(day);

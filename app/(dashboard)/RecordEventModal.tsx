@@ -11,14 +11,14 @@ export type RecordDraft = {
 };
 
 const TARGET_OPTIONS: { value: "kid7" | "kid4" | "family"; label: string }[] = [
-  { value: "kid7", label: "7세 그룹" },
-  { value: "kid4", label: "4세 그룹" },
+  { value: "kid7", label: "주원이" },
+  { value: "kid4", label: "승원이" },
   { value: "family", label: "가족 공통" },
 ];
 
 const SCHOOL_CHILD_OPTIONS: { value: "kid7" | "kid4"; label: string; hint: string }[] = [
-  { value: "kid7", label: "첫째", hint: "7세 그룹" },
-  { value: "kid4", label: "둘째", hint: "4세 그룹" },
+  { value: "kid7", label: "주원이", hint: "첫째" },
+  { value: "kid4", label: "승원이", hint: "둘째" },
 ];
 
 function parseTarget(t: string): "kid7" | "kid4" | "family" {

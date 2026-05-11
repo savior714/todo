@@ -1,9 +1,10 @@
 # MEMORY
 
 ## Session Notes
+- 2026-05-11: `/admin` 퀵 액션 추가 유효성 실패(커스텀 타입 대문자/빈값) 시 Server Action throw로 RSC 500 페이지가 뜨던 이슈 수정. `createQuickAction`이 `{ success:false, error }`를 반환하도록 변경하고 `app/admin/page.tsx`에서 `quickActionError` 쿼리로 인라인 에러 표시 + 안전 리다이렉트 처리. 계약 테스트 1건(Red→Green) 추가 후 `bun run test`·`bun run lint`·`bun run typecheck:strict` 통과.
 - 2026-05-11: `profile.role === "admin"`일 때 대시보드 퀵 액션 헤더에 `/admin#quick-actions-admin` 링크(퀵 액션 편집)·오늘 숙제 블록에 `#homework-types-admin` 링크(숙제 유형 관리). `app/admin/page.tsx` 해당 섹션에 앵커 id·`scroll-mt-6` 추가. 계약 테스트·`bun run lint`·`typecheck:strict`·`test` 통과.
 - 2026-05-11: 대시보드 `QuickActionPanel`에 활성 `homework_types`를「오늘 숙제」버튼으로 노출(탭 시 `completeHomework`·오늘 완료 시 비활성). `completeHomework`에 `revalidatePath("/dashboard")` 추가. `dashboard/page.tsx`에서 당일 `homework_logs`와 조인해 완료 여부 표시. 계약 테스트 1건·`bun run lint`·`typecheck:strict`·`test` 통과.
-- 2026-05-11: 등원(`school_dropoff`)·하원(`school_pickup`) 기록 시 모달에서 **첫째/둘째**(kid7/kid4) 선택·**장소(선택)** 입력 추가. `metadata.schoolRun` 검증·표시(`summarizeEventMetadataForDisplay`)·`events.target === child`로 `lib/event-metadata.ts`·`RecordEventModal`·`TimelineFeed`(대상 한글 표기)·`CRITICAL_LOGIC.md` 반영. `bun run lint`·`typecheck:strict`·`test`·`verify_korean_text` 통과.
+- 2026-05-11: 등원(`school_dropoff`)·하원(`school_pickup`) 기록 시 모달에서 **주원이/승원이**(`kid7`/`kid4`) 선택·**장소(선택)** 입력 추가. `metadata.schoolRun` 검증·표시(`summarizeEventMetadataForDisplay`)·`events.target === child`로 `lib/event-metadata.ts`·`RecordEventModal`·`TimelineFeed`(대상 한글 표기)·`CRITICAL_LOGIC.md` 반영. `bun run lint`·`typecheck:strict`·`test`·`verify_korean_text` 통과.
 - 2026-05-11: `RecordEventModal` 네이티브 `<dialog>`에 있던 `m-0`이 UA 기본 `margin:auto` 가운데 정렬을 덮어 PC에서 모달이 좌상단으로 붙던 문제를 `m-auto`로 수정. `bun run lint`·`typecheck:strict` 통과.
 - 2026-05-11: `.gitignore`에 Python `__pycache__/`·`*.py[cod]` 추가; `bootstrap`·`error_ab`·`asset`·`index_knowledge`·`prevent_loop`·`ci-fia-automation` 워크플로를 FamilySync(`bun`/`just ci`) 기준으로 정리.
 - 2026-05-11: 레포 외부 템플릿 잔존 문서 정리 — `AGENTS.md`·`PROJECT_RULES.md` 검증 매트릭스·Reference Index를 `bun`/`just ci`/실제 `docs/specs` 구조에 맞춤; `go`·`audit`·`debug_error`·`asset`·`path_verification`·`jsx_casing_check`·`micro-improve`·`context_gap_scan`·`plan` 워크플로(`.agents`/`.clinerules`)의 타 스택 경로·명령을 FamilySync 기준으로 수정 또는 주석 처리.

@@ -162,7 +162,7 @@ export async function createEvent(payload: CreateEventInput) {
 #### Task 4.1: 숙제 마스터/로그 UI 및 자정 리셋 전략 반영 [Level: Low]
 - Task-ID: FS-010 | Status: done | RetryPolicy: none
 - **Action**: Create/Edit File | **Target**: `/Users/seungjulee/Desktop/Dev/todo/app/(dashboard)/homework/page.tsx`, `/Users/seungjulee/Desktop/Dev/todo/app/actions/admin.ts`
-- **Goal**: kid7/kid4 숙제 조회 및 완료 로그 기록
+- **Goal**: 주원이/승원이(`kid7`/`kid4`) 숙제 조회 및 완료 로그 기록
 - **Diagnostics**: 2
 - **Verify**: 숙제 체크 시 `homework_logs` 반영 + 일자 키 중복 제약 통과
 - **Conclusion**: `app/actions/admin.ts`와 `app/(dashboard)/homework/page.tsx`에서 숙제 유형/완료 로그 흐름을 연결했고 `bunx supabase db reset` 재적용 성공으로 `homework_logs` 제약을 포함한 마이그레이션 상태를 재검증했다.

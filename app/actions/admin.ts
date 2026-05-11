@@ -14,27 +14,30 @@ const PRESET_ACTION_TYPES = new Set([
   "brushing",
 ]);
 
-function parseActionTypeFromForm(formData: FormData): string {
+type QuickActionParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
+type CreateQuickActionResult = { success: true } | { success: false; error: string };
+
+function parseActionTypeFromForm(formData: FormData): QuickActionParseResult<string> {
   const preset = String(formData.get("actionPreset") ?? "").trim();
   if (preset === "custom") {
     const slug = String(formData.get("actionCustom") ?? "").trim();
     if (!/^[a-z][a-z0-9_]{0,63}$/.test(slug)) {
-      throw new Error("커스텀 타입은 소문자 시작, 영문·숫자·밑줄만 사용할 수 있습니다.");
+      return { ok: false, error: "커스텀 타입은 소문자 시작, 영문·숫자·밑줄만 사용할 수 있습니다." };
     }
-    return slug;
+    return { ok: true, value: slug };
   }
   if (!PRESET_ACTION_TYPES.has(preset)) {
-    throw new Error("액션 타입이 올바르지 않습니다.");
+    return { ok: false, error: "액션 타입이 올바르지 않습니다." };
   }
-  return preset;
+  return { ok: true, value: preset };
 }
 
-function parseQuickActionTarget(formData: FormData): "kid7" | "kid4" | "family" {
+function parseQuickActionTarget(formData: FormData): QuickActionParseResult<"kid7" | "kid4" | "family"> {
   const raw = String(formData.get("target") ?? "");
   if (raw === "kid7" || raw === "kid4" || raw === "family") {
-    return raw;
+    return { ok: true, value: raw };
   }
-  throw new Error("대상이 올바르지 않습니다.");
+  return { ok: false, error: "대상이 올바르지 않습니다." };
 }
 
 async function resolveActiveAdmin() {
@@ -154,15 +157,22 @@ export async function createGuide(formData: FormData) {
   return { success: true };
 }
 
-export async function createQuickAction(formData: FormData) {
+export async function createQuickAction(formData: FormData): Promise<CreateQuickActionResult> {
   const profile = await resolveActiveAdmin();
   const label = String(formData.get("label") ?? "").trim();
   if (!label) {
-    throw new Error("버튼 이름을 입력해 주세요.");
+    return { success: false, error: "버튼 이름을 입력해 주세요." };
   }
 
-  const actionType = parseActionTypeFromForm(formData);
-  const target = parseQuickActionTarget(formData);
+  const actionTypeResult = parseActionTypeFromForm(formData);
+  if (!actionTypeResult.ok) {
+    return { success: false, error: actionTypeResult.error };
+  }
+
+  const targetResult = parseQuickActionTarget(formData);
+  if (!targetResult.ok) {
+    return { success: false, error: targetResult.error };
+  }
 
   const [maxRow] = await db
     .select({ m: max(quickActions.sortOrder) })
@@ -174,8 +184,8 @@ export async function createQuickAction(formData: FormData) {
     id: crypto.randomUUID(),
     familyId: profile.familyId,
     label,
-    actionType,
-    target,
+    actionType: actionTypeResult.value,
+    target: targetResult.value,
     sortOrder: nextSort,
     isActive: true,
   });

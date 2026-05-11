@@ -10,8 +10,27 @@ import { db } from "@/db/client";
 import { homeworkTypes, quickActions } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
 import { asc, desc, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 
-export default async function AdminPage() {
+const TARGET_LABEL: Record<string, string> = {
+  kid7: "주원이",
+  kid4: "승원이",
+  family: "가족 전체",
+};
+
+const CHILD_GROUP_LABEL: Record<"kid7" | "kid4", string> = {
+  kid7: "주원이",
+  kid4: "승원이",
+};
+
+type AdminPageProps = {
+  searchParams?: Promise<{ quickActionError?: string | string[] }>;
+};
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const quickActionErrorParam = resolvedSearchParams?.quickActionError;
+  const quickActionError = Array.isArray(quickActionErrorParam) ? quickActionErrorParam[0] : quickActionErrorParam;
   const profile = await getActiveProfileContext();
   const rows =
     profile?.role === "admin"
@@ -69,7 +88,11 @@ export default async function AdminPage() {
 
   async function submitQuickAction(formData: FormData) {
     "use server";
-    await createQuickAction(formData);
+    const result = await createQuickAction(formData);
+    if (!result.success) {
+      redirect(`/admin?quickActionError=${encodeURIComponent(result.error)}#quick-actions-admin`);
+    }
+    redirect("/admin#quick-actions-admin");
   }
 
   async function submitDeactivateQuickAction(formData: FormData) {
@@ -94,6 +117,11 @@ export default async function AdminPage() {
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           대시보드에 보이는 버튼을 추가합니다. 액션 타입은 타임라인·가이드 연결(linked_action)에 쓰입니다.
         </p>
+        {quickActionError ? (
+          <p className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-200">
+            {quickActionError}
+          </p>
+        ) : null}
 
         <ul className="mt-4 grid gap-2">
           {rows.map((row) => (
@@ -104,7 +132,7 @@ export default async function AdminPage() {
               <div>
                 <span className="font-medium">{row.label}</span>
                 <span className="ml-2 text-xs text-neutral-500">
-                  {row.actionType} · {row.target}
+                  {row.actionType} · {TARGET_LABEL[row.target] ?? row.target}
                   {!row.isActive ? " · 비활성" : ""}
                 </span>
               </div>
@@ -158,8 +186,8 @@ export default async function AdminPage() {
               className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 dark:border-neutral-700"
             >
               <option value="family">family (가족 전체)</option>
-              <option value="kid7">kid7</option>
-              <option value="kid4">kid4</option>
+              <option value="kid7">kid7 (주원이)</option>
+              <option value="kid4">kid4 (승원이)</option>
             </select>
           </label>
           <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-white">
@@ -199,7 +227,7 @@ export default async function AdminPage() {
               <div>
                 <span className="font-medium">{hw.title}</span>
                 <span className="ml-2 text-xs text-neutral-500">
-                  {hw.childGroup}
+                  {CHILD_GROUP_LABEL[hw.childGroup]}
                   {!hw.isActive ? " · 비활성" : ""}
                 </span>
               </div>
@@ -229,8 +257,8 @@ export default async function AdminPage() {
             defaultValue="kid7"
             className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 dark:border-neutral-700"
           >
-            <option value="kid7">kid7</option>
-            <option value="kid4">kid4</option>
+            <option value="kid7">kid7 (주원이)</option>
+            <option value="kid4">kid4 (승원이)</option>
           </select>
           <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-white">
             추가

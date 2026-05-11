@@ -15,6 +15,7 @@ html {
 html.dashboard-pinch-lock {
   touch-action: pan-x pan-y;
   overscroll-behavior: none;
+  overflow-x: hidden;
 }
 
 /* iOS Safari: 작은 글꼴(<16px) 입력 포커스 시 페이지가 확대되는 현상 방지 */

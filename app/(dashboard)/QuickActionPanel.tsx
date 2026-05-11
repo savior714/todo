@@ -21,8 +21,8 @@ export type HomeworkQuickShortcut = {
 };
 
 const CHILD_GROUP_LABEL: Record<HomeworkQuickShortcut["childGroup"], string> = {
-  kid7: "7세 그룹",
-  kid4: "4세 그룹",
+  kid7: "주원이",
+  kid4: "승원이",
 };
 
 type QuickActionPanelProps = {

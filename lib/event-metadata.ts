@@ -92,14 +92,14 @@ export function formatMetadataValidationMessage(err: unknown): string {
 }
 
 const TARGET_KO: Record<string, string> = {
-  kid7: "7세 그룹",
-  kid4: "4세 그룹",
+  kid7: "주원이",
+  kid4: "승원이",
   family: "가족",
 };
 
 const SCHOOL_CHILD_KO: Record<string, string> = {
-  kid7: "첫째 (7세 그룹)",
-  kid4: "둘째 (4세 그룹)",
+  kid7: "주원이 (첫째)",
+  kid4: "승원이 (둘째)",
 };
 
 /** 타임라인 카드의 `events.target` 한 줄 표기 (kid7/kid4/family 등). */
