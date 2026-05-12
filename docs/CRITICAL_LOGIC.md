@@ -42,6 +42,7 @@
 
 - **스키마 요지**: `events`는 `family_id`, `profile_id`, `action_type`, `target`, `metadata`(JSON 문자열), `is_reverted`, `created_at`을 가진다.
 - **날짜 열 배치**: 대시보드 3열(어제/오늘/내일) 및 주 단위 이동은 **`metadata.timelineDate`** (`YYYY-MM-DD`)가 있으면 그날짜에 붙이고, 없으면 `created_at`의 **로컬 자정 기준 날짜**로 붙인다. (`lib/timeline-date.ts`의 `getEventDisplayDateKey`)
+- **3열 헤더·주말 구분**: 각 열 상단에 로컬 `YYYY-MM-DD`와 브라우저 **`ko-KR` 긴 요일**을 표시하며, **어제/오늘/내일** 상대 문구가 있으면 함께 노출한다. **토·일** 열은 시각 구분용 옅은 배경을 쓴다(법정 공휴일은 별도 캘린더 없이 미반영).
 - **대시보드 초기 타임라인 윈도우**: 서버 초기 로드는 `lib/dashboard-timeline.ts`의 **`TIMELINE_LOOKBACK_MS`·`TIMELINE_EVENT_LIMIT`** 로 범위·행 수를 제한한다(성능·Turso RTT). 과거 구간을 더 쓰면 별도 조회·페이지네이션으로 확장한다.
 - **투약 상세 메타**: `action_type === "medication"`일 때 구조화 필드는 **`metadata.medication`** 에 둔다 (`subject`: `kid7`(주원이) \| `kid4`(승원이) \| `family`, `items[]`: 약 이름·용량·단위, 선택 `note`). 저장 전 검증은 `lib/event-metadata.ts`의 `normalizeAndValidateEventMetadata`가 수행한다. UI 기록은 `RecordEventModal`을 경유한다.
 - **등·하원 메타**: `action_type`이 **`school_dropoff`** 또는 **`school_pickup`** 일 때 **`metadata.schoolRun`** 에 `child`(`kid7`=주원이 \| `kid4`=승원이)와 선택 **`place`**(장소 문자열)를 둔다. **`events.target`** 은 `schoolRun.child` 와 동일하게 저장해 타임라인·집계에서 대상이 일치하도록 한다.

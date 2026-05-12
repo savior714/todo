@@ -9,8 +9,10 @@ import { timelineActionLabel } from "@/lib/timeline-action-labels";
 import {
   addDays,
   formatDateKey,
-  formatWeekdayLabel,
+  formatKoreanWeekdayLong,
   getEventDisplayDateKey,
+  getRelativeDayCaption,
+  isWeekend,
   parseDateKey,
   startOfLocalDay,
 } from "@/lib/timeline-date";
@@ -270,6 +272,14 @@ export default function TimelineFeed({
             const key = formatDateKey(day);
             const slots = slotsByDay.get(key) ?? [];
             const isSelected = centerDateKey === key;
+            const restDay = isWeekend(day);
+            const columnBg = isSelected
+              ? "bg-blue-50/80 ring-2 ring-inset ring-blue-400/50 dark:bg-blue-950/30 dark:ring-blue-500/40"
+              : restDay
+                ? "bg-amber-50/45 dark:bg-amber-950/20"
+                : "bg-white dark:bg-neutral-950";
+            const relativeCaption = getRelativeDayCaption(day, todayKey, yesterdayKey, tomorrowKey);
+            const weekdayLong = formatKoreanWeekdayLong(day);
             return (
               <div
                 key={key}
@@ -281,11 +291,20 @@ export default function TimelineFeed({
                   }
                   selectDayColumn(day);
                 }}
-                className={`flex min-h-[280px] cursor-pointer flex-col gap-2 p-2 sm:p-3 ${isSelected ? "bg-blue-50/80 ring-2 ring-inset ring-blue-400/50 dark:bg-blue-950/30 dark:ring-blue-500/40" : "bg-white dark:bg-neutral-950"}`}
+                className={`flex min-h-[280px] cursor-pointer flex-col gap-2 p-2 sm:p-3 ${columnBg}`}
               >
                 <div className="pointer-events-none w-full rounded-lg border border-transparent px-1 py-2 text-left">
                   <p className="text-xs font-medium leading-snug text-neutral-500 dark:text-neutral-400">
-                    {formatWeekdayLabel(day, todayKey, yesterdayKey, tomorrowKey)}
+                    {relativeCaption ? (
+                      <>
+                        <span className="font-semibold text-neutral-600 dark:text-neutral-300">{relativeCaption}</span>
+                        <span className="text-neutral-400 dark:text-neutral-500" aria-hidden>
+                          {" "}
+                          ·{" "}
+                        </span>
+                      </>
+                    ) : null}
+                    <span className="text-neutral-700 dark:text-neutral-200">{weekdayLong}</span>
                   </p>
                   <p className="mt-0.5 text-sm font-semibold tabular-nums tracking-tight text-neutral-900 dark:text-neutral-100">
                     {key}
