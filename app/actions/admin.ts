@@ -14,6 +14,7 @@ const PRESET_ACTION_TYPES = new Set([
   "school_dropoff",
   "school_pickup",
   "brushing",
+  "cleaning",
 ]);
 
 type QuickActionParseResult<T> = { ok: true; value: T } | { ok: false; error: string };

@@ -12,6 +12,7 @@ const ACTION_TYPE_LABEL: Record<string, string> = {
   school_dropoff: "등원",
   school_pickup: "하원",
   brushing: "양치",
+  cleaning: "청소",
 };
 
 export type QuickActionAdminRow = {
@@ -111,6 +112,7 @@ export function QuickActionsAdminSection({
               <option value="school_dropoff">등원</option>
               <option value="school_pickup">하원</option>
               <option value="brushing">양치</option>
+              <option value="cleaning">청소</option>
               <option value="custom">기타(직접 입력)</option>
             </select>
           </label>

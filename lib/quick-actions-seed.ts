@@ -8,6 +8,7 @@ export const DEFAULT_QUICK_ACTION_SEEDS = [
   { label: "등원", actionType: "school_dropoff", target: "kid4", sortOrder: 2 },
   { label: "하원", actionType: "school_pickup", target: "kid4", sortOrder: 3 },
   { label: "양치", actionType: "brushing", target: "kid4", sortOrder: 4 },
+  { label: "청소", actionType: "cleaning", target: "family", sortOrder: 5 },
 ] as const;
 
 /**

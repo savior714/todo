@@ -5,6 +5,7 @@ const ACTION_LABEL: Record<string, string> = {
   school_dropoff: "등원",
   school_pickup: "하원",
   brushing: "양치",
+  cleaning: "청소",
   homework: "숙제",
   routine_check: "루틴",
 };
