@@ -215,3 +215,49 @@ export const quickActions = sqliteTable(
     ),
   })
 );
+
+/** 숙제와 무관한 반복 루틴(보호자가 날짜별로 완료 체크). */
+export const routineItems = sqliteTable(
+  "routine_items",
+  {
+    id: text("id").primaryKey(),
+    familyId: text("family_id")
+      .notNull()
+      .references(() => families.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    target: text("target", { enum: ["kid7", "kid4", "family"] }).notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => ({
+    familyIdx: index("routine_items_family_idx").on(table.familyId),
+    familyActiveSortIdx: index("routine_items_family_active_sort_idx").on(
+      table.familyId,
+      table.isActive,
+      table.sortOrder
+    ),
+  })
+);
+
+export const routineLogs = sqliteTable(
+  "routine_logs",
+  {
+    id: text("id").primaryKey(),
+    familyId: text("family_id")
+      .notNull()
+      .references(() => families.id, { onDelete: "cascade" }),
+    routineItemId: text("routine_item_id")
+      .notNull()
+      .references(() => routineItems.id, { onDelete: "cascade" }),
+    dateKey: text("date_key").notNull(),
+    completedBy: text("completed_by")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "restrict" }),
+    completedAt: integer("completed_at").notNull().default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => ({
+    routineDateUnique: uniqueIndex("routine_logs_item_date_unique_idx").on(table.routineItemId, table.dateKey),
+    familyDateIdx: index("routine_logs_family_date_idx").on(table.familyId, table.dateKey),
+  })
+);

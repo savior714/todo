@@ -87,6 +87,15 @@ test("숙제 완료 시 타임라인용 events 행이 함께 기록된다", () =
   assert.match(meta, /actionType === "homework"/);
 });
 
+test("루틴 완료 시 타임라인용 events 행이 함께 기록된다", () => {
+  const admin = read("app/actions/admin.ts");
+  const meta = read("lib/event-metadata.ts");
+  assert.match(admin, /actionType:\s*"routine_check"/);
+  assert.match(admin, /\.insert\(events\)/);
+  assert.match(admin, /normalizeAndValidateEventMetadata\(\s*"routine_check"/);
+  assert.match(meta, /actionType === "routine_check"/);
+});
+
 test("관리자는 대시보드에서 퀵 액션·숙제 설정 링크를 받는다", () => {
   const deferred = read("app/(dashboard)/dashboard/DashboardDeferred.tsx");
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
@@ -95,12 +104,16 @@ test("관리자는 대시보드에서 퀵 액션·숙제 설정 링크를 받는
   assert.match(quickAction, /showAdminSettingsLink/);
   assert.match(quickAction, /\/admin#quick-actions-admin/);
   assert.match(quickAction, /\/admin#homework-types-admin/);
+  assert.match(quickAction, /\/admin#routine-items-admin/);
   const quickActionsSection = read("app/admin/quick-actions-admin-section.tsx");
   const homeworkSection = read("app/admin/homework-types-admin-section.tsx");
+  const routineSection = read("app/admin/routine-items-admin-section.tsx");
   assert.match(quickActionsSection, /id="quick-actions-admin"/);
   assert.match(homeworkSection, /id="homework-types-admin"/);
+  assert.match(routineSection, /id="routine-items-admin"/);
   assert.match(adminPage, /QuickActionsAdminSection/);
   assert.match(adminPage, /HomeworkTypesAdminSection/);
+  assert.match(adminPage, /RoutineItemsAdminSection/);
 });
 
 test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한다", () => {
@@ -113,6 +126,10 @@ test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한
   assert.match(feed, /getEventDisplayDateKey/);
   assert.match(recordModal, /timelineDate/);
   assert.match(timelineSection, /metadata: events\.metadata/);
+  assert.match(timelineSection, /homeworkLogs/);
+  assert.match(timelineSection, /completeHomework/);
+  assert.match(timelineSection, /routineLogs/);
+  assert.match(timelineSection, /completeRoutineItem/);
   assert.match(dashboard, /TimelineFeedSection/);
   assert.match(dashboard, /Suspense/);
 });
@@ -132,10 +149,13 @@ test("대시보드 로딩은 프로필 캐시·병렬 데이터 패치·핀 배�
 test("타임라인 조회 상수와 이벤트 부분 인덱스 마이그레이션이 존재한다", () => {
   const constants = read("lib/dashboard-timeline.ts");
   const migration = read("db/migrations/0003_events_timeline_idx.sql");
+  const routineMigration = read("db/migrations/0004_routine_checklist.sql");
   assert.match(constants, /TIMELINE_EVENT_LIMIT/);
   assert.match(constants, /TIMELINE_LOOKBACK_MS/);
   assert.match(migration, /events_family_active_created_idx/i);
   assert.match(migration, /is_reverted\s*=\s*0/i);
+  assert.match(routineMigration, /routine_items/i);
+  assert.match(routineMigration, /routine_logs/i);
 });
 
 test("실행 취소 정책이 액션 타입별 SSOT로 정의되고 서버·타임라인이 공유한다", () => {
@@ -146,6 +166,7 @@ test("실행 취소 정책이 액션 타입별 SSOT로 정의되고 서버·타�
   assert.match(policy, /LOW_RISK_UNDO_WINDOW_MS/);
   assert.match(policy, /MEDICATION_UNDO_WINDOW_MS/);
   assert.match(policy, /HOMEWORK_UNDO_WINDOW_MS/);
+  assert.match(policy, /ROUTINE_CHECK_UNDO_WINDOW_MS/);
   assert.match(eventsAction, /getUndoWindowMsForActionType/);
   assert.match(eventsAction, /action_type:\s*events\.actionType/);
   assert.match(feed, /getUndoWindowMsForActionType\(\s*event\.action_type\s*\)/);

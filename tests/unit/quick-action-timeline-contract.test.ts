@@ -44,6 +44,14 @@ describe("퀵 액션으로 기록한 사용자 입력은 타임라인 요약에 
     expect(lines.some((l) => l.includes(marker))).toBe(true);
   });
 
+  test("routine_check + routine.title은 요약에 본문이 포함된다", () => {
+    const marker = "물통-채우기";
+    const lines = timelineSummaryLines("routine_check", {
+      routine: { routineItemId: "rt-1", title: marker },
+    });
+    expect(lines.some((l) => l.includes(marker))).toBe(true);
+  });
+
   test("등원·하원: 장소만 입력해도 요약에 장소 문자열이 포함된다", () => {
     const lines = timelineSummaryLines("school_dropoff", {
       schoolRun: { child: "kid4", place: marker },

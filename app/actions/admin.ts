@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, max } from "drizzle-orm";
 import { db } from "@/db/client";
-import { dailyPins, events, homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
+import { dailyPins, events, homeworkLogs, homeworkTypes, quickActions, routineItems, routineLogs } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
 import { normalizeAndValidateEventMetadata } from "@/lib/event-metadata";
+import { assertHomeworkLogDateKey } from "@/lib/homework-date-key";
 
 const PRESET_ACTION_TYPES = new Set([
   "meal",
@@ -106,7 +107,7 @@ export async function deactivateHomeworkType(formData: FormData) {
   return { success: true };
 }
 
-export async function completeHomework(homeworkTypeId: string) {
+export async function completeHomework(homeworkTypeId: string, dateKeyOverride?: string) {
   const profile = await getActiveProfileContext();
 
   if (!profile) {
@@ -127,7 +128,10 @@ export async function completeHomework(homeworkTypeId: string) {
     throw new Error("숙제 유형을 찾을 수 없습니다.");
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  const logDateKey =
+    typeof dateKeyOverride === "string" && dateKeyOverride.trim().length > 0
+      ? assertHomeworkLogDateKey(dateKeyOverride)
+      : new Date().toISOString().slice(0, 10);
 
   const [existingLog] = await db
     .select({ id: homeworkLogs.id })
@@ -136,16 +140,16 @@ export async function completeHomework(homeworkTypeId: string) {
       and(
         eq(homeworkLogs.familyId, profile.familyId),
         eq(homeworkLogs.homeworkTypeId, homeworkTypeId),
-        eq(homeworkLogs.dateKey, today)
+        eq(homeworkLogs.dateKey, logDateKey)
       )
     )
     .limit(1);
-  const alreadyCompleteToday = Boolean(existingLog);
+  const alreadyCompleteForDate = Boolean(existingLog);
 
   const logId = crypto.randomUUID();
   const metadataJson = JSON.stringify(
     normalizeAndValidateEventMetadata("homework", {
-      timelineDate: today,
+      timelineDate: logDateKey,
       homework: { homeworkTypeId, title: hwType.title },
     })
   );
@@ -157,7 +161,7 @@ export async function completeHomework(homeworkTypeId: string) {
         id: logId,
         familyId: profile.familyId,
         homeworkTypeId,
-        dateKey: today,
+        dateKey: logDateKey,
         completedBy: profile.id,
         completedAt: Date.now(),
       })
@@ -169,7 +173,7 @@ export async function completeHomework(homeworkTypeId: string) {
         },
       });
 
-    if (!alreadyCompleteToday) {
+    if (!alreadyCompleteForDate) {
       await tx.insert(events).values({
         id: crypto.randomUUID(),
         familyId: profile.familyId,
@@ -183,6 +187,133 @@ export async function completeHomework(homeworkTypeId: string) {
   });
 
   revalidatePath("/homework");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function createRoutineItem(target: "kid7" | "kid4" | "family", title: string) {
+  const profile = await resolveActiveAdmin();
+  const trimmed = title.trim();
+  if (!trimmed) {
+    throw new Error("제목을 입력해 주세요.");
+  }
+
+  const [maxRow] = await db
+    .select({ m: max(routineItems.sortOrder) })
+    .from(routineItems)
+    .where(eq(routineItems.familyId, profile.familyId));
+  const nextSort = (maxRow?.m ?? -1) + 1;
+
+  await db.insert(routineItems).values({
+    id: crypto.randomUUID(),
+    familyId: profile.familyId,
+    title: trimmed,
+    target,
+    sortOrder: nextSort,
+    isActive: true,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function deactivateRoutineItem(formData: FormData) {
+  const profile = await resolveActiveAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) {
+    throw new Error("잘못된 요청입니다.");
+  }
+
+  await db
+    .update(routineItems)
+    .set({ isActive: false })
+    .where(and(eq(routineItems.id, id), eq(routineItems.familyId, profile.familyId)));
+
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function completeRoutineItem(routineItemId: string, dateKeyOverride?: string) {
+  const profile = await getActiveProfileContext();
+
+  if (!profile) {
+    throw new Error("프로필을 찾을 수 없습니다.");
+  }
+
+  const [item] = await db
+    .select({
+      id: routineItems.id,
+      title: routineItems.title,
+      target: routineItems.target,
+    })
+    .from(routineItems)
+    .where(and(eq(routineItems.id, routineItemId), eq(routineItems.familyId, profile.familyId)))
+    .limit(1);
+
+  if (!item) {
+    throw new Error("루틴 항목을 찾을 수 없습니다.");
+  }
+
+  const logDateKey =
+    typeof dateKeyOverride === "string" && dateKeyOverride.trim().length > 0
+      ? assertHomeworkLogDateKey(dateKeyOverride)
+      : new Date().toISOString().slice(0, 10);
+
+  const [existingLog] = await db
+    .select({ id: routineLogs.id })
+    .from(routineLogs)
+    .where(
+      and(
+        eq(routineLogs.familyId, profile.familyId),
+        eq(routineLogs.routineItemId, routineItemId),
+        eq(routineLogs.dateKey, logDateKey)
+      )
+    )
+    .limit(1);
+  const alreadyCompleteForDate = Boolean(existingLog);
+
+  const logId = crypto.randomUUID();
+  const metadataJson = JSON.stringify(
+    normalizeAndValidateEventMetadata("routine_check", {
+      timelineDate: logDateKey,
+      routine: { routineItemId, title: item.title },
+    })
+  );
+
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(routineLogs)
+      .values({
+        id: logId,
+        familyId: profile.familyId,
+        routineItemId,
+        dateKey: logDateKey,
+        completedBy: profile.id,
+        completedAt: Date.now(),
+      })
+      .onConflictDoUpdate({
+        target: [routineLogs.routineItemId, routineLogs.dateKey],
+        set: {
+          completedBy: profile.id,
+          completedAt: Date.now(),
+        },
+      });
+
+    if (!alreadyCompleteForDate) {
+      await tx.insert(events).values({
+        id: crypto.randomUUID(),
+        familyId: profile.familyId,
+        profileId: profile.id,
+        actionType: "routine_check",
+        target: item.target,
+        metadata: metadataJson,
+        isReverted: false,
+      });
+    }
+  });
+
   revalidatePath("/dashboard");
   return { success: true };
 }

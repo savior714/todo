@@ -50,7 +50,7 @@
 ## 디렉토리 개요
 
 - `app/`: 라우트, 화면, Server Actions
-- `db/migrations/`: Turso SQL 마이그레이션 (`0000_initial.sql`, `0001_quick_actions.sql`, `0002_drop_care_guides.sql`, `0003_events_timeline_idx.sql`, …)
+- `db/migrations/`: Turso SQL 마이그레이션 (`0000_initial.sql`, `0001_quick_actions.sql`, `0002_drop_care_guides.sql`, `0003_events_timeline_idx.sql`, `0004_routine_checklist.sql`, …)
 - `tests/e2e/`: Done Criteria 계약 테스트
 - `docs/specs/`: PRD/TRD
 - `docs/plans/`: 실행 Blueprint 및 계획 상태

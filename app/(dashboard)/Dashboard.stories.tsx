@@ -102,7 +102,19 @@ function DashboardPreview() {
         completeHomeworkAction={mockAction}
         createEventAction={mockCreateEvent}
       />
-      <TimelineFeed initialEvents={timelineEvents} undoEventAction={mockAction} />
+      <TimelineFeed
+        initialEvents={timelineEvents}
+        undoEventAction={mockAction}
+        homeworkTypes={[
+          { id: "hw-reading", title: "한글 읽기", childGroup: "kid7" },
+          { id: "hw-math", title: "수학 문제집", childGroup: "kid4" },
+        ]}
+        homeworkLoggedKeys={[`${new Date().toISOString().slice(0, 10)}|hw-math`]}
+        completeHomeworkAction={mockAction}
+        routineTypes={[{ id: "rt-1", title: "물통 채우기", target: "family" }]}
+        routineLoggedKeys={[]}
+        completeRoutineAction={mockAction}
+      />
     </main>
   );
 }

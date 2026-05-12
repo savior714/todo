@@ -118,6 +118,7 @@
 5. `tests/`
 
 연관 가이드라인을 추출하고, 계획에 반영한다.
+`db/migrations` SQL을 추가·수정하는 작업이면 `PROJECT_RULES.md`의 Turso 마이그레이션 적용 절차와 `ADAPTIVE_GUIDELINES.json`(AAG-007)을 따른다.
 
 ### 3.2 Read Before Edit
 - 파일 읽기 → exact snippet 확보 → patch

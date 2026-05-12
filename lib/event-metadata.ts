@@ -41,6 +41,11 @@ const homeworkCompleteDetailSchema = z.object({
   title: z.string().trim().min(1).max(300),
 });
 
+const routineCompleteDetailSchema = z.object({
+  routineItemId: z.string().trim().min(1).max(128),
+  title: z.string().trim().min(1).max(300),
+});
+
 /** 등원·하원: 아이(프로필 그룹) + 선택 장소. `events.target`은 `child`와 동일하게 둔다. */
 const schoolRunDetailSchema = z
   .object({
@@ -100,6 +105,10 @@ export function normalizeAndValidateEventMetadata(
   if (actionType === "homework") {
     const homework = homeworkCompleteDetailSchema.parse(raw.homework);
     return { ...base, homework };
+  }
+  if (actionType === "routine_check") {
+    const routine = routineCompleteDetailSchema.parse(raw.routine);
+    return { ...base, routine };
   }
   if (raw.detail !== undefined && raw.detail !== null) {
     return { ...base, detail: genericDetailSchema.parse(raw.detail) };
@@ -169,6 +178,10 @@ export function summarizeEventMetadataForDisplay(metadataJson: string, actionTyp
     }
     if (actionType === "homework" && raw.homework && typeof raw.homework === "object") {
       const title = (raw.homework as { title?: string }).title;
+      return title ? [title] : [];
+    }
+    if (actionType === "routine_check" && raw.routine && typeof raw.routine === "object") {
+      const title = (raw.routine as { title?: string }).title;
       return title ? [title] : [];
     }
     if (

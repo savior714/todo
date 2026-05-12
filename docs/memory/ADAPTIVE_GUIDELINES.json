@@ -1,5 +1,12 @@
 {
   "version": "1.0.0",
-  "last_updated": "2026-05-09T15:58:00+09:00",
-  "guidelines": []
+  "last_updated": "2026-05-12T12:00:00+09:00",
+  "guidelines": [
+    {
+      "id": "AAG-007-turso-migrate-agent",
+      "summary": "Turso 마이그레이션은 에이전트가 직접 적용한다",
+      "detail": "`db/migrations/*.sql`를 추가·수정한 작업이면 세션 안에서 `npm run db:migrate`를 실행하고 출력(Applied/Skip)으로 성공을 확인한다. 사용자에게 터미널에서 실행하라고만 위임하지 않는다. 로드되는 `TURSO_DATABASE_URL`이 하나이므로 개발·운영 DB가 분리되어 있으면 env 전환 후 재실행하거나 적용 범위를 사용자에게 한 줄로 알린다.",
+      "tags": ["db", "turso", "migration", "ops"]
+    }
+  ]
 }

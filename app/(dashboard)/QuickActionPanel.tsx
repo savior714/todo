@@ -37,7 +37,7 @@ type QuickActionPanelProps = {
   homeworkShortcuts?: HomeworkQuickShortcut[];
   /** 관리자 프로필일 때만 `/admin` 편집 링크를 노출한다. */
   showAdminSettingsLink?: boolean;
-  completeHomeworkAction: (homeworkTypeId: string) => Promise<unknown>;
+  completeHomeworkAction: (homeworkTypeId: string, dateKey?: string) => Promise<unknown>;
   createEventAction: CreateEventAction;
 };
 
@@ -124,9 +124,14 @@ export default function QuickActionPanel({
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <h3 className={panelBlockHeadingClass}>오늘 숙제</h3>
           {showAdminSettingsLink ? (
-            <Link href="/admin#homework-types-admin" className={toolbarSecondaryLinkClass}>
-              숙제 유형 관리
-            </Link>
+            <div className="flex flex-wrap justify-end gap-2">
+              <Link href="/admin#homework-types-admin" className={toolbarSecondaryLinkClass}>
+                숙제 유형 관리
+              </Link>
+              <Link href="/admin#routine-items-admin" className={toolbarSecondaryLinkClass}>
+                루틴 체크 관리
+              </Link>
+            </div>
           ) : null}
         </div>
         {hasHomework ? (

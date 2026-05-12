@@ -1,14 +1,17 @@
 import {
   createHomeworkType,
   createQuickAction,
+  createRoutineItem,
   deactivateHomeworkType,
   deactivateQuickAction,
+  deactivateRoutineItem,
   upsertDailyPin,
 } from "@/app/actions/admin";
 import { HomeworkTypesAdminSection } from "@/app/admin/homework-types-admin-section";
 import { QuickActionsAdminSection } from "@/app/admin/quick-actions-admin-section";
+import { RoutineItemsAdminSection } from "@/app/admin/routine-items-admin-section";
 import { db } from "@/db/client";
-import { homeworkTypes, quickActions } from "@/db/schema";
+import { homeworkTypes, quickActions, routineItems } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
 import { asc, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -52,6 +55,20 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           .orderBy(desc(homeworkTypes.createdAt))
       : [];
 
+  const routineRows =
+    profile?.role === "admin"
+      ? await db
+          .select({
+            id: routineItems.id,
+            title: routineItems.title,
+            target: routineItems.target,
+            isActive: routineItems.isActive,
+          })
+          .from(routineItems)
+          .where(eq(routineItems.familyId, profile.familyId))
+          .orderBy(desc(routineItems.createdAt))
+      : [];
+
   async function submitPin(formData: FormData) {
     "use server";
     const content = String(formData.get("content") ?? "").trim();
@@ -90,6 +107,21 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     await deactivateHomeworkType(formData);
   }
 
+  async function submitRoutineItem(formData: FormData) {
+    "use server";
+    const title = String(formData.get("title") ?? "").trim();
+    const target = String(formData.get("target") ?? "") as "kid7" | "kid4" | "family";
+    if (!title || (target !== "kid7" && target !== "kid4" && target !== "family")) {
+      throw new Error("입력값이 올바르지 않습니다.");
+    }
+    await createRoutineItem(target, title);
+  }
+
+  async function submitDeactivateRoutineItem(formData: FormData) {
+    "use server";
+    await deactivateRoutineItem(formData);
+  }
+
   return (
     <main className="mx-auto max-w-3xl p-6">
       <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">관리자 설정</h1>
@@ -124,6 +156,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         rows={homeworkRows}
         submitHomeworkType={submitHomeworkType}
         submitDeactivateHomeworkType={submitDeactivateHomeworkType}
+      />
+
+      <RoutineItemsAdminSection
+        rows={routineRows.map((r) => ({
+          ...r,
+          target: r.target === "kid7" || r.target === "kid4" || r.target === "family" ? r.target : "family",
+        }))}
+        submitRoutineItem={submitRoutineItem}
+        submitDeactivateRoutineItem={submitDeactivateRoutineItem}
       />
     </main>
   );

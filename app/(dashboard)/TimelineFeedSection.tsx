@@ -1,38 +1,98 @@
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
+import { completeHomework, completeRoutineItem } from "@/app/actions/admin";
 import { undoEvent } from "@/app/actions/events";
-import TimelineFeed from "@/app/(dashboard)/TimelineFeed";
+import TimelineFeed, {
+  type HomeworkTypeForTimeline,
+  type RoutineTypeForTimeline,
+} from "@/app/(dashboard)/TimelineFeed";
 import { db } from "@/db/client";
-import { events } from "@/db/schema";
+import {
+  events,
+  homeworkLogs,
+  homeworkTypes as homeworkTypesTable,
+  routineItems as routineItemsTable,
+  routineLogs,
+} from "@/db/schema";
 import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard-perf";
 import { TIMELINE_EVENT_LIMIT, TIMELINE_LOOKBACK_MS } from "@/lib/dashboard-timeline";
+import { addDays, formatDateKey, startOfLocalDay } from "@/lib/timeline-date";
 
 type TimelineFeedSectionProps = Readonly<{
   familyId: string;
 }>;
 
+function normalizeChildGroup(raw: string): "kid7" | "kid4" {
+  return raw === "kid7" || raw === "kid4" ? raw : "kid4";
+}
+
+function normalizeRoutineTarget(raw: string): "kid7" | "kid4" | "family" {
+  if (raw === "kid7" || raw === "kid4" || raw === "family") {
+    return raw;
+  }
+  return "family";
+}
+
 export default async function TimelineFeedSection({ familyId }: TimelineFeedSectionProps) {
   const t0 = dashboardPerfNow();
   const timelineSince = Date.now() - TIMELINE_LOOKBACK_MS;
 
-  const timelineRows = await db
-    .select({
-      id: events.id,
-      action_type: events.actionType,
-      target: events.target,
-      created_at: events.createdAt,
-      is_reverted: events.isReverted,
-      metadata: events.metadata,
-    })
-    .from(events)
-    .where(
-      and(
-        eq(events.familyId, familyId),
-        eq(events.isReverted, false),
-        gte(events.createdAt, timelineSince)
+  const todayStart = startOfLocalDay(new Date());
+  const minLogKey = formatDateKey(addDays(todayStart, -90));
+  const maxLogKey = formatDateKey(addDays(todayStart, 14));
+
+  const [timelineRows, hwRows, logRows, rtRows, routineLogRows] = await Promise.all([
+    db
+      .select({
+        id: events.id,
+        action_type: events.actionType,
+        target: events.target,
+        created_at: events.createdAt,
+        is_reverted: events.isReverted,
+        metadata: events.metadata,
+      })
+      .from(events)
+      .where(
+        and(eq(events.familyId, familyId), eq(events.isReverted, false), gte(events.createdAt, timelineSince))
       )
-    )
-    .orderBy(desc(events.createdAt))
-    .limit(TIMELINE_EVENT_LIMIT);
+      .orderBy(desc(events.createdAt))
+      .limit(TIMELINE_EVENT_LIMIT),
+    db
+      .select({
+        id: homeworkTypesTable.id,
+        title: homeworkTypesTable.title,
+        childGroup: homeworkTypesTable.childGroup,
+      })
+      .from(homeworkTypesTable)
+      .where(and(eq(homeworkTypesTable.familyId, familyId), eq(homeworkTypesTable.isActive, true)))
+      .orderBy(asc(homeworkTypesTable.createdAt)),
+    db
+      .select({
+        dateKey: homeworkLogs.dateKey,
+        homeworkTypeId: homeworkLogs.homeworkTypeId,
+      })
+      .from(homeworkLogs)
+      .where(
+        and(eq(homeworkLogs.familyId, familyId), gte(homeworkLogs.dateKey, minLogKey), lte(homeworkLogs.dateKey, maxLogKey))
+      ),
+    db
+      .select({
+        id: routineItemsTable.id,
+        title: routineItemsTable.title,
+        target: routineItemsTable.target,
+      })
+      .from(routineItemsTable)
+      .where(and(eq(routineItemsTable.familyId, familyId), eq(routineItemsTable.isActive, true)))
+      .orderBy(asc(routineItemsTable.sortOrder), asc(routineItemsTable.createdAt)),
+    db
+      .select({
+        dateKey: routineLogs.dateKey,
+        routineItemId: routineLogs.routineItemId,
+      })
+      .from(routineLogs)
+      .where(
+        and(eq(routineLogs.familyId, familyId), gte(routineLogs.dateKey, minLogKey), lte(routineLogs.dateKey, maxLogKey))
+      ),
+  ]);
 
   logDashboardPerf("timeline", t0);
 
@@ -43,5 +103,32 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
     metadata: row.metadata ?? "{}",
   }));
 
-  return <TimelineFeed initialEvents={normalizedEvents} undoEventAction={undoEvent} />;
+  const homeworkTypes: HomeworkTypeForTimeline[] = hwRows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    childGroup: normalizeChildGroup(row.childGroup),
+  }));
+
+  const homeworkLoggedKeys = logRows.map((r) => `${r.dateKey}|${r.homeworkTypeId}`);
+
+  const routineTypes: RoutineTypeForTimeline[] = rtRows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    target: normalizeRoutineTarget(row.target),
+  }));
+
+  const routineLoggedKeys = routineLogRows.map((r) => `${r.dateKey}|${r.routineItemId}`);
+
+  return (
+    <TimelineFeed
+      initialEvents={normalizedEvents}
+      undoEventAction={undoEvent}
+      homeworkTypes={homeworkTypes}
+      homeworkLoggedKeys={homeworkLoggedKeys}
+      completeHomeworkAction={completeHomework}
+      routineTypes={routineTypes}
+      routineLoggedKeys={routineLoggedKeys}
+      completeRoutineAction={completeRoutineItem}
+    />
+  );
 }
