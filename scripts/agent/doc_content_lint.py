@@ -20,7 +20,7 @@ from scripts.agent.verify_rules import verify_links
 Severity = Literal["fail", "warn"]
 
 SCAN_ROOTS = (".agents", "docs/knowledge")
-WARNINGS_REL = Path("docs/agent-context/memory/doc_quality_warnings.json")
+WARNINGS_REL = Path(".agents/memory/doc_quality_warnings.json")
 DEFAULT_STALE_DAYS = 90
 MAX_FILES_CAP = 500
 # Assess queue triggers (RES_agent_context_gate §1 — B+D)
@@ -378,7 +378,7 @@ def main(argv: list[str] | None = None) -> int:
         "--warnings-path",
         type=Path,
         default=None,
-        help="Override warnings JSON path (default: docs/agent-context/memory/doc_quality_warnings.json)",
+        help="Override warnings JSON path (default: .agents/memory/doc_quality_warnings.json)",
     )
     parser.add_argument(
         "--no-write-warnings",

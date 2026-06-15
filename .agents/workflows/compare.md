@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/compare.md"]
+domain: "workflows"
 situation: 명세 비교
 trigger: /compare
 level: Recommended
@@ -6,6 +8,7 @@ description: docs/specs/ 개별 명세를 단위로 최근 국내·해외 EMR �
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 
 ## 0. 목적·범위

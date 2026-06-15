@@ -1,3 +1,7 @@
+---
+scope: [".agents/registry/LOAD_ORDER.md"]
+domain: "registry"
+---
 <!-- Language: ko -->
 # Load Order & Precedence
 

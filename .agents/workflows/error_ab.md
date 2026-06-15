@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/error_ab.md"]
+domain: "workflows"
 situation: 에러 A/B 해결
 trigger: /error_ab
 level: Recommended
@@ -6,6 +8,7 @@ description: 외부 LLM(arena.ai)의 A/B 답변을 활용하여 최적의 에러
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # Workflow: /error_ab (External A/B Comparison)
 

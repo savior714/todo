@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/bootstrap.md"]
+domain: "workflows"
 situation: 환경 동기화
 trigger: /bootstrap
 level: Recommended
@@ -6,6 +8,7 @@ description: FamilySync MVP 로컬·검증 재현 체크리스트 (타 레포 bo
 version: 2.0.0
 last_updated: 2026-05-11
 ---
+<!-- Language: ko -->
 
 # `/bootstrap` — FamilySync MVP (`todo`)
 

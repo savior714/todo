@@ -1,6 +1,9 @@
 ---
+scope: [".agents/workflows/ai-log.md"]
+domain: "workflows"
 description: AI의 작업 과정 중 가치가 높은 "인지적 흔적(Cognitive Trace)"을 선별적으로 기록하여, 미래의 학습 데이터(Gold Data) 및 인사이트 추출
 ---
+<!-- Language: ko -->
 
 # 🧠 인지 관측성 로깅 워크플로우 (/ai-log)
 

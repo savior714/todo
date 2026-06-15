@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/jsx_casing_check.md"]
+domain: "workflows"
 situation: JSX 컴포넌트 생성
 trigger: /jsx_casing_check
 level: Mandatory
@@ -6,6 +8,7 @@ description: PascalCase 검증 + ESLint/grep (선택 casing_scan.py)
 version: 1.1.0
 last_updated: 2026-05-11
 ---
+<!-- Language: ko -->
 
 ## 문서 메타 (Version SSOT)
 - **Last Verified**: 2026-05-02

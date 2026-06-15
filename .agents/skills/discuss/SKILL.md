@@ -115,7 +115,7 @@ disable-model-invocation: true
 
 1. **`just route`** (주제가 넓으면 `just route-smart '<query>' <paths> --json`) — 관련 경로의 rules·must_read를 Read.
 2. **이번 discuss 주제** — 사용자가 준 영역·경로, `DISCUSS_*.md` §1~3, scan 범위의 backlog·plans·spec **일부**.
-3. **권장 선정** — §**선택지 표시 패턴** **2단계**(§1·[확정] → 동률 시 4요소). 업계·경쟁은 **조사 게이트 «예»**일 때만 [deep-research](../deep-research/SKILL.md) 요약을 보조 근거로 쓴다.
+3. **권장 선정** — §**선택지 표시 패턴** **2단계**(§1·[확정] → 동률 시 4요소).
 
 ### `scan`·`direction` — 두 턴 흐름
 
@@ -248,7 +248,7 @@ AskQuestion(`question` 병용) (다음 분기 1개)
 
 ### 1. scan (첫 턴)
 
-- 사용자가 영역을 지정했으면 **그 영역에 한정**해 깊게 본다(소스·spec·backlog·plans·CONTEXT). 영역 미지정이면 `docs/agent-context/memory/PROJECT_REFACTORING_BACKLOG.md`·`docs/specs/`·`docs/plans/`·CONTEXT 등 앵커부터 보고 **범위를 좁히는 질문 1개**부터.
+- 사용자가 영역을 지정했으면 **그 영역에 한정**해 깊게 본다(소스·spec·backlog·plans·CONTEXT). 영역 미지정이면 `.agents/memory/PROJECT_REFACTORING_BACKLOG.md`·`docs/specs/`·`docs/plans/`·CONTEXT 등 앵커부터 보고 **범위를 좁히는 질문 1개**부터.
 - **무한 확장 금지** — "심층이되 사용자가 준 영역에 한정". 새 영역으로 번지면 한 턴만 써서 범위를 다시 묻는다.
 - **진입 순서**: §AskQuestion 직전 맥락·조사 게이트 — **턴1** `research-gate` → (선택) deep-research → **턴2** route 맥락 반영 후 스캔 요약 2~3줄 + 방향 후보 **본 AskQuestion(`question` 병용)**.
 

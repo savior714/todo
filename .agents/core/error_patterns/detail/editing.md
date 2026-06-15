@@ -155,7 +155,7 @@ Write(path, fullContent)  # → closing tag 순서 보장
 | :--- | :--- | :--- | :--- | :--- |
 | [routing.md §1.1](../../routing.md#11-file-edit-tool-schema) | Cursor IDE | `StrReplace` | `old_string` | `path` |
 | [opencode_tools.md §edit](../../opencode_tools.md) | local LLM (OpenCode) | `edit` | `oldString` | `filePath` |
-| [runtime_edit_tools.md §1](../../runtime_edit_tools.md) · [SPEC §1](../../../../docs/specs/technical/SPEC_TECH_tech_multi_agent_tooling.md) | Google Antigravity | `replace_file_content` | `TargetContent` (+ `StartLine`/`EndLine`) | `TargetFile` |
+| [runtime_edit_tools.md §1](../../runtime_edit_tools.md) | Google Antigravity | `replace_file_content` | `TargetContent` (+ `StartLine`/`EndLine`) | `TargetFile` |
 
 **공통 (충돌 없음)**: 편집 전 읽기 · 단일 매칭 · old/target ≠ replacement · 실패 후 재읽기 · 신규 파일은 write만.
 

@@ -46,7 +46,7 @@ last_verified: 2026-06-11
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Cursor IDE** | T0 `AGENTS.md` · lazy `routing.md` §1 | `Read` | `StrReplace` | N/A | `Write` | `old_string` (snake) | `path` | 프로젝트 루트 **상대** |
 | **local LLM (OpenCode)** | `opencode.json` → `AGENTS.md` + [opencode_tools.md](./opencode_tools.md) | `read` | `edit` | N/A | `write` | `oldString` (camel) | `filePath` | **절대** |
-| **Google Antigravity** | 플랫폼 시스템 프롬프트 · [SPEC §1](../../docs/specs/technical/SPEC_TECH_tech_multi_agent_tooling.md) | `view_file` | `replace_file_content` | `multi_replace_file_content` | `write_to_file` | `TargetContent` (Pascal) + `StartLine`/`EndLine` | `TargetFile` | **절대** |
+| **Google Antigravity** | 플랫폼 시스템 프롬프트 | `view_file` | `replace_file_content` | `multi_replace_file_content` | `write_to_file` | `TargetContent` (Pascal) + `StartLine`/`EndLine` | `TargetFile` | **절대** |
 | **MCP `emr-repo`** | `.mcp.json` · [§5](#5-stdio-mcp-repo_-연결-전환기) | `repo_read` | `repo_patch` | N/A (`replace_all` 옵션) | `repo_write` | `old_text` (snake) | `path` | 워크스페이스 루트 **상대** |
 
 ### 1.2 보조 도구 매핑 (읽기·쓰기·부분 수정 외)
@@ -74,7 +74,7 @@ last_verified: 2026-06-11
 
 `—` = 해당 런타임에 네이티브 도구 **미노출** 또는 미문서화. 대안은 §1.2.2.
 
-Golden Log `--tools`·도구명 정규화: [ai-log.md §도구명](../workflows/ai-log.md) · [normalize_tool_syntax.py](../../projects/ai-log/tools/normalize_tool_syntax.py).
+Golden Log `--tools`·도구명 정규화: [ai-log.md §도구명](../workflows/ai-log.md).
 
 ### 1.2.1 구조화 선택 (의사결정) 스키마
 
@@ -137,8 +137,8 @@ OpenCode `question` ([opencode_tools.md](./opencode_tools.md) §question):
 | 주제 | 규칙 |
 | :--- | :--- |
 | **OpenCode 턴당 1도구** | local LLM은 한 assistant 턴에 도구 **1개만** — [opencode_tools.md](./opencode_tools.md) |
-| **웹 조사** | 메타 검색 → 본문 확인 순 — [SPEC §공통](../../docs/specs/technical/SPEC_TECH_tech_multi_agent_tooling.md) (`WebSearch` → `WebFetch`/`webfetch`) |
-| **레거시 별칭 금지** | `read_file`, `codebase_search`, `terminal`, `patch` 등 — §3 · [normalize_tool_syntax.py](../../projects/ai-log/tools/normalize_tool_syntax.py) |
+| **웹 조사** | 메타 검색 → 본문 확인 순 (`WebSearch` → `WebFetch`/`webfetch`) |
+| **레거시 별칭 금지** | `read_file`, `codebase_search`, `terminal`, `patch` 등 — §3 |
 | **스킬 로드** | Cursor는 `Read`로 `SKILL.md` 직접 읽기 · OpenCode는 `skill` 도구 (`name` 키) |
 
 #### 검색·탐색 키 차이
@@ -174,7 +174,7 @@ OpenCode `todowrite`: `todos[]` with `content`, `status`, `priority` (Cursor `To
 
 #### Antigravity 편집 보조
 
-- `view_file` **800라인 제한** — 큰 파일은 `grep_search`로 먼저 좁힌 뒤 읽기 ([SPEC §2](../../docs/specs/technical/SPEC_TECH_tech_multi_agent_tooling.md)).
+- `view_file` **800라인 제한** — 큰 파일은 `grep_search`로 먼저 좁힌 뒤 읽기.
 - 동일 파일 비연속 다중 수정: `multi_replace_file_content` **단일 호출** — `replace_file_content` 병렬 다중 호출 **금지** (§1.1).
 
 #### Antigravity — 미문서화 보조 (실측 전)
@@ -189,7 +189,7 @@ OpenCode `todowrite`: `todos[]` with `content`, `status`, `priority` (Cursor `To
 | 구조화 선택 | 미문서화 | §1.2.1 채팅 A/B/C fallback |
 | MCP | §5 `repo_*`만 계약화 | 그 외 MCP는 플랫폼 노출 시에만 |
 
-플랫폼에서 새 도구가 확인되면 본 절·[SPEC §1](../../docs/specs/technical/SPEC_TECH_tech_multi_agent_tooling.md)에 **실측 후** 행을 추가한다(추측 기입 금지).
+플랫폼에서 새 도구가 확인되면 본 절에 **실측 후** 행을 추가한다(추측 기입 금지).
 
 ### 1.3 공통 패치 전제조건 (tri-runtime)
 
@@ -281,7 +281,7 @@ Normative: [opencode_tools.md §edit](./opencode_tools.md)
 }
 ```
 
-Normative: [routing.md §1.1.1](./routing.md#111-google-antigravity-edit-rules-전용) · [SPEC §1](../../docs/specs/technical/SPEC_TECH_tech_multi_agent_tooling.md)
+Normative: [routing.md §1.1.1](./routing.md#111-google-antigravity-edit-rules-전용)
 
 ---
 
@@ -383,7 +383,7 @@ tri-runtime 네이티브 도구와 **병행**한다. 세션에 `repo_patch`가 �
 - **부분 수정**: `repo_patch` — `{ "path": "src/foo.ts", "old_text": "…", "new_text": "…", "replace_all": false }`
 - **신규·전체**: `repo_write` — `{ "path": "src/new.ts", "content": "…" }`
 - **키**: snake_case `path`/`old_text`/`new_text`/`replace_all` — 벤더 중립
-- **에러**: 5종 code — §2.3 · [SPEC §4](../../docs/specs/technical/SPEC_TECH_repo_mcp_tools.md)
+- **에러**: 5종 code — §2.3
 - **샌드박스**: 워크스페이스 루트 상대 path만 (`EMR_WORKSPACE_ROOT` 또는 git root)
 
 ---

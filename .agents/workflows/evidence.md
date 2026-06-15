@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/evidence.md"]
+domain: "workflows"
 situation: 인증 증적 생성
 trigger: /evidence
 level: Mandatory
@@ -6,6 +8,7 @@ description: 인증 지표(Axxx, Bxxx, Cxxx) 증적 자동 생성 및 검증 리
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 
 # /evidence: Certification Evidence Workflow

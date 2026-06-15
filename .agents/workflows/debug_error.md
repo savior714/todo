@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/debug_error.md"]
+domain: "workflows"
 situation: 심층 디버깅
 trigger: /debug_error
 level: Recommended
@@ -6,6 +8,7 @@ description: 코드 기반 심층 디버깅 워크플로우 - Frontend/Backend �
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 🔍 코드 기반 심층 디버깅 워크플로우 (/debug)
 

@@ -99,17 +99,17 @@ run_docs_steps() {
         start_time=$(start_timing)
         ok=true
 
-        if [ ! -f "docs/agent-context/memory/MEMORY.md" ]; then
-            echo -e "  \033[0;31m[FAIL]\033[0m docs/agent-context/memory/MEMORY.md not found"
+        if [ ! -f ".agents/memory/MEMORY.md" ]; then
+            echo -e "  \033[0;31m[FAIL]\033[0m .agents/memory/MEMORY.md not found"
             ok=false
         else
             local line_count
-            line_count=$(wc -l < "docs/agent-context/memory/MEMORY.md")
-            if [ "$line_count" -gt 500 ]; then
-                echo -e "  \033[0;31m[FAIL]\033[0m docs/agent-context/memory/MEMORY.md has $line_count lines (max 500)"
+            line_count=$(wc -l < ".agents/memory/MEMORY.md")
+            if [ "$line_count" -gt 200 ]; then
+                echo -e "  \033[0;31m[FAIL]\033[0m .agents/memory/MEMORY.md has $line_count lines (max 200)"
                 ok=false
             else
-                echo -e "  \033[0;32m[OK]\033[0m docs/agent-context/memory/MEMORY.md ($line_count lines)"
+                echo -e "  \033[0;32m[OK]\033[0m .agents/memory/MEMORY.md ($line_count lines)"
             fi
         fi
 

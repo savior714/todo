@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/audit.md"]
+domain: "workflows"
 situation: 프로젝트 진단
 trigger: /audit
 level: Optional
@@ -6,6 +8,7 @@ description: EMR 심사 평가 + 프로젝트 진단 — 6-category scoring, MD+
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 ## 문서 메타 (Version SSOT)
 - **Last Verified**: 2026-04-19

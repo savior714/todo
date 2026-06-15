@@ -21,7 +21,7 @@ patterns_file: .agents/core/error_patterns/patterns.yaml
 
 | 상황 | 먼저 볼 문서 |
 | :--- | :--- |
-| pytest·빌드·런타임 코드 오류 | [RES_COMMON_ERROR_RESOLUTIONS.md](../../docs/knowledge/RES_COMMON_ERROR_RESOLUTIONS.md) |
+| pytest·빌드·런타임 코드 오류 | [COMMON_ERROR_RESOLUTIONS.md](../../docs/knowledge/COMMON_ERROR_RESOLUTIONS.md) |
 | 부분 수정·파일 I/O 실수 (tri-runtime) | [runtime_edit_tools.md](runtime_edit_tools.md), [error_patterns/detail/editing.md](error_patterns/detail/editing.md), [error_patterns/detail/tools.md](error_patterns/detail/tools.md) |
 | Blueprint·plan-lint·Task closeout | [workflows/plan.md](../workflows/plan.md), [error_patterns/detail/blueprint.md](error_patterns/detail/blueprint.md) |
 | discuss 세션·AskQuestion/`question`(병용)·close 규칙 | [discuss/SKILL.md](../skills/discuss/SKILL.md), [error_patterns/detail/workflow.md](error_patterns/detail/workflow.md) |

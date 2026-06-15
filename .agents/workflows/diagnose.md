@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/diagnose.md"]
+domain: "workflows"
 situation: 버그 및 성능 회귀 진단
 trigger: /diagnose
 level: Recommended
@@ -6,6 +8,7 @@ description: "Matt Pocock diagnose 스킬 — 6단계 진단 루프: reproduce �
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 🔍 Diagnose
 

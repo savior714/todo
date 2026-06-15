@@ -1,4 +1,5 @@
 ---
+domain: "frontend"
 scope: ["app/**/*.tsx", "app/**/*.jsx", "**/*.tsx", "**/*.jsx"]
 always_apply: false
 priority: normal

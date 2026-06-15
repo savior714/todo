@@ -1,3 +1,7 @@
+---
+scope: [".agents/workflows/linear.md"]
+domain: "workflows"
+---
 <!-- Language: ko -->
 # `/linear` — Linear–Blueprint 동기화 (템플릿)
 

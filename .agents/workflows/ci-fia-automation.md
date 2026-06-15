@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/ci-fia-automation.md"]
+domain: "workflows"
 situation: CI 실패 자동화
 trigger: /ci-fia-auto
 level: Recommended
@@ -6,6 +8,7 @@ description: 반복 문제 자동 감지 → FIA 호출 → 자산화
 version: 1.1.0
 last_updated: 2026-05-11
 ---
+<!-- Language: ko -->
 
 # CI-FIA 자동화 워크플로우
 
@@ -198,7 +201,6 @@ python3 scripts/generate_improvement_report.py --include-ci-fia
 
 ## 7. 참조
 
-- [아키텍처 설계 문서](../../docs/reports/ci-fia-automation-architecture.md)
 - [FIA 워크플로우](fia.md)
 - [AGENTS.md](../../AGENTS.md)
 - [PROJECT_RULES.md](../../PROJECT_RULES.md)

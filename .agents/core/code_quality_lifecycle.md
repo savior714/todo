@@ -1,16 +1,15 @@
 ---
-scope:
-- '*'
+domain: "core"
+scope: ["*"]
 always_apply: false
 priority: 1
-domain: core
-verify_with: []
-- just ddd-gate
-- just fe-boundary-gate
-- just fe-function-length-gate
-- just fe-complexity-gate
-- just test-coupling-gate
-- just test-internal-mock-gate
+verify_with:
+  - just ddd-gate
+  - just fe-boundary-gate
+  - just fe-function-length-gate
+  - just fe-complexity-gate
+  - just test-coupling-gate
+  - just test-internal-mock-gate
 ---
 <!-- Language: ko -->
 
@@ -18,7 +17,7 @@ verify_with: []
 
 코드 품질 점검을 **시점별**로 묶은 normative SSOT입니다. 세부 도구·게이트는 각 절의 Cross-ref를 따릅니다.
 
-> **용어 — Mock**: 본 문서 **Mock** = 테스트 더블(stub/spy/fake). **DB 시드·fixture**는 [seeding.md](../domains/infra/seeding.md). **`dependency_overrides`** = FastAPI composition root 교체(T-2 허용) — 내부 함수 patch와 구분.
+> **용어 — Mock**: 본 문서 **Mock** = 테스트 더블(stub/spy/fake). **DB 시드·fixture**는 별도 파일 관리. **`dependency_overrides`** = FastAPI composition root 교체(T-2 허용) — 내부 함수 patch와 구분.
 
 ---
 
@@ -66,7 +65,7 @@ Blueprint·아키텍처 결정 **전** 확인합니다. 상세: [planning.md](pl
 | ID | 규칙 | 실무 |
 | :--- | :--- | :--- |
 | **I-1** | **에러는 경계·핸들러에서만 처리** | 빈 `catch`/`except: pass` 금지. FE: BP-TS-005* · BE: BP-PY-001/002* — `just lint-fe` / `just lint-be` incremental |
-| **I-2** | **중첩 3단계 초과 시 평탄화** | `if`/`for`/`switch` 중첩 3단계 넘으면 early return·guard clause로 재구성. Biome cognitive complexity ≤15 목표 — [biome.json](../../biome.json) |
+| **I-2** | **중첩 3단계 초과 시 평탄화** | `if`/`for`/`switch` 중첩 3단계 넘으면 early return·guard clause로 재구성. Biome cognitive complexity ≤15 목표 |
 | **I-3** | **함수·파일 크기 상한 준수** | 파일 **500줄** — `just prevent-tech-debt`. 함수 **100줄** — `just fe-function-length-gate` (baseline incremental) |
 | **I-4** | **엣지케이스를 happy path보다 먼저 테스트** | Red-first 시 **빈 입력·null·경계값·동시성·실패 경로** 테스트를 먼저 작성. side-effect(저장·발행·라우팅) assertion 포함 — §5 |
 | **I-5** | **신규 function·helper·shape 전 검색** | `rg`/Glob/기존 deep module 우선. pass-through helper·중복 타입 추가 금지 — [improve-codebase-architecture/SKILL.md](../skills/improve-codebase-architecture/SKILL.md) deletion test |
@@ -132,7 +131,7 @@ Blueprint·아키텍처 결정 **전** 확인합니다. 상세: [planning.md](pl
 | 개념 | 의미 | SSOT |
 | :--- | :--- | :--- |
 | **테스트 Mock (본 문서)** | 외부 의존을 테스트 더블로 대체 | §5 T-2 |
-| **DB Mock / 시드** | 개발·E2E용 fixture·CSV 시드·in-memory DB | [seeding.md](../domains/infra/seeding.md) |
+| **DB Mock / 시드** | 개발·E2E용 fixture·CSV 시드·in-memory DB | 별도 파일 관리 |
 | **dependency_overrides** | FastAPI 앱 **composition root**에서 서비스 교체 | API 테스트 경계 — 내부 함수 patch 아님 |
 
 ---
@@ -167,6 +166,6 @@ Blueprint·아키텍처 결정 **전** 확인합니다. 상세: [planning.md](pl
 | 파일 500줄 | `just prevent-tech-debt` | git diff hard scope | FAIL |
 | Biome max-depth | — | 없음 | `fe-complexity-gate` + guard clause(I-2) |
 
-Baseline 갱신(리뷰 후): `--update-baseline` 플래그 — [GUIDE_quality_baseline_gates.md](../../docs/ops/rules/GUIDE_quality_baseline_gates.md) · 각 gate 스크립트 docstring.
+Baseline 갱신(리뷰 후): `--update-baseline` 플래그 · 각 gate 스크립트 docstring.
 
 **SSOT 정합 (2026-06-10)**: `just fe-quality-gates` / `just be-quality-gates`가 `just lint` · `lint-fe` · `lint-be` · `just ci` · `verify.sh`에서 동일 baseline gate를 공유한다(FE: `fe-boundary-gate` S5–S12, BE: `be-boundary-gate` + `runtime-coupling-gate`). `just ddd-gate` = be + fe boundary 위임. BP-TS/BP-PY incremental bp_linter는 **로컬 dirty tree**용 — CI `verify`에는 baseline gate만 포함(bp_linter full-scan 회피).

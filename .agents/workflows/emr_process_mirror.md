@@ -1,9 +1,8 @@
+---
+scope: [".agents/workflows/emr_process_mirror.md"]
+domain: "workflows"
+---
 <!-- Language: ko -->
----
-trigger: /emr-process-mirror
-description: emr 레포의 **진행 방식**(에이전트 규칙 구조·게이트·워크플로 패턴만)을 주기적으로 점검해 본 레포에 반영할 갭을 도출한다. 도메인·제품 코드 이식 금지.
----
-
 # `/emr-process-mirror` — upstream 진행 방식 점검
 
 ## 목적

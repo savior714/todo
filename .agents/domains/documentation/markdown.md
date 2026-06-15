@@ -1,4 +1,5 @@
 ---
+domain: "documentation"
 scope: ["*.md", "docs/**"]
 always_apply: false
 priority: normal

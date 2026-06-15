@@ -1,7 +1,10 @@
 ---
+scope: [".agents/workflows/next.md"]
+domain: "workflows"
 trigger: /next
 description: 활성화된 계획(docs/plans) 중 다음에 할 일을 논리적으로 분석하여 추천
 ---
+<!-- Language: ko -->
 
 # /next — Next Task Prioritizer
 

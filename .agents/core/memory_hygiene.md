@@ -1,4 +1,5 @@
 ---
+domain: "core"
 scope: [".agents/memory/MEMORY.md"]
 always_apply: true
 priority: 1

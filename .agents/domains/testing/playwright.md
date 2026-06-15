@@ -1,4 +1,5 @@
 ---
+domain: "testing"
 scope: ["tests/e2e/**/*", "**/*.spec.ts", ".playwright-mcp/**/*"]
 always_apply: false
 priority: normal

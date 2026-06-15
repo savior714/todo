@@ -116,7 +116,6 @@ verify_with: []
 - 약한 성공 기준만 있으면 반드시 보강한다.
 
 ## 1.5 Pythonic Integrity (Ruff Standards)
-상세: [backend/python.md](../domains/backend/python.md)
 
 ## 1.6 Workaround Accountability & Close Turn Reflection
 **Do not sweep failures under the rug.**

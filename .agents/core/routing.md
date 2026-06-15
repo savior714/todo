@@ -16,7 +16,7 @@ verify_with: []
 
 ## 1. File Edit Tool Schema & Editing Rules
 
-> **Tri-Runtime (Cursor · local LLM · Antigravity)**: 본 절 §1.1–§1.4의 **도구 이름·키 스키마**는 **Cursor IDE** 기준이다. `AGENTS.md`는 세 런타임이 **함께** 읽으며, 편집 스키마만 다르다 — local LLM: [opencode_tools.md](./opencode_tools.md) (`edit`/`oldString`), Antigravity: `replace_file_content`/`TargetContent` ([runtime_edit_tools.md](./runtime_edit_tools.md) · [SPEC §1](../../docs/specs/technical/SPEC_TECH_tech_multi_agent_tooling.md)). **문서는 모두 읽되**, 충돌 시 **현재 세션에 노출된 도구** 행만 따른다. 예시: [editing §1.6](error_patterns/detail/editing.md).
+> **Tri-Runtime (Cursor · local LLM · Antigravity)**: 본 절 §1.1–§1.4의 **도구 이름·키 스키마**는 **Cursor IDE** 기준이다. `AGENTS.md`는 세 런타임이 **함께** 읽으며, 편집 스키마만 다르다 — local LLM: [opencode_tools.md](./opencode_tools.md) (`edit`/`oldString`), Antigravity: `replace_file_content`/`TargetContent` ([runtime_edit_tools.md](./runtime_edit_tools.md)). **문서는 모두 읽되**, 충돌 시 **현재 세션에 노출된 도구** 행만 따른다. 예시: [editing §1.6](error_patterns/detail/editing.md).
 
 저장소, 코드베이스, 파일시스템, 개발, 디버깅 관련 작업 시 다음 원칙을 반드시 준수한다.
 
@@ -78,7 +78,7 @@ Cursor IDE 런타임 환경에서는 `StrReplace` 및 `Write` 도구 사용 시 
 - **편집 전 필수 읽기**: `Read`/`view_file` → 디스크 본문에서 치환 대상을 **그대로** 복사(byte-identical, 공백 및 줄바꿈 포함) → 부분 수정 도구 호출.
 - **치환 대상과 결과의 차별성 (old ≠ new)**: 치환하려는 원래 문자열과 새 문자열이 동일하면 **도구를 호출하지 않는다** (도구가 `"No changes to apply"` 등을 반환하여 무한 루프를 돌 수 있음).
 - **동일 체크 루프 방지**: 호출 전 반드시 `old_string != new_string` (Antigravity의 경우 `TargetContent != ReplacementContent`)을 검증한다. 이미 파일이 목표 상태에 도달해 있다면 편집 단계를 즉시 완료하고 다음 단계로 진행한다.
-- **CLI 검증 (선택)**: `just route-gate-check <paths> --file <path> --old-string '<snippet>' [--new-string '<snippet>']` — `old≠new` 및 패턴 1.2 유일성 ([check_old_string.py](../../scripts/error_patterns/check_old_string.py)).
+- **CLI 검증 (선택)**: `just route-gate-check <paths> --file <path> --old-string '<snippet>' [--new-string '<snippet>']` — `old≠new` 및 패턴 1.2 유일성.
 
 ❌✅ 세션 사례·증상별 예시: [error_patterns §1](error_patterns.md#1-파일-편집-실수) lazy-load. AGENTS.md §2.1 pointer는 본 절로 위임한다.
 
@@ -255,7 +255,6 @@ tool X(action='B') → 실패
 
 ### 해석 SSOT
 - 도메인 규칙: [.agents/registry/CONTEXT_ROUTING.md](../registry/CONTEXT_ROUTING.md)
-- 프로젝트 스킬: [.agents/registry/PROJECT_SKILL_ROUTING.json](../registry/PROJECT_SKILL_ROUTING.json)
 - 엔진: `scripts/agent/route_context.py` (`get_route_bundle`)
 
 ### 검증

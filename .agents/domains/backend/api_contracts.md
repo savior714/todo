@@ -1,4 +1,5 @@
 ---
+domain: "backend"
 scope: ["app/actions/**/*", "app/api/**/*"]
 always_apply: false
 priority: normal

@@ -1,3 +1,7 @@
+---
+scope: [".agents/registry/CONTEXT_ROUTING.md"]
+domain: "registry"
+---
 <!-- Language: ko -->
 # Context Routing Strategy
 

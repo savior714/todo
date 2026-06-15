@@ -24,7 +24,7 @@ See also: [Next.js Fast Refresh](https://nextjs.org/docs/architecture/fast-refre
   - A2. `useDeferredValue` 부분 적용 (patientId만 defer, selectedPatient은 즉시 렌더)
   - A3. Hook 참조 불안정 (`useMemo` spread 하위 훅 → 하나 변경 시 전체 recompute)
   - A4. 동기 Effect 블록 (`useLayoutEffect` 내 JSON.stringify 등 메인 스레드 차단)
-- **Investigation path**: Step 2~4 진행 → 성능 수정이 필요하면 [vercel-react-best-practices](../../frontend/vercel-react-best-practices/SKILL.md) §5 Re-render Optimization 참고 후 `/diagnose` 또는 `/plan` 핸드오프
+- **Investigation path**: Step 2~4 진행 → 성능 수정이 필요하면 `/diagnose` 또는 `/plan` 핸드오프
 
 ## {{PROJECT_NAME}} — hub raw JSONL
 

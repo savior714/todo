@@ -1,6 +1,9 @@
 ---
+scope: [".agents/workflows/micro-improve.md"]
+domain: "workflows"
 description: 사소한 증상 포착 및 아키텍처 개선 (Diagnose + Deepen)
 ---
+<!-- Language: ko -->
 
 # 🛠️ 마이크로 개선 루프 (Elite Edition)
 

@@ -1,4 +1,5 @@
 ---
+domain: "adaptive"
 scope: ["*"]
 always_apply: true
 priority: 2

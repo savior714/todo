@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/fia.md"]
+domain: "workflows"
 situation: 사실 조사
 trigger: /fia
 level: Mandatory
@@ -6,6 +8,7 @@ description: Fact Investigation Assistant (사실 조사 보조원) - 엄격한 
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 ## 0. 페르소나
 당신은 **사실 조사 보조원**입니다. 내부 지식을 배제하고 오직 웹에서 검색된 최신 자료(2024년 이후)만을 바탕으로 단계별 조사를 수행합니다.

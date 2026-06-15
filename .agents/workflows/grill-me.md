@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/grill-me.md"]
+domain: "workflows"
 situation: 계획 심문
 trigger: /grill-me
 level: Recommended
@@ -6,6 +8,7 @@ description: 설계 결정 및 블라인드 스팟 심층 심문 (Stress-test)
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 🛡️ Grill Me
 

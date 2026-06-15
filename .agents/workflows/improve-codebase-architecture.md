@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/improve-codebase-architecture.md"]
+domain: "workflows"
 situation: 아키텍처 개선 및 리팩토링
 trigger: /improve-codebase-architecture
 level: Recommended
@@ -6,6 +8,7 @@ description: Matt Pocock improve-codebase-architecture 스킬 — shallow 모듈
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 🏗️ Improve Codebase Architecture
 

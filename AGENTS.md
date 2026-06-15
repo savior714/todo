@@ -155,7 +155,7 @@ git commit --no-verify
 
 ```text
 PROJECT_RULES.md
-MEMORY.md
+.agents/memory/MEMORY.md
 ```
 
 ---
@@ -625,5 +625,7 @@ Blueprint 직접 수정
 요청 외 기능 추가
 시크릿 노출
 ```
+
+시크릿 관련: API Key, Token, Password 등 **비밀 문자열을 읽어 채팅**으로 출력하지 않는다. 로그에도 노출 금지. `grep`이나 `just`로 민감 정보를 스캔하고, 유출이 확인되면 해당 파일을 **즉시 폐기**하고 새 자격증명을 발급받는다. 시크릿 committing은 **원천 금지**이다.
 
 위 항목 위반 시 작업을 중단하고 재평가한다.

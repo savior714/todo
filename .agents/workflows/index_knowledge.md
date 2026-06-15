@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/index_knowledge.md"]
+domain: "workflows"
 situation: 지식 인덱싱
 trigger: /index_knowledge
 level: Recommended
@@ -6,6 +8,7 @@ description: docs/knowledge/ INDEX.md 자동 갱신 및 정합성 검증
 version: 1.1.0
 last_updated: 2026-05-11
 ---
+<!-- Language: ko -->
 
 # docs/knowledge/ 인덱싱 워크플로우
 
@@ -168,11 +171,10 @@ python3 scripts/index_knowledge.py --check
 
 | 문서 | 설명 |
 |:---|:---|
-| [`docs/knowledge/INDEX.md`](../knowledge/INDEX.md) | 인덱스 SSOT |
-| [`docs/knowledge/README.md`](../knowledge/README.md) | 상세 설명 (보조) |
+| `docs/knowledge/INDEX.md` | 인덱스 SSOT |
 | [`.agents/memory/MEMORY.md`](../memory/MEMORY.md) | 세션 지식 인덱스 |
 | [`PROJECT_RULES.md`](../../PROJECT_RULES.md) | 핵심 설계 결정 |
-| [`docs/specs/`](../specs/) | 요구사항 SSOT |
+| `docs/specs/` | 요구사항 SSOT |
 
 ---
 

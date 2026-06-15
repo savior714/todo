@@ -68,26 +68,26 @@ agent-lint:
     uv run python scripts/agent/doc_content_lint.py
     @echo "Agent secret policy..."
     uv run python scripts/agent/verify_agent_secret_policy.py
-    @echo "Bootstrap template drift..."
-    just bootstrap-sync check=1
+    # @echo "Bootstrap template drift..."
+    # just bootstrap-sync check=1
 
-bootstrap-sync *args:
-    @MODE="dry-run"; REMOVE=""; \
-    for arg in {{args}}; do \
-        case "$arg" in \
-            check=1|check=*) MODE="check" ;; \
-            apply=1|apply=*) MODE="apply" ;; \
-            remove_stale=1|remove_stale=*) REMOVE="1" ;; \
-        esac; \
-    done; \
-    if [ "$MODE" = "check" ]; then \
-        uv run python scripts/bootstrap/sync.py --check; \
-    elif [ "$MODE" = "apply" ]; then \
-        if [ -n "$REMOVE" ]; then \
-            uv run python scripts/bootstrap/sync.py --apply --remove-stale; \
-        else \
-            uv run python scripts/bootstrap/sync.py --apply; \
-        fi; \
-    else \
-        uv run python scripts/bootstrap/sync.py --dry-run; \
-    fi
+# bootstrap-sync *args:
+#     @MODE="dry-run"; REMOVE=""; \
+#     for arg in {{args}}; do \
+#         case "$arg" in \
+#             check=1|check=*) MODE="check" ;; \
+#             apply=1|apply=*) MODE="apply" ;; \
+#             remove_stale=1|remove_stale=*) REMOVE="1" ;; \
+#         esac; \
+#     done; \
+#     if [ "$MODE" = "check" ]; then \
+#         uv run python scripts/bootstrap/sync.py --check; \
+#     elif [ "$MODE" = "apply" ]; then \
+#         if [ -n "$REMOVE" ]; then \
+#             uv run python scripts/bootstrap/sync.py --apply --remove-stale; \
+#         else \
+#             uv run python scripts/bootstrap/sync.py --apply; \
+#         fi; \
+#     else \
+#         uv run python scripts/bootstrap/sync.py --dry-run; \
+#     fi

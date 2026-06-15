@@ -18,9 +18,9 @@ disable-model-invocation: true
 # Unified Sync (Code Lock & Spec Drift Gate)
 
 코드 무결성 락(`code-sync`)과 스펙 정합(`spec-sync`)을 **한 워크플로·한 CLI**로 묶습니다.
-스펙 본문 갱신은 [sync 워크플로 Phase 2](../../workflows/sync.md)에 따라 **에이전트가 자동**으로 수행합니다.
+스펙 본문 갱신은 **에이전트가 자동**으로 수행합니다.
 
-> **이웃 스킬**: PR·diff 리뷰 → [review](../review/SKILL.md) · Blueprint Task → [plan](../plan/SKILL.md) · 하드 버그 → [diagnose](../diagnose/SKILL.md) · 지식 자산 → [knowledge-asset](../knowledge-asset/SKILL.md)
+> **이웃 스킬**: PR·diff 리뷰 → [review](../review/SKILL.md) · Blueprint Task → [diagnose](../diagnose/SKILL.md)
 
 ---
 
@@ -33,7 +33,7 @@ disable-model-invocation: true
 | `@code-sync-lock` 생성·해시 갱신 | ✅ sync §1 | — |
 | PR·브랜치 **변경분** 리뷰 | — | [review](../review/SKILL.md) |
 | Linear 이슈·댓글 동기화 | — | `just linear-sync` · [linear.md](../../workflows/linear.md) |
-| Blueprint 작성·Task 실행 | — | [plan](../plan/SKILL.md) — drift 시 sync 보조 |
+| Blueprint 작성·Task 실행 | — | plan — drift 시 sync 보조 |
 | Biome import만 실패 (sync PASS) | — | [biome-baseline-empty.md](references/biome-baseline-empty.md) |
 
 **오분기 시**: sync 절차를 시작하지 말고 대안 스킬을 **한 줄로 안내**한다.
@@ -46,7 +46,7 @@ disable-model-invocation: true
 |------|------|
 | "코드·스펙이 지금 구현과 맞다" | Phase 2에서 **에이전트가 문서 본문**을 맞추고, Phase 3에서 **검증** |
 | `just sync --check` 한 번에 끝 | ✅ 락 해시 + **문서가 diff에 포함됐는지** 자동 검사 |
-| 스펙 문장 자동 생성 | ✅ 에이전트 자동 ([sync 워크플로 Phase 2](../../workflows/sync.md)) |
+| 스펙 문장 자동 생성 | ✅ 에이전트 자동 (Phase 2) |
 
 ---
 
@@ -77,12 +77,12 @@ Phase 2에서 spec·Claim 갱신 후 `just sync --check`가 **PASS**이면, **`j
 | 순서 | 단계 | 명령 | 비고 |
 |------|------|------|------|
 | 1 | 진행 중 (선택) | `just lint-fe` / `just lint-be` | 완료 선언 대체 불가 |
-| 2 | **Phase 2** | `just sync --check` → spec·Claim 갱신 → **PASS** | [workflow Phase 2](../../workflows/sync.md) |
+| 2 | **Phase 2** | `just sync --check` → spec·Claim 갱신 → **PASS** |
 | 3 | **종료 게이트** | `just sync-turn-end` | `sync --check` + `lint-turn-end` 1줄 체인 |
 | 3a | sync FAIL | → 순서 2 | spec 갱신 후 `sync-turn-end` 재실행 |
 | 4 | 런타임 (해당 시) | `just renderer-route-smoke` | 라우트·proxy·middleware |
 | 5 | Blueprint (해당 시) | `docs-ssot-headers` → `linear-sync` → `plan-close` | [reporting §1.0](../../core/reporting.md) |
-| 6 | 로드맵 (권장) | [`ROADMAP.md`](../../../docs/plans/ROADMAP.md) | |
+| 6 | 로드맵 (권장) | — | |
 | 7 | 보고 | **Unified Sync PASS** | `Last Verified` 반영 |
 
 > **중복 금지**: 순서 3 PASS 후 별도 `just sync --check` 불필요. `just lint-turn-end` 단독 호출 대신 **`just sync-turn-end`** 사용.
@@ -102,6 +102,4 @@ Phase 2에서 spec·Claim 갱신 후 `just sync --check`가 **PASS**이면, **`j
 
 ## 관련 SSOT
 
-- [.agents/workflows/sync.md](../../workflows/sync.md)
 - [scripts/agent/sync.py](../../../scripts/agent/sync.py)
-- [docs/specs/technical/spec_integrated_sync_roadmap.md](../../../docs/specs/technical/spec_integrated_sync_roadmap.md)

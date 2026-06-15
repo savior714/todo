@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/path_verification.md"]
+domain: "workflows"
 situation: 경로 검증
 trigger: /path_verification
 level: Mandatory
@@ -6,6 +8,7 @@ description: 파일 시스템 경로 검증 및 MCP 기반 경로 확정 워크�
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 🔍 파일 시스템 경로 검증 워크플로우 (/path_verification)
 

@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/directory_verify.md"]
+domain: "workflows"
 situation: 구조 변경
 trigger: /directory_verify
 level: Mandatory
@@ -6,6 +8,7 @@ description: README.md 디렉토리 맵 일치 여부 검증 (verify_directory_m
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 📂 디렉토리 구조 검증 워크플로우 (/directory_verify)
 

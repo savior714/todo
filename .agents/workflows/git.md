@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/git.md"]
+domain: "workflows"
 situation: 커밋
 trigger: /git
 level: Mandatory
@@ -6,6 +8,7 @@ description: Git Commit & Push - 세션 변경 사항 SSOT 반영 및 Git 커밋
 version: 1.2.0
 last_updated: 2026-05-11
 ---
+<!-- Language: ko -->
 
 # 🗂️ Git Commit & Push 워크플로우 (/git)
 

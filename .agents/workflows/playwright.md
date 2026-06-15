@@ -1,9 +1,12 @@
 ---
+scope: [".agents/workflows/playwright.md"]
+domain: "workflows"
 description: Playwright MCP 기반 자동 페이지 문제 발견 → Blueprint 생성
 trigger: /playwright <scope> 또는 자연어 "playwright로 [scope] 확인"
 version: 1.0.0
 last_updated: 2026-05-08
 ---
+<!-- Language: ko -->
 
 # 🌐 Playwright MCP 자동 문제 발견 워크플로우
 

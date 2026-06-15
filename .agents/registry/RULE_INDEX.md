@@ -1,3 +1,7 @@
+---
+scope: [".agents/registry/RULE_INDEX.md"]
+domain: "registry"
+---
 <!-- Language: ko -->
 # Agent Rule Index
 

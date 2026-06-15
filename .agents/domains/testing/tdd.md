@@ -1,4 +1,5 @@
 ---
+domain: "testing"
 scope: ["tests/**/*", "**/*.test.ts", "**/*.test.tsx"]
 always_apply: false
 priority: normal

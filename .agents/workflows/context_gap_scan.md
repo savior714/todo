@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/context_gap_scan.md"]
+domain: "workflows"
 situation: 맥락 갭 자동 탐지
 trigger: /context_gap_scan
 level: Recommended
@@ -6,6 +8,7 @@ description: Jira/Incident/PR/검증 실패 이력을 스캔해 문서화되지 
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 🔎 Context Gap Scanner 워크플로우 (/context_gap_scan)
 

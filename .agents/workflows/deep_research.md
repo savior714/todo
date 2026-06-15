@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/deep_research.md"]
+domain: "workflows"
 situation: 기술 딥 리서치
 trigger: /deep_research
 level: Mandatory
@@ -6,6 +8,7 @@ description: 거시적 기술/규제 환경 변화 탐지 및 기술적 완결�
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 ## 0. 목적·범위
 - **목적**: 내부 검색 능력을 초과하는 복잡한 규제 해석이나 거시적 기술 트렌드 파악을 위해 외부 딥 리서치 모델 전용 프롬프트를 생성하고, 결과를 프로젝트 SSOT에 반영함.

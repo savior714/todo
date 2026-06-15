@@ -1,6 +1,9 @@
 ---
+scope: [".agents/workflows/plan.md"]
+domain: "workflows"
 description: 전략적 설계 및 문서화 워크플로우 (/plan)
 ---
+<!-- Language: ko -->
 
 # 🏗️ 전략적 설계 및 문서화 워크플로우 (/plan)
 

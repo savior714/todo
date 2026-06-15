@@ -1,4 +1,5 @@
 ---
+domain: "documentation"
 scope: ["docs/plans/**/*"]
 always_apply: false
 priority: high

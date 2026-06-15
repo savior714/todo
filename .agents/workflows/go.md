@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/go.md"]
+domain: "workflows"
 situation: 세션 이관
 trigger: /go
 level: Mandatory
@@ -6,6 +8,7 @@ description: 세션 산출물 문서 동기화 및 다음 에이전트 이관 �
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 🚀 세션 이관 워크플로우 (/go)
 
@@ -25,7 +28,7 @@ last_updated: 2026-05-06
 ## 2. SSOT 동기화 (변경 발생 시에만)
 
 - `docs/specs/`: 기능/계약 변경이 있었을 때만 반영
-- `docs/plans/`: 활성 Architecture 청사진이 있으면 [`docs/specs/_meta/architecture_blueprint_ssot.md`](../../docs/specs/_meta/architecture_blueprint_ssot.md) 준수 여부를 **링크 한 줄**로만 기록한다(장문·본문 복붙 금지, `AGENTS.md` MEMORY Anti-Drift와 합치).
+- `docs/plans/`: 활성 Architecture 청사진이 있으면 준수 여부를 **링크 한 줄**로만 기록한다(장문·본문 복붙 금지, `AGENTS.md` MEMORY Anti-Drift와 합치).
 - `PROJECT_RULES.md` §8: 설계 결정이 생겼을 때만 반영
 - `.agents/memory/MEMORY.md`: 인덱스 링크 1줄만 추가(AGENTS.md §2.1.1 참조, 장문 금지)
 - `.agents/memory/project_*.md`: 세션 상세가 필요할 때만 기록

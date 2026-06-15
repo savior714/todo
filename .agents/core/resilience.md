@@ -1,4 +1,5 @@
 ---
+domain: "core"
 scope: ["*"]
 always_apply: true
 priority: 1

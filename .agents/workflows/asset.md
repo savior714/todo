@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/asset.md"]
+domain: "workflows"
 situation: 지식 자산화
 trigger: /asset
 level: Recommended
@@ -6,6 +8,7 @@ description: 해결된 문제 및 노하우를 docs/knowledge 로 자산화
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 지식 자산화 (Asset) 워크플로우
 
@@ -105,7 +108,7 @@ last_updated: 2026-05-06
 ## 관련 문서
 | 문서 | 설명 |
 |:---|:---|
-| [`docs/knowledge/COMMON_ERROR_RESOLUTIONS.md`](../knowledge/COMMON_ERROR_RESOLUTIONS.md) | 경량 버전 |
+| `docs/knowledge/COMMON_ERROR_RESOLUTIONS.md` | 경량 버전 |
 ```
 
 ### 4단계: 인덱스 갱신 (중량 자산만)
@@ -208,8 +211,7 @@ python3 scripts/index_knowledge.py --check
 
 | 문서 | 설명 |
 |:---|:---|
-| [`docs/knowledge/COMMON_ERROR_RESOLUTIONS.md`](../knowledge/COMMON_ERROR_RESOLUTIONS.md) | 경량 해결 패턴 SSOT |
-| [`docs/knowledge/INDEX.md`](../knowledge/INDEX.md) | 지식 인덱스 SSOT |
+| `docs/knowledge/COMMON_ERROR_RESOLUTIONS.md` | 경량 해결 패턴 SSOT |
 | [`.agents/memory/MEMORY.md`](../memory/MEMORY.md) | 세션 지식 인덱스 |
 | [`AGENTS.md`](../../AGENTS.md) §2.3 | 문서 경계 (SSOT) 규약 |
 

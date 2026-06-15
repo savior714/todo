@@ -1,4 +1,5 @@
 ---
+domain: "backend"
 scope: ["lib/**/*", "db/**/*"]
 always_apply: false
 priority: normal

@@ -20,7 +20,7 @@ disable-model-invocation: true
 
 **하지 않는 것**: 실패 테스트 **원인 추적** 루프, 테스트 파일 **품질 분석** 전체, 스타일 nitpick.
 
-> **이웃 스킬**: PR·diff 리뷰 → **review** · 실패 원인 조사 → [investigate](../investigate/SKILL.md) · 수정+고정 → [diagnose](../diagnose/SKILL.md) · 테스트 품질 → [test-analysis](../test-analysis/SKILL.md)
+> **이웃 스킬**: PR·diff 리뷰 → **review** · 실패 원인 조사 → [investigate](../investigate/SKILL.md) · 수정+고정 → [diagnose](../diagnose/SKILL.md)
 
 ---
 
@@ -36,7 +36,7 @@ disable-model-invocation: true
 | :--- | :--- | :--- |
 | PR·브랜치·스테이징 **변경분** 리뷰, merge 전 점검 | ✅ review | — |
 | 테스트 **실패**·flaky·CI red 원인 찾기 | — | [investigate](../investigate/SKILL.md) → 필요 시 [diagnose](../diagnose/SKILL.md) |
-| 특정 **테스트 파일** 품질·커버리지·assertion 구조 점검 | — | [test-analysis](../test-analysis/SKILL.md) |
+| 특정 **테스트 파일** 품질·커버리지·assertion 구조 점검 | — | — |
 | 변수명·포맷만 불만, 로직 변경 없음 | ✅ review — **로직·리스크만**, naming nitpick 생략 | — |
 | 명세↔코드 drift·code lock | 보조 | [sync](../sync/SKILL.md) |
 
@@ -93,7 +93,7 @@ disable-model-invocation: true
 
 ✅ CORRECT: 실패 시나리오 + 코드 근거 + **실행한 검증** + close AskQuestion
 
-Reference: [`docs/agent-context/ANTI_PATTERN_FORMAT.md`](../../../docs/agent-context/ANTI_PATTERN_FORMAT.md)
+
 
 ## Diff-first
 

@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/archive.md"]
+domain: "workflows"
 situation: 플랜 아카이브
 trigger: /archive
 level: Recommended
@@ -6,6 +8,7 @@ description: 완료된 docs/plans Blueprint를 archive로 이관하고 저장소
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 
 # 완료 플랜 아카이브 워크플로우 (/archive)
@@ -28,7 +31,7 @@ last_updated: 2026-05-06
 
 1. **이관할 파일명 확정** (예: `20260411_interop_hardening_blueprint.md`).
 2. **[신규] Specs 일치 검증** — Blueprint 아카이브 전 `docs/specs/` 하위 관련 specs 파일과 불일치 확인
-   - **2-1. 관련 specs 파일 식별** — Blueprint 헤더의 `Related`·`Reference`(있을 경우) 및 개요 절의 **범위 SSOT 표**·하단 `[관련 명세](../specs/...)` 링크를 확인한다. ([`docs/specs/_meta/architecture_blueprint_ssot.md`](../../docs/specs/_meta/architecture_blueprint_ssot.md) 형식 권장)
+    - **2-1. 관련 specs 파일 식별** — Blueprint 헤더의 `Related`·`Reference`(있을 경우) 및 개요 절의 **범위 SSOT 표**·하단 `[관련 명세](../specs/...)` 링크를 확인한다.
    - **2-2. Specs 파일 존재 여부 확인** — `ls docs/specs/<해당경로>.md`
    - **2-3. 불일치 항목 검증** — 다음 항목들을 비교:
      | 비교 항목 | Blueprint | Specs | 비고 |
@@ -73,7 +76,7 @@ last_updated: 2026-05-06
 
 ## SSOT
 
-- **아카이브 폴더 안내**: [`docs/plans/archive/README.md`](docs/plans/archive/README.md) - 아카이브된 플랜 목록, 아카이브 날짜, 관련 이슈/PR 링크
+- **아카이브 폴더 안내**: `docs/plans/archive/` - 아카이브된 플랜 목록, 아카이브 날짜, 관련 이슈/PR 링크
 - **구현**: [`scripts/archive_plans.py`](scripts/archive_plans.py) - 파일 이동 + 링크 치환 + 누락 링크 점검
 
 ## 리스크 및 주의사항

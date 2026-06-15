@@ -4,4 +4,4 @@
 
 예: `2026-06/session_20260612_bootstrap.md`
 
-규정: [.agents/core/memory_hygiene.md](../../../../.agents/core/memory_hygiene.md)
+규정: [.agents/core/memory_hygiene.md](../../core/memory_hygiene.md)

@@ -1,4 +1,6 @@
 ---
+scope: [".agents/workflows/prevent_loop.md"]
+domain: "workflows"
 situation: 루프 방지
 trigger: /prevent_loop
 level: Mandatory
@@ -6,6 +8,7 @@ description: 루프 방지 및 자가 교정 워크플로우 (/prevent_loop)
 version: 1.0.0
 last_updated: 2026-05-06
 ---
+<!-- Language: ko -->
 
 # 🔄 루프 방지 및 자가 교정 워크플로우 (/prevent_loop)
 

@@ -10,7 +10,7 @@
 
 ## 수명·보관 (handed-off 이후)
 
-- **SSOT**: [DOC_discuss_lifecycle.md](../../../../docs/discussions/DOC_discuss_lifecycle.md) — status 3값, `linked_plan`, `docs/discussions/archive/` 이관.
+- **SSOT**: status 3값, `linked_plan`, `docs/discussions/archive/` 이관.
 - **`handed-off` 기록 시**: frontmatter `linked_plan:` 에 plan repo 상대 경로를 채운다( plan 파일 생성 직후 동일 세션).
 - **plan 아카이브 후**: `archive_discussions`가 연결 discuss를 `docs/discussions/archive/`로 옮긴다 — 노트를 루트에 두지 않는다.
 - **검사**: `just docs-discuss-lifecycle` — 신규·수정 discuss의 `handed-off` + `linked_plan` 누락 시 FAIL.
@@ -205,7 +205,7 @@ AskQuestion(`question` 병용): 이 PLAN 전체 순차 실행 (권장) / 새 주
 4. 새 주제 `close` → converge «계획» 또는 메뉴 A Blueprint 선택 시 → **새** `PLAN_<new_slug>.md` → plan-lint PASS → **새 DISCUSS**만 `handed-off`·`linked_plan` 갱신.
 5. 4 완료 후 다시 **산출물 요약 턴** — 2~4를 사용자가 멈출 때까지 반복 가능.
 
-**slug 규칙**: 주제가 다르면 DISCUSS·PLAN slug도 **다르게**. 같은 slug로 두 번째 PLAN을 덮어쓰지 않는다. slug는 **의미 단어(kebab/snake)** 만 쓰고 순서·이슈 번호(`01_`, `tem102`, `20260418`)는 넣지 않는다 — [DOC_documentation_governance.md §2](../../../../docs/ops/rules/DOC_documentation_governance.md).
+**slug 규칙**: 주제가 다르면 DISCUSS·PLAN slug도 **다르게**. 같은 slug로 두 번째 PLAN을 덮어쓰지 않는다. slug는 **의미 단어(kebab/snake)** 만 쓰고 순서·이슈 번호(`01_`, `tem102`, `20260418`)는 넣지 않는다.
 
 **금지**:
 

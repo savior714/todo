@@ -20,7 +20,7 @@ disable-model-invocation: true
 
 **하지 않는 것**: 조사만(report-only), PR diff 리뷰, 테스트 파일 품질 분석 전체.
 
-> **이웃 스킬**: 범위 좁히기+실행 검증(수정 없음) → [investigate](../investigate/SKILL.md) · 수정+고정 루프 → **diagnose** · PR 리뷰 → [review](../review/SKILL.md) · 테스트 품질 → [test-analysis](../test-analysis/SKILL.md)
+> **이웃 스킬**: 범위 좁히기+실행 검증(수정 없음) → [investigate](../investigate/SKILL.md) · 수정+고정 루프 → **diagnose** · PR 리뷰 → [review](../review/SKILL.md)
 
 코드베이스 탐색 시 도메인 용어·ADR(`docs/specs/`, `docs/plans/adr/`)을 참고한다.
 
@@ -42,7 +42,7 @@ disable-model-invocation: true
 | 실패 **원인만** 파악·로그 분석·범위 좁히기(패치 없음) | — | [investigate](../investigate/SKILL.md) |
 | investigate 후 "이제 고쳐줘" | ✅ diagnose | investigate 결과를 Phase 1~2 입력으로 이어받음 |
 | PR·브랜치 **변경분** merge 전 점검 | — | [review](../review/SKILL.md) |
-| 특정 **테스트 파일** 품질·assertion 구조 점검 | — | [test-analysis](../test-analysis/SKILL.md) |
+| 특정 **테스트 파일** 품질·assertion 구조 점검 | — | — |
 | 루프 없이 "아마 이거" 추측 패치 | — | Phase 1 먼저 — 아래 Iron Law |
 
 **오분기 시**: 수정에 착수하지 말고, 위 표의 대안 스킬을 **한 줄로 안내**하고 사용자 의도를 확인한다.
@@ -268,7 +268,7 @@ Root cause가 **에이전트 도구/편집 실수**일 때 — 앱 로직이 아
 
 판단: edit-tool chain, gate skip, repeat pattern — [runtime_edit_tools.md](../../core/runtime_edit_tools.md), error_patterns §1–§4.
 
-Runtime symptoms → [RES_COMMON_ERROR_RESOLUTIONS.md](../../../docs/knowledge/RES_COMMON_ERROR_RESOLUTIONS.md); product knowledge → [knowledge-asset](../knowledge-asset/SKILL.md).
+Runtime symptoms → [COMMON_ERROR_RESOLUTIONS.md](../../../docs/knowledge/COMMON_ERROR_RESOLUTIONS.md).
 
 ### Phase 6.5 — Spec sync
 
