@@ -31,6 +31,7 @@ lint-fix:
 ci:
   @just lint-fix
   @just memory-verify
+  @just stale-lib-ref
   @just verify
   @echo "ci: minimal checks passed"
 
@@ -44,6 +45,10 @@ plan-lint: lint-fix
 # Run full verification gate: lint + typecheck + test.
 verify:
   @bun install --quiet && bun run lint && bun run typecheck:strict && bun run test
+
+# Detect stale lib/ path references in test files.
+stale-lib-ref:
+  @python3 scripts/verify/stale_lib_ref_gate.py --check
 
 # Update blueprint task status to done and flag Conclusion placeholder.
 # Usage: just plan-task-close (uses default blueprint path)
