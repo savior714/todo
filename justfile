@@ -82,11 +82,11 @@ plan-preread plan="" *args="":
 
 # Plan lint with preread support
 plan-lint-ci:
-	@echo "Verifying all blueprints (no Linear ensure)..."
+	@echo "Verifying all blueprints..."
 	@if ls docs/plans/*.md >/dev/null 2>&1; then \
 		for file in docs/plans/*.md; do \
 			case "$file" in README.md|ROADMAP.md) continue ;; esac; \
-			python3 scripts/plan_loop/plan_lint.py --skip-linear-ensure "$file"; \
+			python3 scripts/plan_loop/plan_lint.py "$file"; \
 		done; \
 	else \
 		echo "no plan markdown files found under docs/plans"; \

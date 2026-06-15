@@ -131,38 +131,4 @@ just plan-task-close plan=docs/plans/PLAN_xxx.md task=XXX-001 conclusion="[PASS]
 
 **규칙**: DoD 섹션에 `just plan-close`를 verify 명령어로 포함하지 않는다. plan-close는 Closeout Task의 Verify에서 별도 실행한다.
 
-### 5.9 Verify에 pytest 전체 파일 실행 (구체성 부족)
-
-**증상**: `just plan-lint`에서 `Task#N Verify must prove one automated outcome (use pytest -k <one> or path::test_name) — split tasks` 오류.
-
-**원인**: Verify에 `pytest tests/.../test_file.py -q`처럼 전체 파일을 실행하는 명령어를 사용하면, plan-lint가 단일 테스트 결과를 증명하지 못한다고 판단한다. Atomic Task는 **단일 테스트**로 검증해야 한다.
-
-```
-❌ WRONG: 전체 파일 실행 Verify
-- **Verify**: `uv run pytest tests/unit/scripts/linear_sync/test_backlog_triage_review.py -q`
-
-✅ CORRECT: 단일 테스트 검증 (pytest -k 또는 ::test_name)
-- **Verify**: `uv run pytest tests/unit/scripts/linear_sync/test_backlog_triage_review.py::test_review_yes_archives_no_plan_issue -q`
-- **Verify**: `uv run pytest tests/unit/scripts/linear_sync/test_backlog_triage_review.py -k test_review_process -q`
-```
-
-**규칙**: Blueprint Task의 Verify는 **단일 테스트**를 검증해야 한다. `pytest -k <selector>` 또는 `::test_name`을 반드시 포함한다. 여러 테스트를 검증해야 하면 Task를 분할한다.
-
-### 5.10 just plan-close 실행 전 linear-sync 누락
-
-**증상**: `just plan-close` 혹은 Closeout Task 검증 도중 `[FAIL] Linear synchronization required` 발생하며 실패함.
-
-**원인**: 로컬 Blueprint와 원격 Linear 상태 간의 동기화가 이루어지지 않은 상태에서 플랜 종료 게이트를 닫으려 했기 때문입니다.
-
-```
-❌ WRONG: linear-sync 없이 plan-close 바로 실행
-just plan-close plan=docs/plans/PLAN_xxx.md
-
-✅ CORRECT: linear-sync 선행 후 plan-close 실행
-just linear-sync plan=docs/plans/PLAN_xxx.md
-just plan-close plan=docs/plans/PLAN_xxx.md
-```
-
-**규칙**: 플랜을 종료(close)하기 전에는 반드시 `just linear-sync`를 통해 상태를 동기화해야 합니다.
-
 ---

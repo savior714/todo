@@ -24,7 +24,7 @@
         "CSS-only 변경은 런타임 라우트 계약에 영향 없을 수 있다고 설명",
         "git diff로 라우트·config·middleware 미변경 확인을 권장",
         "just sync --check PASS면 spec 본문 편집 없이 통과 가능하다고 설명",
-        "review 스킬이나 Linear sync로 오분기하지 않음"
+        "review 스킬로 오분기하지 않음"
       ]
     },
     {
@@ -39,7 +39,7 @@
         "sync-turn-end PASS 후 별도 just sync --check는 불필요하다고 명시",
         "lint-turn-end 실행 여부를 AskQuestion으로 묻지 않는다고 명시",
         "Unified Sync PASS 보고 또는 Last Verified 반영을 언급",
-        "just linear-sync만으로 sync를 대체한다고 하지 않음"
+        "동일한 CLI 명령으로 sync를 대체한다고 하지 않음"
       ]
     }
   ]

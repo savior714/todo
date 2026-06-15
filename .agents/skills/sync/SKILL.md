@@ -6,7 +6,7 @@ description: >
   end runs sync --check then sync-turn-end (lint-turn-end chained; AskQuestion forbidden). Use for /sync,
   /spec-sync, spec drift, required drift, code-sync-lock violation, Last Verified,
   세션 종료 정합, just sync --check FAIL, 스펙 역검증, Blueprint 종료 spec 갱신.
-  Not for Linear sync (linear-sync), git push, or PR code review (review skill).
+   Not for git push, or PR code review (review skill).
 license: MIT
 metadata:
   version: "1.3.0"
@@ -32,7 +32,7 @@ disable-model-invocation: true
 | 세션 종료 · `just sync --check` · Unified Sync PASS | ✅ sync | [reporting §1.5](../../core/reporting.md) |
 | `@code-sync-lock` 생성·해시 갱신 | ✅ sync §1 | — |
 | PR·브랜치 **변경분** 리뷰 | — | [review](../review/SKILL.md) |
-| Linear 이슈·댓글 동기화 | — | `just linear-sync` · [linear.md](../../workflows/linear.md) |
+
 | Blueprint 작성·Task 실행 | — | plan — drift 시 sync 보조 |
 | Biome import만 실패 (sync PASS) | — | [biome-baseline-empty.md](references/biome-baseline-empty.md) |
 
@@ -81,7 +81,7 @@ Phase 2에서 spec·Claim 갱신 후 `just sync --check`가 **PASS**이면, **`j
 | 3 | **종료 게이트** | `just sync-turn-end` | `sync --check` + `lint-turn-end` 1줄 체인 |
 | 3a | sync FAIL | → 순서 2 | spec 갱신 후 `sync-turn-end` 재실행 |
 | 4 | 런타임 (해당 시) | `just renderer-route-smoke` | 라우트·proxy·middleware |
-| 5 | Blueprint (해당 시) | `docs-ssot-headers` → `linear-sync` → `plan-close` | [reporting §1.0](../../core/reporting.md) |
+| 5 | Blueprint (해당 시) | `docs-ssot-headers` → `plan-close` | [reporting §1.0](../../core/reporting.md) |
 | 6 | 로드맵 (권장) | — | |
 | 7 | 보고 | **Unified Sync PASS** | `Last Verified` 반영 |
 

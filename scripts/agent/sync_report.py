@@ -37,7 +37,7 @@ def build_footer(
         p.replace("\\", "/").startswith("docs/plans/PLAN_") for p in (medium_paths or [])
     )
     if plan_touched:
-        steps.append(f"{step_no}. `just linear-dedup` — Blueprint↔Linear 중복 이슈 점검")
+        steps.append(f"{step_no}. `just plan-lint` — Blueprint lint 점검")
         step_no += 1
         
     product_plan_touched = False

@@ -36,7 +36,7 @@ def _minimal_blueprint_body(
 - **SSOT Check**: ok
 - **Project Status Link**: ok
 - **Architectural Goal**: ok
-- **Linear-Issue**: TEM-999
+
 
 ## 📋 업무 요약 (협업용)
 

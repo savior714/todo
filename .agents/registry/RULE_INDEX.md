@@ -61,7 +61,7 @@ domain: "registry"
 | :--- | :--- |
 | [.agents/workflows/plan.md](../workflows/plan.md) | `/plan` Blueprint·7단계 |
 | [.agents/workflows/ai-log.md](../workflows/ai-log.md) | `/ai-log` CLI·토큰 휴리스틱 |
-| [.agents/workflows/linear.md](../workflows/linear.md) | `/linear` Linear 동기화 **템플릿**(스크립트 미도입 시 참고만) |
+
 | [.agents/workflows/emr_process_mirror.md](../workflows/emr_process_mirror.md) | `/emr-process-mirror` upstream **프로세스**만 비교·반영 |
 | [.agents/workflows/](../workflows/) | 그 외 `/go`, `/playwright`, `/archive` 등 |
 

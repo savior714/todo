@@ -170,7 +170,7 @@ Sketch...
 - **Architectural Goal**: ok
 - **Priority**: 3
 - **Labels**: Test
-- **Linear-Issue**: TEM-XXX
+
 
 ## 📋 업무 요약 (협업용)
 ### 개요

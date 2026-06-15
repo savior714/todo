@@ -25,7 +25,7 @@
 ## MUST (기존 plan_lint — 전체 Blueprint)
 
 1. `<!-- Language: ko -->` · `# 🗺️ Project Blueprint: …`
-2. 문서 메타: `SSOT Check`, `Project Status Link`, `Architectural Goal`, `Linear-Issue` (TEM-XXX placeholder 필수)
+2. 문서 메타: `SSOT Check`, `Project Status Link`, `Architectural Goal`
 3. `## 📎 관련 명세` — repo 루트 기준 `docs/specs/...` 경로 1건 이상 (**활성 Blueprint `plan-lint` HARD** · `--archive-ready` 동일 검사; `../specs/` 상대 링크만으로는 통과하지 않음)
 4. `## 📋 업무 요약 (협업용)` — 경로·CLI·백틱 없음
 5. Task 헤딩: `#### Task X.Y: 제목 [Unit: Atomic]` (X·Y 숫자만)
@@ -77,7 +77,6 @@
 
 ## MUST NOT
 
-- **Linear-Issue 누락**: `Linear-Issue` 필드가 없거나 비어 있으면 lint FAIL (단, `Linear-Policy: internal` 명시 시 예외)
 - Task 제목·Goal에 `(선택)` `(Optional)` `(필요 시)`
 - Task Goal에 `및`, `그리고`, `또한`, `동시에` 등 다중 액션을 암시하는 접속사 사용 금지 (반드시 Atomic한 단일 문장으로 작성)
 - **추상적/선언적 Task Goal 금지**: "레이아웃을 재배치한다", "상태를 정비한다" 등 모호한 목표를 쓰지 마시오. ("A 컴포넌트를 지우고 B 훅을 주입해 Grid를 x에서 y로 변경한다" 형태의 White-box 명세 필수)
@@ -105,14 +104,13 @@
 ```markdown
 <!-- Language: ko -->
 
-# 🗺️ Project Blueprint: {제목} ({Linear-Issue})
+# 🗺️ Project Blueprint: {제목}
 
 ## 문서 메타
 - **Last Verified**: YYYY-MM-DD | **Tested Version**: N/A
 - **Reference**: N/A
 - **SSOT Check**: N/A
 - **Project Status Link**: N/A
-- **Linear-Issue**: TEM-XXX  <!-- MUST: ensure_plan_linear가 실제 번호로 치환 -->
 - **Priority**: 1
 - **Labels**: feature
 - **Architectural Goal**: …
@@ -215,7 +213,7 @@
 ### Phase 0 — Edge case gap audit
 
 #### Task 0.1: Edge Case Trace 갭 감사 및 보완 Task 반영 [Unit: Atomic]
-- Task-ID: [XXX-001] | Linear-Issue: TEM-XXX | Status: todo | Priority: 1 | Labels: plan | RetryPolicy: none
+- Task-ID: [XXX-001] | Status: todo | Priority: 1 | Labels: plan | RetryPolicy: none
 - **Pre-read**: 이 Task만 — `write`/`patch` 전 **전부** Read
   1. `[rule]` `.agents/workflows/plan.md`
   2. `[rule]` `.agents/core/code_quality_lifecycle.md`
@@ -230,10 +228,10 @@
 ### Phase 1 — …
 
 #### Task 1.1: … [Unit: Atomic]
-- Task-ID: [XXX-002] | Linear-Issue: TEM-XXX | Status: todo | Priority: N | Labels: … | RetryPolicy: none
+- Task-ID: [XXX-002] | Status: todo | Priority: N | Labels: … | RetryPolicy: none
 - **Pre-read**: 이 Task만 — `write`/`patch` 전 **전부** Read
   1. `[rule]` `.agents/core/execution.md` <!-- (경로가 없을 때 plan-preread 에러 방지용) -->
-  - **Hook 추출 시 타입 정의 확인**: `useExamination.types.ts` 등 실제 타입 정의를 Read 후 추출 — Guess 금지 (TEM-355 세션 오류 방지)
+  - **Hook 추출 시 타입 정의 확인**: `useExamination.types.ts` 등 실제 타입 정의를 Read 후 추출 — Guess 금지
 - **Action**: Edit File | **Target**: `path/to/code.py` <!-- (백틱 파일 경로 필수) -->
 - **Closeout**: `docs/plans/PLAN_xxx.md` (Task XXX-002 `Conclusion`·`Status`)
 - **Goal**: … | **Diagnostics**: 0
@@ -244,7 +242,7 @@
 ### Phase 9 — Blueprint closeout
 
 #### Task 9.9: Roll-up 작성 및 plan-close [Unit: Atomic]
-- Task-ID: [XXX-099] | Linear-Issue: TEM-XXX | Status: todo | Priority: 3 | Labels: docs | RetryPolicy: none
+- Task-ID: [XXX-099] | Status: todo | Priority: 3 | Labels: docs | RetryPolicy: none
 - **Pre-read**: 이 Task만 — `write`/`patch` 전 **전부** Read
   1. `[rule]` `.agents/workflows/plan.md`
 - **Action**: Edit File | **Target**: `docs/plans/PLAN_xxx.md`

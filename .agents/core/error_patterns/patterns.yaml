@@ -318,20 +318,6 @@ patterns:
     3. 예: pytest tests/.../test_file.py::test_specific_name -q
 
     '
-- id: '5.10'
-  name: just plan-close 실행 전 linear-sync 누락
-  category: 계획서 (Blueprint) 실수
-  last_seen: '2026-06-10'
-  occurrence_count: 1
-  detail: 'just plan-close 실행 시 linear-sync가 선행되지 않으면 "Linear synchronization required" 오류 발생.
-
-    대응:
-
-    1. plan-close 실행 전에 반드시 just linear-sync(또는 just linear-sync-plan)를 성공적으로 완료할 것.
-
-    2. CI/CD 또는 Closeout 태스크 시 이 두 과정의 순서와 종속성을 꼭 확인.
-
-    '
 - id: '6.1'
   name: mermaid/긴 표/로드맵 금지 (discuss 워크플로)
   category: 기타 실수

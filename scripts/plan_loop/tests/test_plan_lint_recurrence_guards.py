@@ -29,7 +29,7 @@ def _body(*, dod_lines: str, with_specs: bool = True) -> str:
 - **SSOT Check**: ok
 - **Project Status Link**: ok
 - **Architectural Goal**: ok
-- **Linear-Issue**: TEM-999
+
 
 {specs}
 ## 📋 업무 요약 (협업용)

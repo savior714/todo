@@ -29,8 +29,8 @@ plan-lint plan="" *args="":
     fi
 
 plan-lint-ci:
-    @echo "Verifying all blueprints (no Linear ensure)..."
-    @ls docs/plans/*.md 2>/dev/null | grep -v -E "README.md|ROADMAP.md" | xargs -n 1 uv run python scripts/plan_loop/plan_lint.py --skip-linear-ensure
+    @echo "Verifying all blueprints..."
+    @ls docs/plans/*.md 2>/dev/null | grep -v -E "README.md|ROADMAP.md" | xargs -n 1 uv run python scripts/plan_loop/plan_lint.py
 
 plan-close plan="" verify="":
     @set -e; \

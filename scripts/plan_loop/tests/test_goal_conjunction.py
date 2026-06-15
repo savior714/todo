@@ -13,7 +13,7 @@ def _build_minimal_blueprint(goal_text: str, task_id: str = "[LINT-004]") -> str
 - **Architectural Goal**: 테스트
 - **Priority**: 3
 - **Labels**: Test
-- **Linear-Issue**: TEM-XXX
+
 
 ## 📋 업무 요약 (협업용)
 ### 개요

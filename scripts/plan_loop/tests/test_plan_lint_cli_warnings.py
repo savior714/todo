@@ -20,7 +20,6 @@ def _warnings_only_blueprint_body() -> str:
 - **SSOT Check**: scripts/plan_loop/plan_lint/cli.py
 - **Project Status Link**: N/A
 - **Architectural Goal**: CLI warnings-only exit code regression
-- **Linear-Issue**: N/A
 - **Priority**: 1
 - **Labels**: tooling
 
@@ -87,7 +86,7 @@ warnings only → exit 1
 > **에이전트 스코프**: Task 1개씩. `Verify` PASS → **Conclusion** → `just plan-lint docs/plans/PLAN_fixture.md`.
 
 #### Task 1.1: Governance warning only [Unit: Atomic]
-- Task-ID: [WARN-001] | Linear-Issue: N/A | Status: todo | Priority: 1 | Labels: tooling | RetryPolicy: none
+- Task-ID: [WARN-001] | Status: todo | Priority: 1 | Labels: tooling | RetryPolicy: none
 - **MCP**: desktop-commander
 - **Pre-read**: 이 Task만 Read <!-- plan-task-preread:v1 paths=1 must_read_installed=1 -->
   1. `[rule]` scripts/plan_loop/plan_lint/cli.py
@@ -134,7 +133,6 @@ class TestPlanLintCliWarnings(unittest.TestCase):
                     "python",
                     str(script),
                     str(plan_path),
-                    "--skip-linear-ensure",
                 ],
                 cwd=str(repo_root),
                 capture_output=True,
