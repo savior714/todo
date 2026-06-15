@@ -40,59 +40,103 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
   const minLogKey = formatDateKey(addDays(todayStart, -90));
   const maxLogKey = formatDateKey(addDays(todayStart, 14));
 
-  const [timelineRows, hwRows, logRows, rtRows, routineLogRows] = await Promise.all([
-    db
-      .select({
-        id: events.id,
-        action_type: events.actionType,
-        target: events.target,
-        created_at: events.createdAt,
-        is_reverted: events.isReverted,
-        metadata: events.metadata,
-      })
-      .from(events)
-      .where(
-        and(eq(events.familyId, familyId), eq(events.isReverted, false), gte(events.createdAt, timelineSince))
-      )
-      .orderBy(desc(events.createdAt))
-      .limit(TIMELINE_EVENT_LIMIT),
-    db
-      .select({
-        id: homeworkTypesTable.id,
-        title: homeworkTypesTable.title,
-        childGroup: homeworkTypesTable.childGroup,
-      })
-      .from(homeworkTypesTable)
-      .where(and(eq(homeworkTypesTable.familyId, familyId), eq(homeworkTypesTable.isActive, true)))
-      .orderBy(asc(homeworkTypesTable.createdAt)),
-    db
-      .select({
-        dateKey: homeworkLogs.dateKey,
-        homeworkTypeId: homeworkLogs.homeworkTypeId,
-      })
-      .from(homeworkLogs)
-      .where(
-        and(eq(homeworkLogs.familyId, familyId), gte(homeworkLogs.dateKey, minLogKey), lte(homeworkLogs.dateKey, maxLogKey))
-      ),
-    db
-      .select({
-        id: routineItemsTable.id,
-        title: routineItemsTable.title,
-        target: routineItemsTable.target,
-      })
-      .from(routineItemsTable)
-      .where(and(eq(routineItemsTable.familyId, familyId), eq(routineItemsTable.isActive, true)))
-      .orderBy(asc(routineItemsTable.sortOrder), asc(routineItemsTable.createdAt)),
-    db
-      .select({
-        dateKey: routineLogs.dateKey,
-        routineItemId: routineLogs.routineItemId,
-      })
-      .from(routineLogs)
-      .where(
-        and(eq(routineLogs.familyId, familyId), gte(routineLogs.dateKey, minLogKey), lte(routineLogs.dateKey, maxLogKey))
-      ),
-  ]);
+  type TimelineRow = {
+    id: string;
+    action_type: string;
+    target: string;
+    created_at: Date | string;
+    is_reverted: boolean | null;
+    metadata: string | null;
+  };
+
+  type HomeworkTypeRow = {
+    id: string;
+    title: string;
+    childGroup: string;
+  };
+
+  type HomeworkLogRow = {
+    dateKey: string;
+    homeworkTypeId: string;
+  };
+
+  type RoutineTypeRow = {
+    id: string;
+    title: string;
+    target: string;
+  };
+
+  type RoutineLogRow = {
+    dateKey: string;
+    routineItemId: string;
+  };
+
+  let timelineRows: TimelineRow[] = [];
+  let hwRows: HomeworkTypeRow[] = [];
+  let logRows: HomeworkLogRow[] = [];
+  let rtRows: RoutineTypeRow[] = [];
+  let routineLogRows: RoutineLogRow[] = [];
+
+  try {
+    [timelineRows, hwRows, logRows, rtRows, routineLogRows] = await Promise.all([
+      db
+        .select({
+          id: events.id,
+          action_type: events.actionType,
+          target: events.target,
+          created_at: events.createdAt,
+          is_reverted: events.isReverted,
+          metadata: events.metadata,
+        })
+        .from(events)
+        .where(
+          and(eq(events.familyId, familyId), eq(events.isReverted, false), gte(events.createdAt, timelineSince))
+        )
+        .orderBy(desc(events.createdAt))
+        .limit(TIMELINE_EVENT_LIMIT),
+      db
+        .select({
+          id: homeworkTypesTable.id,
+          title: homeworkTypesTable.title,
+          childGroup: homeworkTypesTable.childGroup,
+        })
+        .from(homeworkTypesTable)
+        .where(and(eq(homeworkTypesTable.familyId, familyId), eq(homeworkTypesTable.isActive, true)))
+        .orderBy(asc(homeworkTypesTable.createdAt)),
+      db
+        .select({
+          dateKey: homeworkLogs.dateKey,
+          homeworkTypeId: homeworkLogs.homeworkTypeId,
+        })
+        .from(homeworkLogs)
+        .where(
+          and(eq(homeworkLogs.familyId, familyId), gte(homeworkLogs.dateKey, minLogKey), lte(homeworkLogs.dateKey, maxLogKey))
+        ),
+      db
+        .select({
+          id: routineItemsTable.id,
+          title: routineItemsTable.title,
+          target: routineItemsTable.target,
+        })
+        .from(routineItemsTable)
+        .where(and(eq(routineItemsTable.familyId, familyId), eq(routineItemsTable.isActive, true)))
+        .orderBy(asc(routineItemsTable.sortOrder), asc(routineItemsTable.createdAt)),
+      db
+        .select({
+          dateKey: routineLogs.dateKey,
+          routineItemId: routineLogs.routineItemId,
+        })
+        .from(routineLogs)
+        .where(
+          and(eq(routineLogs.familyId, familyId), gte(routineLogs.dateKey, minLogKey), lte(routineLogs.dateKey, maxLogKey))
+        ),
+    ]);
+  } catch (err) {
+    console.error("[TimelineFeedSection] DB query failed", {
+      familyId,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
 
   logDashboardPerf("timeline", t0);
 
