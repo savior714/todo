@@ -96,15 +96,22 @@ test("루틴 완료 시 타임라인용 events 행이 함께 기록된다", () =
   assert.match(meta, /actionType === "routine_check"/);
 });
 
-test("관리자는 대시보드에서 퀵 액션·숙제 설정 링크를 받는다", () => {
+test("관리자는 대시보드에서 퀵 액션·숙제 설정 모달을 받는다", () => {
   const deferred = read("app/(dashboard)/dashboard/DashboardDeferred.tsx");
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
   const adminPage = read("app/admin/page.tsx");
   assert.match(deferred, /showAdminSettingsLink=\{profile\.role === "admin"\}/);
   assert.match(quickAction, /showAdminSettingsLink/);
-  assert.match(quickAction, /\/admin#quick-actions-admin/);
-  assert.match(quickAction, /\/admin#homework-types-admin/);
-  assert.match(quickAction, /\/admin#routine-items-admin/);
+  assert.match(quickAction, /QuickActionsAdminModal/);
+  assert.match(quickAction, /HomeworkTypesAdminModal/);
+  assert.match(quickAction, /RoutineItemsAdminModal/);
+  assert.match(quickAction, /quickActionsModalOpen/);
+  assert.match(quickAction, /homeworkTypesModalOpen/);
+  assert.match(quickAction, /routineItemsModalOpen/);
+  assert.match(quickAction, /quickActionRows/);
+  assert.match(quickAction, /homeworkTypeRows/);
+  assert.match(quickAction, /routineItemRows/);
+  assert.match(deferred, /routineItems/);
   const quickActionsSection = read("app/admin/quick-actions-admin-section.tsx");
   const homeworkSection = read("app/admin/homework-types-admin-section.tsx");
   const routineSection = read("app/admin/routine-items-admin-section.tsx");

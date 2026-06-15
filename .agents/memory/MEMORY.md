@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-06-16: 대시보드 `QuickActionPanel`의 「퀵 액션 편집」「숙제 유형 관리」「루틴 체크 관리」링크(`/admin#section-id` 스크롤 이동)를 네이티브 `<dialog>` 기반 서브모달로 분리(`QuickActionsAdminModal`, `HomeworkTypesAdminModal`, `RoutineItemsAdminModal`). `DashboardDeferred`에서 admin 데이터(`quickActions`, `homeworkTypes`, `routineItems`)를 fetch해 prop으로 전달. `bun run lint`·`typecheck:strict` 통과.
 - 2026-05-12: 퀵 액션 `cleaning`(청소) — 시드·`PRESET_ACTION_TYPES`·`/admin` 프리셋·타임라인 라벨·단위 계약(`quick-action-timeline-contract`). 기존 가족은 시드 미적용 시 `/admin`에서 추가. `just ci`·`bun run lint`·`typecheck:strict`·`test` 통과.
 - 2026-05-12: 타임라인 3열에 요일 표시(`getRelativeDayCaption`·`formatKoreanWeekdayLong`)·주말(토·일) 옅은 배경 구분(`isWeekend`), `lib/timeline-date.ts`·`TimelineFeed.tsx`·`tests/unit/timeline-date.test.ts`, `CRITICAL_LOGIC` §4 한 줄. `bun run lint`·`typecheck:strict`·`test`·`just ci` 통과.
 - 2026-05-12: Turso 마이그레이션 **에이전트 직접 적용** 지침화 — `PROJECT_RULES.md` §2 스택에 `npm run db:migrate` 의무·복수 DB 시 재실행 안내, `ADAPTIVE_GUIDELINES.json` AAG-007, `AGENTS.md` §3.1 한 줄 연동.(`routine_items`/`routine_logs`) — 숙제와 별도. 관리자 `/admin#routine-items-admin`에서 제목·대상(가족/주원이/승원이) 등록·숨기기, 타임라인에 보라 점선 미완료 카드 + 모달 `completeRoutineItem` 완료, `events.action_type === "routine_check"`·`metadata.routine`. 마이그레이션 `0004_routine_checklist.sql`, `CRITICAL_LOGIC`·계약·단위 테스트 보강. `bun run lint`·`typecheck:strict`·`test` 통과.

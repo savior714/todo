@@ -3,7 +3,7 @@ import { completeHomework } from "@/app/actions/admin";
 import { createEvent } from "@/app/actions/events";
 import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import { db } from "@/db/client";
-import { homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
+import { homeworkLogs, homeworkTypes, quickActions, routineItems } from "@/db/schema";
 import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard/perf";
 import type { ResolvedActiveProfile } from "@/lib/auth/session";
 import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions/seed";
@@ -53,7 +53,7 @@ export default async function DashboardDeferred({ profile }: DashboardDeferredPr
   const t0 = dashboardPerfNow();
   const todayKey = new Date().toISOString().slice(0, 10);
 
-  const [{ rows: quickActionRows, failed: quickActionsLoadFailed }, homeworkTypeRows, homeworkLogsToday] =
+  const [{ rows: quickActionRows, failed: quickActionsLoadFailed }, homeworkTypeRows, routineItemRows, homeworkLogsToday] =
     await Promise.all([
       loadQuickActionsForDashboard(profile.familyId),
       db
@@ -65,6 +65,16 @@ export default async function DashboardDeferred({ profile }: DashboardDeferredPr
         .from(homeworkTypes)
         .where(and(eq(homeworkTypes.familyId, profile.familyId), eq(homeworkTypes.isActive, true)))
         .orderBy(asc(homeworkTypes.createdAt)),
+      db
+        .select({
+          id: routineItems.id,
+          title: routineItems.title,
+          target: routineItems.target,
+          isActive: routineItems.isActive,
+        })
+        .from(routineItems)
+        .where(and(eq(routineItems.familyId, profile.familyId), eq(routineItems.isActive, true)))
+        .orderBy(asc(routineItems.createdAt)),
       db
         .select({ homeworkTypeId: homeworkLogs.homeworkTypeId })
         .from(homeworkLogs)
@@ -79,6 +89,29 @@ export default async function DashboardDeferred({ profile }: DashboardDeferredPr
     title: row.title,
     childGroup: row.childGroup,
     completedToday: homeworkCompletedToday.has(row.id),
+  }));
+
+  const routineItemRowsTyped = routineItemRows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    target: (r.target === "kid7" || r.target === "kid4" || r.target === "family") ? r.target : "family",
+    isActive: r.isActive,
+  }));
+
+  const quickActionRowsTyped = quickActionRows.map((r) => ({
+    id: r.id,
+    label: r.label,
+    actionType: r.actionType,
+    target: r.target,
+    sortOrder: 0,
+    isActive: true,
+  }));
+
+  const homeworkTypeRowsTyped = homeworkTypeRows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    childGroup: r.childGroup,
+    isActive: true,
   }));
 
   return (
@@ -99,6 +132,9 @@ export default async function DashboardDeferred({ profile }: DashboardDeferredPr
         actions={quickActionRows}
         homeworkShortcuts={homeworkShortcuts}
         showAdminSettingsLink={profile.role === "admin"}
+        quickActionRows={quickActionRowsTyped}
+        homeworkTypeRows={homeworkTypeRowsTyped}
+        routineItemRows={routineItemRowsTyped}
         completeHomeworkAction={completeHomework}
         createEventAction={createEvent}
       />

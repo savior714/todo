@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import RecordEventModal, { type CreateEventAction, type RecordDraft } from "@/app/(dashboard)/RecordEventModal";
+import QuickActionsAdminModal, { type QuickActionAdminRow } from "@/app/(dashboard)/QuickActionsAdminModal";
+import HomeworkTypesAdminModal, { type HomeworkTypeAdminRow } from "@/app/(dashboard)/HomeworkTypesAdminModal";
+import RoutineItemsAdminModal, { type RoutineItemAdminRow } from "@/app/(dashboard)/RoutineItemsAdminModal";
 
 export type QuickActionButton = {
   id: string;
@@ -35,8 +37,14 @@ const toolbarSecondaryLinkClass =
 type QuickActionPanelProps = {
   actions: QuickActionButton[];
   homeworkShortcuts?: HomeworkQuickShortcut[];
-  /** 관리자 프로필일 때만 `/admin` 편집 링크를 노출한다. */
+  /** 관리자 프로필일 때만 편집 모달을 노출한다. */
   showAdminSettingsLink?: boolean;
+  /** 관리자용 퀵 액션 행 (모달에 전달) */
+  quickActionRows?: QuickActionAdminRow[];
+  /** 관리자용 숙제 유형 행 (모달에 전달) */
+  homeworkTypeRows?: HomeworkTypeAdminRow[];
+  /** 관리자용 루틴 체크 행 (모달에 전달) */
+  routineItemRows?: RoutineItemAdminRow[];
   completeHomeworkAction: (homeworkTypeId: string, dateKey?: string) => Promise<unknown>;
   createEventAction: CreateEventAction;
 };
@@ -45,6 +53,9 @@ export default function QuickActionPanel({
   actions,
   homeworkShortcuts = [],
   showAdminSettingsLink = false,
+  quickActionRows = [],
+  homeworkTypeRows = [],
+  routineItemRows = [],
   completeHomeworkAction,
   createEventAction,
 }: QuickActionPanelProps) {
@@ -52,6 +63,9 @@ export default function QuickActionPanel({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [draft, setDraft] = useState<RecordDraft | null>(null);
   const [hwPendingId, setHwPendingId] = useState<string | null>(null);
+  const [quickActionsModalOpen, setQuickActionsModalOpen] = useState(false);
+  const [homeworkTypesModalOpen, setHomeworkTypesModalOpen] = useState(false);
+  const [routineItemsModalOpen, setRoutineItemsModalOpen] = useState(false);
   const [, startHwTransition] = useTransition();
 
   const showToast = (message: string) => {
@@ -89,9 +103,13 @@ export default function QuickActionPanel({
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <h2 className={panelBlockHeadingClass}>퀵 액션</h2>
         {showAdminSettingsLink ? (
-          <Link href="/admin#quick-actions-admin" className={toolbarSecondaryLinkClass}>
+          <button
+            type="button"
+            onClick={() => setQuickActionsModalOpen(true)}
+            className={toolbarSecondaryLinkClass}
+          >
             퀵 액션 편집
-          </Link>
+          </button>
         ) : null}
       </div>
       {hasEventActions ? (
@@ -125,12 +143,20 @@ export default function QuickActionPanel({
           <h3 className={panelBlockHeadingClass}>오늘 숙제</h3>
           {showAdminSettingsLink ? (
             <div className="flex flex-wrap justify-end gap-2">
-              <Link href="/admin#homework-types-admin" className={toolbarSecondaryLinkClass}>
+              <button
+                type="button"
+                onClick={() => setHomeworkTypesModalOpen(true)}
+                className={toolbarSecondaryLinkClass}
+              >
                 숙제 유형 관리
-              </Link>
-              <Link href="/admin#routine-items-admin" className={toolbarSecondaryLinkClass}>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRoutineItemsModalOpen(true)}
+                className={toolbarSecondaryLinkClass}
+              >
                 루틴 체크 관리
-              </Link>
+              </button>
             </div>
           ) : null}
         </div>
@@ -184,6 +210,21 @@ export default function QuickActionPanel({
           {toastMessage}
         </div>
       )}
+      <QuickActionsAdminModal
+        open={quickActionsModalOpen}
+        onClose={() => setQuickActionsModalOpen(false)}
+        rows={quickActionRows}
+      />
+      <HomeworkTypesAdminModal
+        open={homeworkTypesModalOpen}
+        onClose={() => setHomeworkTypesModalOpen(false)}
+        rows={homeworkTypeRows}
+      />
+      <RoutineItemsAdminModal
+        open={routineItemsModalOpen}
+        onClose={() => setRoutineItemsModalOpen(false)}
+        rows={routineItemRows}
+      />
     </section>
   );
 }
