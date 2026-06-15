@@ -76,6 +76,7 @@ export default function RecordEventModal({
   const [genericNote, setGenericNote] = useState("");
   const [schoolChild, setSchoolChild] = useState<"kid7" | "kid4">("kid4");
   const [schoolPlace, setSchoolPlace] = useState("");
+  const [brushChild, setBrushChild] = useState<"kid7" | "kid4">("kid4");
   const [medError, setMedError] = useState<string | null>(null);
   const [confirm, ConfirmDialog] = useConfirm();
 
@@ -107,6 +108,8 @@ export default function RecordEventModal({
     } else if (draft.actionType === "school_dropoff" || draft.actionType === "school_pickup") {
       setSchoolChild(defaultSchoolChildFromDraftTarget(draft.target));
       setSchoolPlace("");
+    } else if (draft.actionType === "brushing") {
+      setBrushChild(defaultSchoolChildFromDraftTarget(draft.target));
     } else {
       setGenericNote("");
     }
@@ -196,6 +199,12 @@ export default function RecordEventModal({
             },
           };
           ok = await runCreate(draft.actionType, schoolChild, meta);
+        } else if (draft.actionType === "brushing") {
+          const meta: Record<string, unknown> = {};
+          if (genericNote.trim()) {
+            meta.detail = { note: genericNote.trim() };
+          }
+          ok = await runCreate(draft.actionType, brushChild, meta);
         } else {
           const meta: Record<string, unknown> = {};
           if (genericNote.trim()) {
@@ -399,6 +408,49 @@ export default function RecordEventModal({
                   className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-base leading-normal dark:border-neutral-600 dark:bg-neutral-900"
                   placeholder="예: OO유치원, 태권도장"
                   autoComplete="off"
+                />
+              </label>
+            </>
+          ) : draft.actionType === "brushing" ? (
+            <>
+              <fieldset className="grid gap-2 text-sm leading-normal">
+                <legend className="font-medium text-neutral-700 dark:text-neutral-300">대상</legend>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  {SCHOOL_CHILD_OPTIONS.map((o) => (
+                    <label
+                      key={o.value}
+                      className={`flex min-h-[48px] flex-1 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 ${
+                        brushChild === o.value
+                          ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600 dark:border-blue-400 dark:bg-blue-950/40 dark:ring-blue-400"
+                          : "border-neutral-300 dark:border-neutral-600"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="brush-child"
+                        value={o.value}
+                        checked={brushChild === o.value}
+                        onChange={() => setBrushChild(o.value)}
+                        className="size-4 accent-blue-600"
+                      />
+                      <span className="leading-snug">
+                        <span className="font-semibold text-neutral-900 dark:text-neutral-100">{o.label}</span>
+                        <span className="ml-1 text-xs font-normal text-neutral-500 dark:text-neutral-400">
+                          ({o.hint})
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <label className="grid gap-1.5 text-sm leading-normal">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">메모 (선택)</span>
+                <textarea
+                  value={genericNote}
+                  onChange={(ev) => setGenericNote(ev.target.value)}
+                  rows={3}
+                  className="resize-y rounded-lg border border-neutral-300 px-3 py-2 text-base leading-relaxed dark:border-neutral-600 dark:bg-neutral-900"
+                  placeholder="예: 아침 양치, 저녁 양치"
                 />
               </label>
             </>
