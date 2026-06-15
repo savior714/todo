@@ -1,7 +1,17 @@
 "use client";
 
-import { createRoutineItem, deactivateRoutineItem } from "@/app/actions/admin";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
+import {
+  createRoutineItemForModal,
+  deactivateRoutineItemForModal,
+} from "@/app/actions/admin";
+
+function StatusWrapper({ children }: { children: React.ReactNode }) {
+  const status = useFormStatus();
+  void status.pending;
+  return <>{children}</>;
+}
 
 export type RoutineItemAdminRow = {
   id: string;
@@ -13,23 +23,9 @@ export type RoutineItemAdminRow = {
 type RoutineItemsAdminModalProps = {
   open: boolean;
   onClose: () => void;
+  onChanged?: () => void;
   rows: RoutineItemAdminRow[];
 };
-
-async function submitRoutineItem(formData: FormData) {
-  "use server";
-  const title = String(formData.get("title") ?? "").trim();
-  const target = String(formData.get("target") ?? "") as "kid7" | "kid4" | "family";
-  if (!title || (target !== "kid7" && target !== "kid4" && target !== "family")) {
-    throw new Error("입력값이 올바르지 않습니다.");
-  }
-  await createRoutineItem(target, title);
-}
-
-async function submitDeactivateRoutineItem(formData: FormData) {
-  "use server";
-  await deactivateRoutineItem(formData);
-}
 
 const TARGET_LABEL: Record<"kid7" | "kid4" | "family", string> = {
   kid7: "주원이 (첫째)",
@@ -37,8 +33,14 @@ const TARGET_LABEL: Record<"kid7" | "kid4" | "family", string> = {
   family: "가족 공통",
 };
 
-export default function RoutineItemsAdminModal({ open, onClose, rows }: RoutineItemsAdminModalProps) {
+export default function RoutineItemsAdminModal({
+  open,
+  onClose,
+  onChanged,
+  rows,
+}: RoutineItemsAdminModalProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -46,9 +48,16 @@ export default function RoutineItemsAdminModal({ open, onClose, rows }: RoutineI
     }
   }, [open]);
 
-  function handleDialogClose() {
+  useEffect(() => {
+    if (formSubmitted) {
+      setFormSubmitted(false);
+      onChanged?.();
+    }
+  }, [formSubmitted, onChanged]);
+
+  const handleDialogClose = () => {
     onClose();
-  }
+  };
 
   if (!open) return null;
 
@@ -87,28 +96,32 @@ export default function RoutineItemsAdminModal({ open, onClose, rows }: RoutineI
                   </span>
                 </div>
                 {row.isActive ? (
-                  <form action={submitDeactivateRoutineItem}>
-                    <input type="hidden" name="id" value={row.id} />
-                    <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500">
-                      숨기기
-                    </button>
-                  </form>
+                  <StatusWrapper>
+                    <form action={deactivateRoutineItemForModal}>
+                      <input type="hidden" name="id" value={row.id} />
+                      <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500">
+                        숨기기
+                      </button>
+                    </form>
+                  </StatusWrapper>
                 ) : null}
               </li>
             ))}
           </ul>
 
-          <form action={submitRoutineItem} className="mt-4 grid gap-2">
-            <input name="title" required placeholder="예: 물통 채우기, 준비물 가방" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700" />
-            <select name="target" defaultValue="family" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700">
-              <option value="family">가족 공통</option>
-              <option value="kid7">주원이 (첫째)</option>
-              <option value="kid4">승원이 (둘째)</option>
-            </select>
-            <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white">
-              추가
-            </button>
-          </form>
+          <StatusWrapper>
+            <form action={createRoutineItemForModal} className="mt-4 grid gap-2">
+              <input name="title" required placeholder="예: 물통 채우기, 준비물 가방" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700" />
+              <select name="target" defaultValue="family" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700">
+                <option value="family">가족 공통</option>
+                <option value="kid7">주원이 (첫째)</option>
+                <option value="kid4">승원이 (둘째)</option>
+              </select>
+              <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white">
+                추가
+              </button>
+            </form>
+          </StatusWrapper>
         </div>
       </div>
     </dialog>

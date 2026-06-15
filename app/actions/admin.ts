@@ -388,3 +388,48 @@ export async function deactivateQuickAction(formData: FormData) {
   revalidatePath("/dashboard");
   return { success: true };
 }
+
+// --- Modal-specific wrappers (revalidate /dashboard) ---
+
+export async function createQuickActionForModal(formData: FormData): Promise<CreateQuickActionResult> {
+  const result = await createQuickAction(formData);
+  if (result.success) {
+    revalidatePath("/dashboard");
+  }
+  return result;
+}
+
+export async function deactivateQuickActionForModal(formData: FormData) {
+  await deactivateQuickAction(formData);
+  revalidatePath("/dashboard");
+}
+
+export async function createHomeworkTypeForModal(formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const childGroup = String(formData.get("childGroup") ?? "") as "kid7" | "kid4";
+  if (!title || (childGroup !== "kid7" && childGroup !== "kid4")) {
+    throw new Error("입력값이 올바르지 않습니다.");
+  }
+  await createHomeworkType(childGroup, title);
+  revalidatePath("/dashboard");
+}
+
+export async function deactivateHomeworkTypeForModal(formData: FormData) {
+  await deactivateHomeworkType(formData);
+  revalidatePath("/dashboard");
+}
+
+export async function createRoutineItemForModal(formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const target = String(formData.get("target") ?? "") as "kid7" | "kid4" | "family";
+  if (!title || (target !== "kid7" && target !== "kid4" && target !== "family")) {
+    throw new Error("입력값이 올바르지 않습니다.");
+  }
+  await createRoutineItem(target, title);
+  revalidatePath("/dashboard");
+}
+
+export async function deactivateRoutineItemForModal(formData: FormData) {
+  await deactivateRoutineItem(formData);
+  revalidatePath("/dashboard");
+}

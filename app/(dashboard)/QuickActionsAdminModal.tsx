@@ -1,7 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { createQuickAction, deactivateQuickAction } from "@/app/actions/admin";
+import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
+import {
+  createQuickActionForModal,
+  deactivateQuickActionForModal,
+} from "@/app/actions/admin";
+
+function StatusWrapper({ children }: { children: React.ReactNode }) {
+  const status = useFormStatus();
+  void status.pending;
+  return <>{children}</>;
+}
 
 export type QuickActionAdminRow = {
   id: string;
@@ -15,6 +25,7 @@ export type QuickActionAdminRow = {
 type QuickActionsAdminModalProps = {
   open: boolean;
   onClose: () => void;
+  onChanged?: () => void;
   rows: QuickActionAdminRow[];
 };
 
@@ -39,8 +50,14 @@ function formatQuickActionMeta(actionType: string, target: string) {
   return `${typeLabel} · ${who}`;
 }
 
-export default function QuickActionsAdminModal({ open, onClose, rows }: QuickActionsAdminModalProps) {
+export default function QuickActionsAdminModal({
+  open,
+  onClose,
+  onChanged,
+  rows,
+}: QuickActionsAdminModalProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -51,6 +68,13 @@ export default function QuickActionsAdminModal({ open, onClose, rows }: QuickAct
       el.showModal();
     }
   }, [open]);
+
+  useEffect(() => {
+    if (formSubmitted) {
+      setFormSubmitted(false);
+      onChanged?.();
+    }
+  }, [formSubmitted, onChanged]);
 
   const handleDialogClose = () => {
     onClose();
@@ -98,72 +122,76 @@ export default function QuickActionsAdminModal({ open, onClose, rows }: QuickAct
                     </div>
                   </div>
                   {row.isActive ? (
-                    <form action={async (formData) => { await deactivateQuickAction(formData); }}>
-                      <input type="hidden" name="id" value={row.id} />
-                      <button
-                        type="submit"
-                        className="inline-flex min-h-[44px] shrink-0 items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500"
-                      >
-                        숨기기
-                      </button>
-                    </form>
+                    <StatusWrapper>
+                      <form action={deactivateQuickActionForModal}>
+                        <input type="hidden" name="id" value={row.id} />
+                        <button
+                          type="submit"
+                          className="inline-flex min-h-[44px] shrink-0 items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500"
+                        >
+                          숨기기
+                        </button>
+                      </form>
+                    </StatusWrapper>
                   ) : null}
                 </li>
               ))}
             </ul>
 
-            <form action={async (formData) => { await createQuickAction(formData); }} className="mt-4 grid gap-3">
-              <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
-                버튼 이름
+            <StatusWrapper>
+              <form action={async (formData) => { await createQuickActionForModal(formData); }} className="mt-4 grid gap-3">
+                <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
+                  버튼 이름
+                  <input
+                    name="label"
+                    required
+                    placeholder="예: 저녁 식사"
+                    className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
+                  />
+                </label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
+                    기록 종류
+                    <select
+                      name="actionPreset"
+                      defaultValue="meal"
+                      className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
+                    >
+                      <option value="meal">식사</option>
+                      <option value="medication">투약</option>
+                      <option value="school_dropoff">등원</option>
+                      <option value="school_pickup">하원</option>
+                      <option value="brushing">양치</option>
+                      <option value="cleaning">청소</option>
+                      <option value="custom">기타(직접 입력)</option>
+                    </select>
+                  </label>
+                  <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
+                    기록 대상
+                    <select
+                      name="target"
+                      defaultValue="kid4"
+                      className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
+                    >
+                      <option value="family">가족 전체</option>
+                      <option value="kid7">주원이</option>
+                      <option value="kid4">승원이</option>
+                    </select>
+                  </label>
+                </div>
                 <input
-                  name="label"
-                  required
-                  placeholder="예: 저녁 식사"
-                  className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
+                  name="actionCustom"
+                  placeholder="영문 코드 (예: laundry)"
+                  className="min-h-[44px] w-full rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
                 />
-              </label>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
-                  기록 종류
-                  <select
-                    name="actionPreset"
-                    defaultValue="meal"
-                    className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
-                  >
-                    <option value="meal">식사</option>
-                    <option value="medication">투약</option>
-                    <option value="school_dropoff">등원</option>
-                    <option value="school_pickup">하원</option>
-                    <option value="brushing">양치</option>
-                    <option value="cleaning">청소</option>
-                    <option value="custom">기타(직접 입력)</option>
-                  </select>
-                </label>
-                <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
-                  기록 대상
-                  <select
-                    name="target"
-                    defaultValue="kid4"
-                    className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
-                  >
-                    <option value="family">가족 전체</option>
-                    <option value="kid7">주원이</option>
-                    <option value="kid4">승원이</option>
-                  </select>
-                </label>
-              </div>
-              <input
-                name="actionCustom"
-                placeholder="영문 코드 (예: laundry)"
-                className="min-h-[44px] w-full rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
-              />
-              <button
-                type="submit"
-                className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white"
-              >
-                버튼 추가
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white"
+                >
+                  버튼 추가
+                </button>
+              </form>
+            </StatusWrapper>
           </div>
         </div>
       </div>

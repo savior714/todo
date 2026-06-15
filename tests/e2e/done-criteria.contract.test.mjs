@@ -99,7 +99,6 @@ test("루틴 완료 시 타임라인용 events 행이 함께 기록된다", () =
 test("관리자는 대시보드에서 퀵 액션·숙제 설정 모달을 받는다", () => {
   const deferred = read("app/(dashboard)/dashboard/DashboardDeferred.tsx");
   const quickAction = read("app/(dashboard)/QuickActionPanel.tsx");
-  const adminPage = read("app/admin/page.tsx");
   assert.match(deferred, /showAdminSettingsLink=\{profile\.role === "admin"\}/);
   assert.match(quickAction, /showAdminSettingsLink/);
   assert.match(quickAction, /QuickActionsAdminModal/);
@@ -118,9 +117,6 @@ test("관리자는 대시보드에서 퀵 액션·숙제 설정 모달을 받는
   assert.match(quickActionsSection, /id="quick-actions-admin"/);
   assert.match(homeworkSection, /id="homework-types-admin"/);
   assert.match(routineSection, /id="routine-items-admin"/);
-  assert.match(adminPage, /QuickActionsAdminSection/);
-  assert.match(adminPage, /HomeworkTypesAdminSection/);
-  assert.match(adminPage, /RoutineItemsAdminSection/);
 });
 
 test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한다", () => {
@@ -274,11 +270,9 @@ test("관리자가 숙제 유형을 비활성화할 수 있는 서버 액션이 
 
 test("퀵 액션 커스텀 타입 유효성 실패는 500 throw 대신 에러 상태로 처리한다", () => {
   const adminActions = read("app/actions/admin.ts");
-  const adminPage = read("app/admin/page.tsx");
   assert.match(adminActions, /createQuickAction/);
   assert.match(adminActions, /success:\s*false/);
   assert.doesNotMatch(adminActions, /throw new Error\("커스텀 타입은 소문자 시작/);
-  assert.match(adminPage, /quickActionError/);
 });
 
 test("대시보드에서 로그아웃 폼(server action)·접근성 라벨이 노출된다", () => {

@@ -213,16 +213,28 @@ export default function QuickActionPanel({
       <QuickActionsAdminModal
         open={quickActionsModalOpen}
         onClose={() => setQuickActionsModalOpen(false)}
+        onChanged={() => {
+          setQuickActionsModalOpen(false);
+          router.refresh();
+        }}
         rows={quickActionRows}
       />
       <HomeworkTypesAdminModal
         open={homeworkTypesModalOpen}
         onClose={() => setHomeworkTypesModalOpen(false)}
+        onChanged={() => {
+          setHomeworkTypesModalOpen(false);
+          router.refresh();
+        }}
         rows={homeworkTypeRows}
       />
       <RoutineItemsAdminModal
         open={routineItemsModalOpen}
         onClose={() => setRoutineItemsModalOpen(false)}
+        onChanged={() => {
+          setRoutineItemsModalOpen(false);
+          router.refresh();
+        }}
         rows={routineItemRows}
       />
     </section>

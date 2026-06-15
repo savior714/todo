@@ -1,21 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { createHomeworkType, deactivateHomeworkType } from "@/app/actions/admin";
+import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
+import {
+  createHomeworkTypeForModal,
+  deactivateHomeworkTypeForModal,
+} from "@/app/actions/admin";
 
-async function submitHomeworkType(formData: FormData) {
-  "use server";
-  const title = String(formData.get("title") ?? "").trim();
-  const childGroup = String(formData.get("childGroup") ?? "") as "kid7" | "kid4";
-  if (!title || (childGroup !== "kid7" && childGroup !== "kid4")) {
-    throw new Error("입력값이 올바르지 않습니다.");
-  }
-  await createHomeworkType(childGroup, title);
-}
-
-async function submitDeactivateHomeworkType(formData: FormData) {
-  "use server";
-  await deactivateHomeworkType(formData);
+function StatusWrapper({ children }: { children: React.ReactNode }) {
+  const status = useFormStatus();
+  void status.pending;
+  return <>{children}</>;
 }
 
 export type HomeworkTypeAdminRow = {
@@ -28,6 +23,7 @@ export type HomeworkTypeAdminRow = {
 type HomeworkTypesAdminModalProps = {
   open: boolean;
   onClose: () => void;
+  onChanged?: () => void;
   rows: HomeworkTypeAdminRow[];
 };
 
@@ -36,14 +32,27 @@ const CHILD_GROUP_LABEL: Record<"kid7" | "kid4", string> = {
   kid4: "승원이",
 };
 
-export default function HomeworkTypesAdminModal({ open, onClose, rows }: HomeworkTypesAdminModalProps) {
+export default function HomeworkTypesAdminModal({
+  open,
+  onClose,
+  onChanged,
+  rows,
+}: HomeworkTypesAdminModalProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   useEffect(() => {
     if (open) {
       dialogRef.current?.showModal();
     }
   }, [open]);
+
+  useEffect(() => {
+    if (formSubmitted) {
+      setFormSubmitted(false);
+      onChanged?.();
+    }
+  }, [formSubmitted, onChanged]);
 
   const handleDialogClose = () => {
     onClose();
@@ -91,42 +100,46 @@ export default function HomeworkTypesAdminModal({ open, onClose, rows }: Homewor
                   </span>
                 </div>
                 {hw.isActive ? (
-                  <form action={submitDeactivateHomeworkType}>
-                    <input type="hidden" name="id" value={hw.id} />
-                    <button
-                      type="submit"
-                      className="inline-flex min-h-[44px] items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500"
-                    >
-                      숨기기
-                    </button>
-                  </form>
+                  <StatusWrapper>
+                    <form action={deactivateHomeworkTypeForModal}>
+                      <input type="hidden" name="id" value={hw.id} />
+                      <button
+                        type="submit"
+                        className="inline-flex min-h-[44px] items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500"
+                      >
+                        숨기기
+                      </button>
+                    </form>
+                  </StatusWrapper>
                 ) : null}
               </li>
             ))}
           </ul>
 
-          <form action={submitHomeworkType} className="mt-4 grid gap-2">
-            <input
-              name="title"
-              required
-              placeholder="숙제 제목"
-              className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
-            />
-            <select
-              name="childGroup"
-              defaultValue="kid7"
-              className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
-            >
-              <option value="kid7">kid7 (주원이)</option>
-              <option value="kid4">kid4 (승원이)</option>
-            </select>
-            <button
-              type="submit"
-              className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white"
-            >
-              추가
-            </button>
-          </form>
+          <StatusWrapper>
+            <form action={createHomeworkTypeForModal} className="mt-4 grid gap-2">
+              <input
+                name="title"
+                required
+                placeholder="숙제 제목"
+                className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
+              />
+              <select
+                name="childGroup"
+                defaultValue="kid7"
+                className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
+              >
+                <option value="kid7">kid7 (주원이)</option>
+                <option value="kid4">kid4 (승원이)</option>
+              </select>
+              <button
+                type="submit"
+                className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white"
+              >
+                추가
+              </button>
+            </form>
+          </StatusWrapper>
         </div>
       </div>
     </dialog>
