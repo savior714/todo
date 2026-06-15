@@ -2,8 +2,12 @@ import type { Meta, StoryObj } from "@storybook/nextjs";
 import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import TimelineFeed, { type TimelineItem } from "@/app/(dashboard)/TimelineFeed";
 import type { CreateEventAction } from "@/app/(dashboard)/RecordEventModal";
+import { addDays, formatDateKey, startOfLocalDay } from "@/lib/timeline/date";
 
 const now = new Date();
+const storyTodayKey = formatDateKey(startOfLocalDay(now));
+const storyYesterdayKey = formatDateKey(addDays(startOfLocalDay(now), -1));
+const storyTomorrowKey = formatDateKey(addDays(startOfLocalDay(now), 1));
 
 const createIso = (dayOffset: number, hour: number, minute: number) => {
   const date = new Date(now);
@@ -103,6 +107,9 @@ function DashboardPreview() {
         createEventAction={mockCreateEvent}
       />
       <TimelineFeed
+        initialTodayKey={storyTodayKey}
+        initialYesterdayKey={storyYesterdayKey}
+        initialTomorrowKey={storyTomorrowKey}
         initialEvents={timelineEvents}
         undoEventAction={mockAction}
         homeworkTypes={[

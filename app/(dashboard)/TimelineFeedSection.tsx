@@ -39,6 +39,9 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
   const todayStart = startOfLocalDay(new Date());
   const minLogKey = formatDateKey(addDays(todayStart, -90));
   const maxLogKey = formatDateKey(addDays(todayStart, 14));
+  const todayKey = formatDateKey(startOfLocalDay(new Date()));
+  const yesterdayKey = formatDateKey(addDays(startOfLocalDay(new Date()), -1));
+  const tomorrowKey = formatDateKey(addDays(startOfLocalDay(new Date()), 1));
 
   type TimelineRow = {
     id: string;
@@ -165,6 +168,9 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
 
   return (
     <TimelineFeed
+      initialTodayKey={todayKey}
+      initialYesterdayKey={yesterdayKey}
+      initialTomorrowKey={tomorrowKey}
       initialEvents={normalizedEvents}
       undoEventAction={undoEvent}
       homeworkTypes={homeworkTypes}

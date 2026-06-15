@@ -58,6 +58,9 @@ type TimelineSlot =
   | { key: string; kind: "event"; event: TimelineItem };
 
 type TimelineFeedProps = {
+  initialTodayKey: string;
+  initialYesterdayKey: string;
+  initialTomorrowKey: string;
   initialEvents: TimelineItem[];
   undoEventAction: (eventId: string) => Promise<unknown>;
   homeworkTypes: HomeworkTypeForTimeline[];
@@ -69,6 +72,9 @@ type TimelineFeedProps = {
 };
 
 export default function TimelineFeed({
+  initialTodayKey,
+  initialYesterdayKey,
+  initialTomorrowKey,
   initialEvents,
   undoEventAction,
   homeworkTypes,
@@ -80,25 +86,24 @@ export default function TimelineFeed({
 }: TimelineFeedProps) {
   const router = useRouter();
   const [events, setEvents] = useState<TimelineItem[]>(initialEvents);
-  const [centerDate, setCenterDate] = useState(() => startOfLocalDay(new Date()));
+  const [centerDate, setCenterDate] = useState(() => parseDateKey(initialTodayKey));
   const [detailOpen, setDetailOpen] = useState<TimelineDetailOpen>({ kind: "closed" });
   const dateInputRef = useRef<HTMLInputElement | null>(null);
   const centerColumnRef = useRef<HTMLDivElement | null>(null);
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => { setIsClient(true); }, []);
 
-  const todayLocalKey = formatDateKey(startOfLocalDay(new Date()));
+  const todayLocalKey = initialTodayKey;
 
   useEffect(() => {
     setEvents(initialEvents);
   }, [initialEvents]);
 
-  const dateCache = useMemo(() => {
-    const now = new Date();
-    return {
-      yesterdayKey: formatDateKey(addDays(now, -1)),
-      todayKey: formatDateKey(now),
-      tomorrowKey: formatDateKey(addDays(now, 1)),
-    };
-  }, []);
+  const dateCache = useMemo(() => ({
+    yesterdayKey: initialYesterdayKey,
+    todayKey: initialTodayKey,
+    tomorrowKey: initialTomorrowKey,
+  }), [initialYesterdayKey, initialTodayKey, initialTomorrowKey]);
 
   const { yesterdayKey, todayKey, tomorrowKey } = dateCache;
 
@@ -393,7 +398,7 @@ export default function TimelineFeed({
                       const event = slot.event;
                       const undoMs = getUndoWindowMsForActionType(event.action_type);
                       const canUndo =
-                        Date.now() - new Date(event.created_at).getTime() <= undoMs;
+                        isClient && (Date.now() - new Date(event.created_at).getTime() <= undoMs);
                       const detailLines = summarizeEventMetadataForDisplay(event.metadata, event.action_type);
                       return (
                         <button
