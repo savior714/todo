@@ -1,7 +1,71 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-ExtraLight.woff2") format("woff2");
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A2Z";
+  src: url("/fonts/A2Z-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light dark;
+  --font-sans: "A2Z", system-ui, -apple-system, sans-serif;
 }
 
 html {
@@ -35,6 +99,7 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
+  font-family: var(--font-sans);
 }
 
 @keyframes dialog-record-in {
