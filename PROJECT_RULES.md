@@ -28,8 +28,8 @@
 
 ## 단일 앱 스택 (FamilySync MVP)
 - **프레임워크**: Next.js(App Router), React, TailwindCSS — 소스는 주로 `app/`·`lib/`·`db/` (`README.md` 디렉토리 맵).
-- **데이터**: Turso(libSQL) + Drizzle; 마이그레이션은 `db/migrations/*.sql`, 적용 절차는 `README.md`·`npm run db:migrate`(`scripts/migrate-turso.mjs`).
-- **Turso 마이그레이션 적용(에이전트)**: `db/migrations/`에 SQL을 **추가하거나 내용을 바꾼 커밋/작업**이면, 에이전트는 사용자에게 실행을 넘기지 않고 **`npm run db:migrate`를 직접 실행**해 적용·로그까지 확인한다(`TURSO_*`는 스크립트가 `.env`→`.env.local`→`.env.vercel.dev`→`.env.vercel.prod` 순으로 로드). **복수 Turso**(개발 DB와 운영 DB URL이 env로 분리)인 경우, 한 번의 실행은 **현재 로드되는 URL 한 곳**에만 적용되므로, 운영까지 필요하면 해당 env를 기준으로 **재실행**하거나 사용자에게 적용 대상만 한 줄 확인한다.
+- **데이터**: Turso(libSQL) + Drizzle; 마이그레이션은 `db/migrations/*.sql`, 적용 절차는 `README.md`·`bun run db:migrate`(`scripts/migrate-turso.mjs`).
+- **Turso 마이그레이션 적용(에이전트)**: `db/migrations/`에 SQL을 **추가하거나 내용을 바꾼 커밋/작업**이면, 에이전트는 사용자에게 실행을 넘기지 않고 **`bun run db:migrate`를 직접 실행**해 적용·로그까지 확인한다(`TURSO_*`는 스크립트가 `.env`→`.env.local`→`.env.vercel.dev`→`.env.vercel.prod` 순으로 로드). **복수 Turso**(개발 DB와 운영 DB URL이 env로 분리)인 경우, 한 번의 실행은 **현재 로드되는 URL 한 곳**에만 적용되므로, 운영까지 필요하면 해당 env를 기준으로 **재실행**하거나 사용자에게 적용 대상만 한 줄 확인한다.
 - **인증**: Auth.js + Google OAuth (세션·쿠키 정책은 `docs/CRITICAL_LOGIC.md`).
 - **본 레포는** 루트 `docker-compose.dev.yml`·`./run_dev.sh` 기반 로컬 풀스택을 두지 않는다(과거 템플릿 문구는 무시).
 

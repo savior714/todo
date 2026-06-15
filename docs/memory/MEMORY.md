@@ -73,21 +73,21 @@
 - 2026-05-09: linked_action 힌트 계약 테스트를 추가한 직후 `bun run test`에서 1건 실패(Red) 확인 후 구현 반영 뒤 재실행으로 PASS(Green) 전환.
 - 2026-05-09: `bun run lint && bun run typecheck:strict && bun run build` 재검증 통과.
 - 2026-05-09: `bunx supabase db reset` 재실행 성공으로 `0001_init.sql` 재적용 및 로컬 DB 상태 정상 확인.
-- 2026-05-09: FS-006~FS-015 상태를 `done`으로 갱신한 뒤 `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` 재검증 예정.
+- 2026-05-09: FS-006~FS-015 상태를 `done`으로 갱신한 뒤 `python3 scripts/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` 재검증 예정.
 - 2026-05-09: 세션 종료 위생 점검용 `just memory-verify`는 Justfile에 recipe 부재로 실패하여 별도 도구 추가 또는 AGENTS 규칙 정합화가 필요함.
 - 2026-05-09: 필수 파일 점검 결과 `docs/memory/MEMORY.md`는 세션 중 생성됨.
-- 2026-05-09: `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` 실행 시 스크립트 경로 부재로 실패(`No such file or directory`).
-- 2026-05-09: `python3 script/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` 재실행 결과 PASS 확인.
-- 2026-05-09: 사용자 수정 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` 실행 PASS 확인.
+- 2026-05-09: `python3 scripts/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` 실행 시 스크립트 경로 부재로 실패(`No such file or directory`).
+- 2026-05-09: `python3 script/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` 재실행 결과 PASS 확인.
+- 2026-05-09: 사용자 수정 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` 실행 PASS 확인.
 - 2026-05-09: Task 1.1 구현 후 `bun run lint`, `bun run typecheck:strict` 모두 통과.
-- 2026-05-09: Task 1.1 반영 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` PASS 확인.
+- 2026-05-09: Task 1.1 반영 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` PASS 확인.
 - 2026-05-09: `bunx supabase db lint` 실행 시 로컬 DB `127.0.0.1:54322` 연결 거부로 실패하여 DB 검증이 환경 블로커 상태.
 - 2026-05-09: FS-004/005 구현 후 `bun run lint`, `bun run typecheck:strict` 모두 통과.
-- 2026-05-09: 상태 반영 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` PASS 확인.
+- 2026-05-09: 상태 반영 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` PASS 확인.
 - 2026-05-09: FS-006~FS-009 구현 후에도 `bun run lint`, `bun run typecheck:strict` 통과 유지.
-- 2026-05-09: FS-002~FS-009 상태 갱신 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` PASS 확인.
+- 2026-05-09: FS-002~FS-009 상태 갱신 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` PASS 확인.
 - 2026-05-09: FS-010~FS-012 구현 후 `bun run lint`, `bun run typecheck:strict` 통과 확인.
-- 2026-05-09: Phase 4 상태 반영 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` PASS 확인.
+- 2026-05-09: Phase 4 상태 반영 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` PASS 확인.
 - 2026-05-09: `bunx supabase init`, `bunx supabase start`, `bunx supabase db reset` 성공으로 FS-002/003 검증 블로커 해소.
 - 2026-05-09: `bunx supabase db lint`는 `failed to parse rows: unexpected EOF`로 실패했으나, 대체 검증 조건(`db reset` 성공 로그)은 충족.
 - 2026-05-09: `bun run dev` 기동 후 `curl -I /dashboard`가 `307 /select-profile`, `curl -I /select-profile`가 `307 /login`을 반환해 인증 가드 흐름을 검증함.
@@ -96,7 +96,7 @@
 - 2026-05-09: `supabase/config.toml`의 Google provider를 활성화한 뒤 authorize endpoint가 `302`로 Google URL 리다이렉트했고, URL의 `client_id`가 `env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)` 문자열로 전달되어 실제 자격증명 입력 필요를 확인함.
 - 2026-05-09: 자격증명 입력 이후 `client_id_looks_env_literal=False`를 확인해 Google OAuth 설정이 환경변수 값으로 치환됨을 검증함.
 - 2026-05-09: `bun run lint && bun run typecheck:strict && bun run test && bun run build` 전체 검증 패스.
-- 2026-05-09: FS-004 상태 갱신 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/20260509_familysync_mvp_blueprint.md` PASS 확인.
+- 2026-05-09: FS-004 상태 갱신 후 `python3 scripts/plan_loop/plan_lint.py docs/plans/archive/20260509_familysync_mvp_blueprint.md` PASS 확인.
 - 2026-05-11: `/login`에 인앱 브라우저(카카오톡 등)에서 Google `disallowed_useragent`가 날 수 있음을 안내하는 `role="note"` 박스 추가. `bun run lint`·`bun run typecheck:strict` 통과.
 
 ## Consistency Issues

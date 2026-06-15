@@ -5,7 +5,7 @@
 | **Last Verified** | 2026-05-12 |
 | **제품 요구** | `docs/specs/PRD.md` |
 | **기술 요구** | `docs/specs/TRD.md` |
-| **실행 계획** | `docs/plans/20260509_familysync_mvp_blueprint.md` |
+| **실행 계획** | `docs/plans/archive/20260509_familysync_mvp_blueprint.md` |
 
 본 문서는 **코드와 운영에서 깨지면 안 되는 경계**와 **이미 확정된 아키텍처 결정**만 기록한다. 세부 구현·세션 로그는 `docs/memory/MEMORY.md` 및 PRD/TRD를 따른다.
 

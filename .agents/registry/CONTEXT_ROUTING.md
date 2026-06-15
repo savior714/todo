@@ -31,8 +31,8 @@
 
 ## 적용 우선순위 (Precedence)
 
-1. `AGENTS.md` (헌법)
-2. `PROJECT_RULES.md` (전역 정책)
+1. `PROJECT_RULES.md` (정책)
+2. `AGENTS.md` (헌법·실행 원칙)
 3. 경로 매핑 규칙 (도메인 특화)
 4. 상시 적용 코어 규칙
 

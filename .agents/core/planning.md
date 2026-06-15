@@ -46,7 +46,7 @@ Blueprint 템플릿·7단계 심층 설계·Playwright Discovery 요약 등 **�
 
 - Task 완료 선언 전 `Conclusion` 필드에 실제 수행 내용을 반드시 기입합니다.
 - `[완료 시 기입]` placeholder가 남아 있는 상태에서 `Status: done` 선언 금지.
-- 완료 조건: 최소 10자 이상, 구체적인 변경 파일명/행위/검증 결과 포함.
+- 완료 조건: 최소 25자 이상, 구체적인 변경 파일명/행위/검증 결과 포함.
 
 ### 2.3 Plan Update Hard Gate
 

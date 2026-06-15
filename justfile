@@ -42,3 +42,20 @@ ci:
 # Verify MEMORY.md hygiene constraints.
 memory-verify:
   @python3 scripts/memory/memory_verify.py
+
+# Alias for plan-lint (AGENTS.md §7.1 reference).
+plan-lint: lint-fix
+
+# Run full verification gate: lint + typecheck + test.
+verify:
+  @bun run lint && bun run typecheck:strict && bun run test
+
+# Update blueprint task status to done and flag Conclusion placeholder.
+# Usage: just plan-task-close (uses default blueprint path)
+plan-task-close:
+  @python3 scripts/plan_loop/plan_close.py task-close
+
+# Close blueprint: update status to done.
+# Usage: just plan-close (uses default blueprint path)
+plan-close:
+  @python3 scripts/plan_loop/plan_close.py close
