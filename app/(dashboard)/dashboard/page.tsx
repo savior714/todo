@@ -5,7 +5,7 @@ import DailyPinBanner from "@/app/(dashboard)/DailyPinBanner";
 import DashboardDeferred from "@/app/(dashboard)/dashboard/DashboardDeferred";
 import TimelineFeedSection from "@/app/(dashboard)/TimelineFeedSection";
 import { getActiveProfileContext } from "@/lib/auth/session";
-import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard-perf";
+import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard/perf";
 
 function DashboardBodySkeleton() {
   return (

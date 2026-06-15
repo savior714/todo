@@ -21,7 +21,7 @@ def find_target_files():
     """docs/plans/ 루트의 *.md 파일 목록 반환 (archive/ 제외)"""
     if not PLANS_DIR.exists():
         return []
-    return [f for f in PLANS_DIR.iterdir() if f.suffix == ".md" and f.is_file() and f.name != "PLAN_STATUS.json"]
+    return [f for f in PLANS_DIR.iterdir() if f.suffix == ".md" and f.is_file()]
 
 
 def find_all_referencing_files():

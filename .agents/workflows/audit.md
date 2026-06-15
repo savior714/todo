@@ -15,8 +15,8 @@ last_updated: 2026-05-06
 
 ## 문서 경계(SSOT)
 - **규칙/운영**: `PROJECT_RULES.md`
-- **결정/핵심 불변(대안/채택 이유/증적 경로)**: `docs/CRITICAL_LOGIC.md`
-- **세션 지식**: `docs/memory/`
+- **결정/핵심 불변(대안/채택 이유/증적 경로)**: `PROJECT_RULES.md` §8
+- **세션 지식**: `.agents/memory/`
 
 > **FamilySync MVP (`todo`) 적용 노트**: 본 문서는 원래 **EMR·다계층 Python 백엔드** 진단용 템플릿을 포함한다. 이 레포에는 `scripts/project_digest.py`·`scripts/audit_tool.py`·`scripts/run_import_linter.sh`·`scripts/verify_type_imports.py` 등이 **없을 수 있다**. `/audit` 실행 시 **자동 스크립트 Phase는 생략 가능**하며, 증거는 `README.md` 검증 명령, `app/`·`lib/`·`db/`·`docs/specs/` 구조 점검, `bun run lint`·`typecheck:strict`·`test`·`build`, `just ci`, (선택) `python3 scripts/verify_korean_text.py --dir docs`로 확보한다. EMR·59지표·Pydantic/Vault 등 항목은 **해당 제품에 맞게 가중치를 낮추거나 스킵**해도 된다.
 
@@ -47,7 +47,7 @@ Phase 4: 리포트 생성 → MD + HTML 동시 출력 + SSOT 갱신
 
 ```
 1. app/ 라우트·Server Actions·UI 경계와 lib/·db/ 스키마·쿼리 위치 확인
-2. docs/specs/(PRD·TRD)·docs/CRITICAL_LOGIC.md·docs/plans/ 존재 및 정합
+2. docs/specs/(PRD·TRD)·PROJECT_RULES.md §8·docs/plans/ 존재 및 정합
 3. tests/e2e 계약 테스트 범위와 README 검증 명령과의 일치
 4. (선택) scripts/ 아래 Turso 마이그레이션·동기화 스크립트 유무
 5. 레거시 EMR용 scripts/cert_gap/ 등은 본 레포에 없으면 스킵
@@ -99,7 +99,7 @@ python3 scripts/verify_korean_text.py --dir docs
 
 | 체크 항목 | 평가 기준 |
 | :--- | :--- |
-| **SSOT 경계 명확성** | `PROJECT_RULES.md` vs `CRITICAL_LOGIC.md` vs `docs/specs/` vs `docs/memory/` 역할 분리 |
+| **SSOT 경계 명확성** | `PROJECT_RULES.md`(§8 포함) vs `docs/specs/` vs `.agents/memory/` 역할 분리 |
 | **Decision Log 품질** | Context→Decision→Rationale→증적 형식 준수 |
 | **체크리스트 모듈화** | `MEMORY.md`·지식 문서 라인 한도 준수, 하위 문서 분리 |
 | **재점검 등급 체계** | `[x]` 항목의 A/B/C 신뢰도 등급 존재 여부 |
@@ -113,7 +113,7 @@ python3 scripts/verify_korean_text.py --dir docs
 | 체크 항목 | 평가 기준 |
 | :--- | :--- |
 | **앱·라이브러리 경계** | `app/`(UI·라우트)·`lib/`(도메인·유틸)·`db/`(스키마·클라이언트) 책임 분리 |
-| **도메인 정합** | PRD/TRD·`CRITICAL_LOGIC`의 이벤트·투약·멀티테넌시 규칙이 코드에 반영되는가 |
+| **도메인 정합** | PRD/TRD·`PROJECT_RULES.md` §8의 이벤트·투약·멀티테넌시 규칙이 코드에 반영되는가 |
 | **라우팅 안정성** | Next App Router·미들웨어·리다이렉트 회귀 방지 |
 | **모듈화 가드레일** | 단일 파일/컴포넌트 과대 시 분리, 레이어 혼선 방지 |
 | **디렉토리 과밀도** | 단일 디렉토리 파일 수 과다 시 분리 권장 |
@@ -212,7 +212,7 @@ python3 scripts/verify_korean_text.py --dir docs
 | 지표 | 이전 | 현재 | 변화(Δ) | 비고 |
 | :--- | :---: | :---: | :---: | :--- |
 | 인증 총점 | ?? | ?? | Δ? | |
-| CRITICAL_LOGIC 결정 수 | ?? | ?? | Δ? | |
+| PROJECT_RULES.md §8 결정 수 | ?? | ?? | Δ? | |
 | SDD import 위반 | ?? | ?? | Δ? | |
 | 백엔드 파일 수 | ?? | ?? | Δ? | |
 | 테스트 파일 수 | ?? | ?? | Δ? | |
@@ -278,7 +278,7 @@ python3 scripts/verify_korean_text.py --dir docs
 1. **평가서 저장**: `docs/audit/YYYYMMDD_HHMMSS/audit_report.md` + `.html`
 2. **Digest 저장**: `docs/digest/project_digest_YYYYMMDD.md`
 3. **MEMORY.md 인덱스 업데이트**: `AGENTS.md` §2.1.1 참조 — 한 줄 링크 원칙(Anti-Drift) 준수
-4. **CRITICAL_LOGIC.md 갱신**: 중요 발견사항이 있으면 Decision Log로 추가
+4. **PROJECT_RULES.md §8 갱신**: 중요 발견사항이 있으면 Decision Log로 추가
 5. **cert_implementation_priority_tiers.md 진행 상황 반영**
 6. **30일 이상 경과 평가서 아카이브 검토**: `docs/audit/archive/` 이동
 
@@ -292,7 +292,7 @@ python3 scripts/verify_korean_text.py --dir docs
 - [ ] Phase 4.1: **Markdown 리포트** 생성 (`docs/audit/YYYYMMDD_HHMMSS/audit_report.md`)
 - [ ] Phase 4.2: **HTML 리포트** 생성 (59개 지표 상세 테이블, toggle 기능 포함)
 - [ ] Next Action: `/plan` 트리거 프롬프트 포함
-- [ ] SSOT 업데이트: `AGENTS.md` §2.1.1 참조 — MEMORY.md(한 줄 링크), CRITICAL_LOGIC.md(필요 시), priority_tiers 반영
+- [ ] SSOT 업데이트: `AGENTS.md` §2.1.1 참조 — MEMORY.md(한 줄 링크), PROJECT_RULES.md §8(필요 시), priority_tiers 반영
 - [ ] 리포트 가독성: MD 과대 시 섹션 분할, HTML 구조 유효성
 
 ---
@@ -300,6 +300,6 @@ python3 scripts/verify_korean_text.py --dir docs
 ## 📌 주의사항
 
 - **객관성 유지**: 보고서에는 LLM의 주관적 답변보다는 **수치 및 지표 중심**의 객관적 데이터만 포함합니다.
-- **SSOT 경계**: 문서 간 중복 서술을 피하고, 상세 결정 사항은 `CRITICAL_LOGIC.md`를 링크합니다.
+- **SSOT 경계**: 문서 간 중복 서술을 피하고, 상세 결정 사항은 `PROJECT_RULES.md` §8를 링크합니다.
 - **인코딩 보호**: 모든 생성 문서는 **UTF-8 (BOM 없음)**을 유지합니다.
 - **MD+HTML 동시 출력**: 하나라도 누락 시 워크플로우 실패로 간주합니다.

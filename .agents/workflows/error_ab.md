@@ -38,7 +38,7 @@ last_updated: 2026-05-06
 ## Phase 4: Implementation & Verification (Agent)
 1. **반영**: 승리한 답변(또는 통합안)을 실제 코드에 반영한다.
 2. **검증**: `bun run lint && bun run typecheck:strict` (+ 필요 시 `bun run test`) 및 `just ci`로 에러 해결을 확인한다.
-3. **Memory 업데이트**: `docs/memory/MEMORY.md`에 결과를 요약 기록한다.
+3. **Memory 업데이트**: `.agents/memory/MEMORY.md`에 결과를 요약 기록한다.
 
 ---
 

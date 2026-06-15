@@ -117,7 +117,8 @@ export const events = sqliteTable(
     target: text("target").notNull(),
     metadata: text("metadata").notNull().default("{}"),
     isReverted: integer("is_reverted", { mode: "boolean" }).notNull().default(false),
-    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
+    createdDate: text("created_date").notNull(),
   },
   (table) => ({
     familyCreatedIdx: index("events_family_created_idx").on(table.familyId, table.createdAt),
@@ -129,6 +130,12 @@ export const events = sqliteTable(
     familyActiveCreatedIdx: index("events_family_active_created_idx")
       .on(table.familyId, table.createdAt)
       .where(eq(table.isReverted, false)),
+    familyActionTargetDateUnique: uniqueIndex("events_family_action_target_date_unique_idx").on(
+      table.familyId,
+      table.actionType,
+      table.target,
+      table.createdDate
+    ),
   })
 );
 

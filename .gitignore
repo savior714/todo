@@ -32,3 +32,6 @@ tools/ai_worklog
 
 # Playwright MCP 실행 산출물
 .playwright-mcp/
+
+# 아카이브된 플랜 (git 관리 대상 아님)
+docs/plans/archive/

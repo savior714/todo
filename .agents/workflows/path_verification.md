@@ -35,7 +35,7 @@ last_updated: 2026-05-06
 |------|------|
 | **목표** | `backend/src/main/api/v1/cds_router.py`와 같은 **실제 경로**를 MCP로 확인 |
 | **대상** | 설계 문서(Blueprint)에 명시된 Target 경로 |
-| **산출물** | `docs/memory/path-verification-result.md` (SSOT 자산화) |
+| **산출물** | `.agents/memory/path-verification-result.md` (SSOT 자산화) |
 
 ---
 
@@ -138,7 +138,7 @@ last_updated: 2026-05-06
 2. **Sequential Thinking**: 탐색 전 단계별 계획을 세워 토큰 소모를 최소화합니다.
 3. **불일치 시 즉시 보고**: MCP 결과와 설계 문서가 다를 경우, **즉시 작업 중단**하고 사용자에게 보고합니다.
 4. **Full-Path 사용**: 모든 경로는 **프로젝트 루트 기준 상대 경로**를 사용합니다 (`backend/src/main/api/v1/cds_router.py`).
-5. **Evidence**: 검증된 경로는 `docs/memory/path-verification-result.md`에 기록하여 다음 에이전트를 위한 지식으로 남깁니다.
+5. **Evidence**: 검증된 경로는 `.agents/memory/path-verification-result.md`에 기록하여 다음 에이전트를 위한 지식으로 남깁니다.
 
 ---
 

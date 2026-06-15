@@ -17,7 +17,7 @@ last_updated: 2026-05-11
 2. **환경 변수**: `.env.example`·`README.md`·Vercel 문서를 참고해 `AUTH_*`·`TURSO_*` 등 설정
 3. **앱 기동**: `bun run dev`
 4. **품질 게이트**: `bun run lint && bun run typecheck:strict` (+ 변경 시 `bun run test`·`bun run build`)
-5. **플랜·메모리**: `just ci` (`justfile`: 플랜 계약·`PLAN_STATUS`·`memory-verify`)
+5. **플랜·메모리**: `just ci` (`justfile`: 플랜 계약·`memory-verify`)
 6. **DB 스키마**: `README.md` 절차에 따라 `npm run db:migrate` (Turso)
 
 ## 주의

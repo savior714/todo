@@ -1,12 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { events } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
-import { formatMetadataValidationMessage, normalizeAndValidateEventMetadata } from "@/lib/event-metadata";
-import { getUndoWindowMsForActionType } from "@/lib/event-undo-policy";
+import { checkRecentMedicationTx, getCreatedDateSql } from "@/lib/events/db-queries";
+import { formatMetadataValidationMessage, normalizeAndValidateEventMetadata } from "@/lib/events/metadata";
+import { getUndoWindowMsForActionType } from "@/lib/events/undo-policy";
 
 type CreateEventInput = {
   actionType: string;
@@ -18,8 +19,6 @@ type CreateEventResult =
   | { success: true; eventId: string }
   | { blocked: true; lastEventAt: string | null };
 
-const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
-
 export async function createEvent(payload: CreateEventInput): Promise<CreateEventResult> {
   const profile = await getActiveProfileContext();
 
@@ -27,32 +26,23 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
     throw new Error("프로필을 찾을 수 없습니다.");
   }
 
-  const isOverride = Boolean(payload.metadata?.override);
-
-  if (payload.actionType === "medication" && !isOverride) {
-    const windowStart = Date.now() - TWO_HOURS_MS;
-    const [recentMedication] = await db
-      .select({ created_at: events.createdAt })
-      .from(events)
-      .where(
-        and(
-          eq(events.familyId, profile.familyId),
-          eq(events.actionType, "medication"),
-          eq(events.target, payload.target),
-          eq(events.isReverted, false),
-          gte(events.createdAt, windowStart)
-        )
-      )
-      .orderBy(desc(events.createdAt))
-      .limit(1);
-
-    if (recentMedication) {
-      return {
-        blocked: true,
-        lastEventAt: new Date(recentMedication.created_at).toISOString(),
-      };
-    }
+  const actionType = payload.actionType.trim();
+  if (!actionType) {
+    throw new Error("액션 타입을 입력해 주세요.");
   }
+  if (actionType.length > 50) {
+    throw new Error("액션 타입은 50자 이하여야 합니다.");
+  }
+
+  const target = payload.target.trim();
+  if (!target) {
+    throw new Error("대상을 입력해 주세요.");
+  }
+  if (target.length > 50) {
+    throw new Error("대상은 50자 이하여야 합니다.");
+  }
+
+  const isOverride = Boolean(payload.metadata?.override);
 
   const rawMeta = payload.metadata ?? {};
   if (typeof rawMeta !== "object" || rawMeta === null || Array.isArray(rawMeta)) {
@@ -62,25 +52,38 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
   let metadataJson: string;
   try {
     metadataJson = JSON.stringify(
-      normalizeAndValidateEventMetadata(payload.actionType, rawMeta as Record<string, unknown>)
+      normalizeAndValidateEventMetadata(actionType, rawMeta as Record<string, unknown>)
     );
   } catch (err) {
     throw new Error(formatMetadataValidationMessage(err), { cause: err });
   }
 
   const eventId = crypto.randomUUID();
-  await db.insert(events).values({
-    id: eventId,
-    familyId: profile.familyId,
-    profileId: profile.id,
-    actionType: payload.actionType,
-    target: payload.target,
-    metadata: metadataJson,
-    isReverted: false,
+
+  const result = await db.transaction(async (tx) => {
+    if (actionType === "medication" && !isOverride) {
+      const medicationCheck = await checkRecentMedicationTx(tx, profile.familyId, target);
+      if (medicationCheck.blocked) {
+        return { blocked: true, lastEventAt: medicationCheck.lastEventAt } as const;
+      }
+    }
+
+    await tx.insert(events).values({
+      id: eventId,
+      familyId: profile.familyId,
+      profileId: profile.id,
+      actionType,
+      target,
+      metadata: metadataJson,
+      isReverted: false,
+      createdDate: getCreatedDateSql(),
+    });
+
+    return { success: true, eventId } as const;
   });
 
   revalidatePath("/dashboard");
-  return { success: true, eventId };
+  return result;
 }
 
 export async function undoEvent(eventId: string) {
@@ -108,7 +111,7 @@ export async function undoEvent(eventId: string) {
     return { success: true };
   }
 
-  const createdAtMs = event.created_at;
+  const createdAtMs = event.created_at.getTime();
   const undoWindowMs = getUndoWindowMsForActionType(event.action_type);
   const withinUndoWindow = Date.now() - createdAtMs <= undoWindowMs;
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeAndValidateEventMetadata, summarizeEventMetadataForDisplay } from "@/lib/event-metadata";
+import { normalizeAndValidateEventMetadata, summarizeEventMetadataForDisplay } from "@/lib/events/metadata";
 
 /** 퀵 액션 모달 제출 → DB `events.metadata` JSON → 타임라인 카드 요약 줄까지의 파이프라인 */
 function timelineSummaryLines(actionType: string, rawMetadata: Record<string, unknown>): string[] {

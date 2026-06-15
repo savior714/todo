@@ -1,0 +1,93 @@
+# Bootstrap kernel — merge into your project Justfile.
+# Placeholders: replace {{PROJECT_NAME}}, paths, and ports after install.
+
+default:
+    @just --list
+
+verify:
+    @bash verify.sh
+
+ci:
+    @echo "Running {{PROJECT_NAME}} CI (bootstrap kernel)..."
+    @just verify
+
+lint-turn-end:
+    @echo "Turn-end gate (bootstrap kernel — extend per project)"
+    @just verify
+
+# --- Plan loop (kernel) ---
+plan-preread plan="" *args="":
+    @if [ -z "{{plan}}" ]; then echo "Usage: just plan-preread docs/plans/<file>.md --write"; exit 1; fi
+    @uv run python scripts/plan_loop/plan_preread_manifest.py "{{plan}}" {{args}}
+
+plan-lint plan="" *args="":
+    @echo "Verifying plan blueprint files..."
+    @if [ -z "{{plan}}" ]; then \
+        ls docs/plans/*.md 2>/dev/null | grep -v -E "README.md|ROADMAP.md" | xargs -n 1 uv run python scripts/plan_loop/plan_lint.py {{args}} ; \
+    else \
+        uv run python scripts/plan_loop/plan_lint.py "{{plan}}" {{args}} ; \
+    fi
+
+plan-lint-ci:
+    @echo "Verifying all blueprints (no Linear ensure)..."
+    @ls docs/plans/*.md 2>/dev/null | grep -v -E "README.md|ROADMAP.md" | xargs -n 1 uv run python scripts/plan_loop/plan_lint.py --skip-linear-ensure
+
+plan-close plan="" verify="":
+    @set -e; \
+    if [ -z "{{plan}}" ]; then \
+        echo "plan 인자가 필요합니다. 예: just plan-close plan=docs/plans/<file>.md"; \
+        exit 1; \
+    fi; \
+    uv run python scripts/verify/plan_close_gate.py --plan "{{plan}}" --verify "{{verify}}"
+
+plan-task-close plan="" task="" conclusion="":
+    @if [ -z "{{plan}}" ] || [ -z "{{task}}" ] || [ -z "{{conclusion}}" ]; then \
+        echo "plan, task, conclusion 인자가 모두 필요합니다."; \
+        exit 1; \
+    fi
+    @uv run python scripts/plan_loop/plan_task_close.py --plan "{{plan}}" --task "{{task}}" --conclusion "{{conclusion}}"
+
+# --- Route (kernel) ---
+route *files:
+    @uv run python scripts/agent/route_context.py {{files}}
+
+route-touched *args="":
+    @uv run python scripts/agent/route_touched.py {{args}}
+
+route-read *paths:
+    @uv run python scripts/agent/route_gate.py record-read {{paths}}
+
+route-gate-check *paths:
+    @uv run python scripts/agent/route_gate.py check {{paths}}
+
+# --- Agent lint + bootstrap drift ---
+agent-lint:
+    @echo "Verifying agent rule files..."
+    uv run python scripts/agent/verify_rules.py
+    @echo "Doc content quality..."
+    uv run python scripts/agent/doc_content_lint.py
+    @echo "Agent secret policy..."
+    uv run python scripts/agent/verify_agent_secret_policy.py
+    @echo "Bootstrap template drift..."
+    just bootstrap-sync check=1
+
+bootstrap-sync *args:
+    @MODE="dry-run"; REMOVE=""; \
+    for arg in {{args}}; do \
+        case "$arg" in \
+            check=1|check=*) MODE="check" ;; \
+            apply=1|apply=*) MODE="apply" ;; \
+            remove_stale=1|remove_stale=*) REMOVE="1" ;; \
+        esac; \
+    done; \
+    if [ "$MODE" = "check" ]; then \
+        uv run python scripts/bootstrap/sync.py --check; \
+    elif [ "$MODE" = "apply" ]; then \
+        if [ -n "$REMOVE" ]; then \
+            uv run python scripts/bootstrap/sync.py --apply --remove-stale; \
+        else \
+            uv run python scripts/bootstrap/sync.py --apply; \
+        fi; \
+    else \
+        uv run python scripts/bootstrap/sync.py --dry-run; \
+    fi

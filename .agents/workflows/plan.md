@@ -31,8 +31,10 @@ description: 전략적 설계 및 문서화 워크플로우 (/plan)
 3.  **P3 (Architectural Deepening)**: Seam, Locality, Depth, Leverage 관점에서 아키텍처 개선안을 도출합니다.
 4.  **P4 (Conceptual Sketch)**: 주요 구현 로직을 의사 코드로 스케치하여 방향을 검증합니다.
 5.  **P5 (Zero-Friction Decomposition)**: `[Level: Low]` 단위로 순차적 태스크를 분해합니다. 단계가 많아지는 것을 두려워하지 마십시오.
+5.5 **TDD Red-First**: 각 Task의 비즈니스 로직에 대해 `tests/unit/` 또는 `tests/integration/`에 실패하는 테스트를 먼저 작성한다. Red 로그 확인 없이 구현 시작 금지.
 6.  **P6 (Physical Verify Design)**: 각 단계가 확실히 끝났음을 증명할 명령어를 설계합니다.
 7.  **P7 (Final Drafting & Lint)**: Blueprint 작성 및 `plan_lint` 검증.
+8.  **P8 (Post-Implementation Verification)**: 구현 완료 후 `just verify` 실행으로 전체 체크 통과 확인.
 
 ---
 
@@ -75,9 +77,10 @@ description: 전략적 설계 및 문서화 워크플로우 (/plan)
 ### Phase X — [이름]
 #### Task X.Y: [제목] [Level: Low]
 - Task-ID: [PLAN-001] | Status: todo | RetryPolicy: none
+- **TDD Red**: [실패하는 테스트 먼저 작성 → `bun test` 또는 `node --test`로 실패 로그 확인]
 - **Action**: [Read/Edit File] | **Target**: [절대 경로]
 - **Goal**: [구체적 목표] | **Diagnostics**: [진단 수]
-- **Verify**: [물리적 증거 확보 명령어 — 이 레포: `bun run lint` / `typecheck:strict` / `test` / `just ci` 등]
+- **Verify**: [물리적 증거 확보 명령어 — `bun run lint` / `typecheck:strict` / `test` / `just ci`]
 - **Conclusion**: [완료 시 기입]
 - **Dependency**: [선행 Task ID 또는 None]
 

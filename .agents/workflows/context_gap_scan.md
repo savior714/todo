@@ -58,7 +58,7 @@ last_updated: 2026-05-06
 2. 구조화 데이터: `docs/reports/context-gaps/context_gap_scan_YYYYMMDD.json`
 3. 후속 액션:
    - P0/P1은 `/plan`으로 즉시 태스크 분해
-   - 문서화 완료 시 `docs/memory/MEMORY.md`에 링크 1줄 추가
+   - 문서화 완료 시 `.agents/memory/MEMORY.md`에 링크 1줄 추가
 
 ## 5.1) 실행 명령 (표준)
 

@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { TimelineItem } from "@/app/(dashboard)/TimelineFeed";
-import { formatEventTargetForDisplay, summarizeEventMetadataForDisplay } from "@/lib/event-metadata";
-import { getUndoWindowMsForActionType } from "@/lib/event-undo-policy";
-import { timelineActionLabel } from "@/lib/timeline-action-labels";
+import { formatEventTargetForDisplay, summarizeEventMetadataForDisplay } from "@/lib/events/metadata";
+import { getUndoWindowMsForActionType } from "@/lib/events/undo-policy";
+import { timelineActionLabel } from "@/lib/timeline/action-labels";
 
 export type TimelineDetailOpen =
   | { kind: "closed" }
@@ -61,8 +61,8 @@ export default function TimelineEventDetailModal({
     if (!el) {
       return;
     }
+    setErrorMessage(null);
     if (open.kind !== "closed") {
-      setErrorMessage(null);
       el.showModal();
     } else if (el.open) {
       el.close();
@@ -196,8 +196,19 @@ function EventBody({
   isPending: boolean;
   onUndo: () => void;
 }) {
+  const [now, setNow] = useState(Date.now());
   const undoMs = getUndoWindowMsForActionType(event.action_type);
-  const canUndo = Date.now() - new Date(event.created_at).getTime() <= undoMs;
+  const createdMs = new Date(event.created_at).getTime();
+  const canUndo = now - createdMs <= undoMs;
+
+  // P-8 해결: useMemo 는 Date.now() 기반 계산에 무의미 (dependency 에 function 불가).
+  // useState + useEffect interval 패턴으로 매초 업데이트하여
+  // undo 버튼 표시/숨김을 실시간 동기화.
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const detailLines = summarizeEventMetadataForDisplay(event.metadata, event.action_type);
   const isHomework = event.action_type === "homework";
   const isRoutine = event.action_type === "routine_check";

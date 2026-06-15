@@ -20,21 +20,22 @@
 | :--- | :--- | :--- |
 | `**/*.md`, `docs/**/*` | `documentation/markdown.md` | 한국어 정책, 문서 SSOT |
 | `docs/plans/**/*` | `documentation/planning_docs.md` | Blueprint·계획 문서 |
-| `CRITICAL_RULES.md`, `docs/CRITICAL_LOGIC.md` | `product/critical_logic.md` | 불변·멀티테넌시·투약 경계 |
+| `CRITICAL_RULES.md`, `PROJECT_RULES.md` §8 | `product/critical_logic.md` | 불변·멀티테넌시·투약 경계 |
 | `**/*.{ts,tsx}` | `frontend/typescript.md` | Strict, 타입 내로잉 |
 | `app/**/*.{tsx,jsx}`, `**/*.{tsx,jsx}` | `frontend/react.md` | React, 컴포넌트·UI |
 | `lib/**/*`, `db/**/*` | `backend/ddd.md` | 계층·서버 경계 (lib/db 일관성) |
 | `app/actions/**/*`, `app/api/**/*` | `backend/api_contracts.md` | Server Actions·Route Handlers·계약 |
 | `tests/**/*`, `**/*.test.ts`, `**/*.test.tsx` | `testing/tdd.md` | TDD Red-First |
 | `tests/e2e/**/*`, `**/*.spec.ts` | `testing/playwright.md` | E2E·Playwright |
-| `Dockerfile*`, `docker-compose*` | `infra/docker.md` | 컨테이너 정책 (레포 정책과 함께) |
 
 ## 적용 우선순위 (Precedence)
 
 1. `PROJECT_RULES.md` (정책)
 2. `AGENTS.md` (헌법·실행 원칙)
-3. 경로 매핑 규칙 (도메인 특화)
-4. 상시 적용 코어 규칙
+3. 상시 적용 코어 규칙 (`.agents/core/`)
+4. 경로 매핑 규칙 (`.agents/domains/`)
+5. 워크플로우 규칙 (`.agents/workflows/`)
+6. 적응형 규칙 (`.agents/adaptive/`)
 
 ---
 

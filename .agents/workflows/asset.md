@@ -24,7 +24,7 @@ last_updated: 2026-05-06
 **자산화 대상**:
 - `docs/knowledge/COMMON_ERROR_RESOLUTIONS.md` — 자주 발생하는 코드 오류 및 기술 스택별 해결 방법 (경량)
 - `docs/knowledge/{topic}.md` — 상세 가이드가 필요한 심층 주제 (중량)
-- `docs/memory/feedback_*.md` — "함께 일하는 방식"에 대한 교정/확인
+- `.agents/memory/feedback_*.md` — "함께 일하는 방식"에 대한 교정/확인
 
 ---
 
@@ -51,7 +51,7 @@ last_updated: 2026-05-06
 |------|-----------|------|
 | **경량** — 짧은 설명 + 코드 스니펫 | `docs/knowledge/COMMON_ERROR_RESOLUTIONS.md` | ty 정적 분석 오류, Pydantic v2 마이그레이션 |
 | **중량** — 상세 가이드, 아키텍처 결정 | `docs/knowledge/{topic}.md` | FHIR SMART on FHIR 연동, PostgreSQL 마이그레이션 |
-| **행동 교정** — "함께 일하는 방식" | `docs/memory/feedback_*.md` | 코드 스타일 선호, 리뷰 피드백 |
+| **행동 교정** — "함께 일하는 방식" | `.agents/memory/feedback_*.md` | 코드 스타일 선호, 리뷰 피드백 |
 
 ### 3단계: 콘텐츠 작성
 
@@ -210,7 +210,7 @@ python3 scripts/index_knowledge.py --check
 |:---|:---|
 | [`docs/knowledge/COMMON_ERROR_RESOLUTIONS.md`](../knowledge/COMMON_ERROR_RESOLUTIONS.md) | 경량 해결 패턴 SSOT |
 | [`docs/knowledge/INDEX.md`](../knowledge/INDEX.md) | 지식 인덱스 SSOT |
-| [`docs/memory/MEMORY.md`](../memory/MEMORY.md) | 세션 지식 인덱스 |
+| [`.agents/memory/MEMORY.md`](../memory/MEMORY.md) | 세션 지식 인덱스 |
 | [`AGENTS.md`](../../AGENTS.md) §2.3 | 문서 경계 (SSOT) 규약 |
 
 ---

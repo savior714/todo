@@ -9,7 +9,7 @@
 | :--- | :--- | :--- |
 | [AGENTS.md](../../AGENTS.md) | 우선순위, 전역 원칙, 워크플로우 색인 | 헌법 |
 | [PROJECT_RULES.md](../../PROJECT_RULES.md) | 스택·품질·아키텍처 제약 | 정책 허브 |
-| [CRITICAL_RULES.md](../../CRITICAL_RULES.md) | `docs/CRITICAL_LOGIC.md` 진입점 | 불변 SSOT 링크 |
+| [CRITICAL_RULES.md](../../CRITICAL_RULES.md) | `PROJECT_RULES.md` §8 진입점 | 불변 SSOT 링크 |
 
 ## Registry & Metadata
 
@@ -38,8 +38,7 @@
 | | [.agents/domains/frontend/typescript.md](../domains/frontend/typescript.md) | Strict, Narrowing, no habitual any |
 | **Backend** | [.agents/domains/backend/ddd.md](../domains/backend/ddd.md) | app/lib/db 경계, 서버 신뢰 |
 | | [.agents/domains/backend/api_contracts.md](../domains/backend/api_contracts.md) | Server Actions, Zod, API 계약 |
-| **Product** | [.agents/domains/product/critical_logic.md](../domains/product/critical_logic.md) | 가족 격리·투약·CRITICAL_LOGIC |
-| **Infra** | [.agents/domains/infra/docker.md](../domains/infra/docker.md) | Docker·런타임 (레포 정책 반영) |
+| **Product** | [.agents/domains/product/critical_logic.md](../domains/product/critical_logic.md) | 가족 격리·투약·PROJECT_RULES.md §8 |
 | **Testing** | [.agents/domains/testing/tdd.md](../domains/testing/tdd.md) | Red-First, assertion 필수 |
 | | [.agents/domains/testing/playwright.md](../domains/testing/playwright.md) | E2E·Discovery |
 | **Docs** | [.agents/domains/documentation/markdown.md](../domains/documentation/markdown.md) | 한국어 우선, Language Gate |

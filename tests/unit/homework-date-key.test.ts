@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { addDays, formatDateKey, startOfLocalDay } from "@/lib/timeline-date";
-import { assertHomeworkLogDateKey } from "@/lib/homework-date-key";
+import { addDays, formatDateKey, startOfLocalDay } from "@/lib/timeline/date";
+import { assertHomeworkLogDateKey } from "@/lib/homework/date-key";
 
 describe("assertHomeworkLogDateKey", () => {
   test("형식이 아니면 거부한다", () => {

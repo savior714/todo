@@ -13,9 +13,9 @@ import {
   routineItems as routineItemsTable,
   routineLogs,
 } from "@/db/schema";
-import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard-perf";
-import { TIMELINE_EVENT_LIMIT, TIMELINE_LOOKBACK_MS } from "@/lib/dashboard-timeline";
-import { addDays, formatDateKey, startOfLocalDay } from "@/lib/timeline-date";
+import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard/perf";
+import { TIMELINE_EVENT_LIMIT, TIMELINE_LOOKBACK_MS } from "@/lib/dashboard/timeline";
+import { addDays, formatDateKey, startOfLocalDay } from "@/lib/timeline/date";
 
 type TimelineFeedSectionProps = Readonly<{
   familyId: string;
@@ -34,7 +34,7 @@ function normalizeRoutineTarget(raw: string): "kid7" | "kid4" | "family" {
 
 export default async function TimelineFeedSection({ familyId }: TimelineFeedSectionProps) {
   const t0 = dashboardPerfNow();
-  const timelineSince = Date.now() - TIMELINE_LOOKBACK_MS;
+  const timelineSince = new Date(Date.now() - TIMELINE_LOOKBACK_MS);
 
   const todayStart = startOfLocalDay(new Date());
   const minLogKey = formatDateKey(addDays(todayStart, -90));

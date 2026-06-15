@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import {
   formatDateKey,
   formatKoreanWeekdayLong,
@@ -6,7 +6,7 @@ import {
   isWeekend,
   parseDateKey,
   startOfLocalDay,
-} from "@/lib/timeline-date";
+} from "@/lib/timeline/date";
 
 describe("getRelativeDayCaption", () => {
   it("maps keys to 오늘/어제/내일", () => {

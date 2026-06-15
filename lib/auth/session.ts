@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { and, eq } from "drizzle-orm";
 import { cache } from "react";
-import { auth } from "@/auth";
+import { auth, unauthorized } from "@/auth";
 import { db } from "@/db/client";
 import { profiles, userFamilies } from "@/db/schema";
 
@@ -14,15 +14,15 @@ export type ResolvedActiveProfile = {
   name: string;
 };
 
-export async function requireUserId() {
+export async function requireUserId(): Promise<string> {
   const session = await auth();
   const userId = session?.user?.id;
 
   if (!userId) {
-    throw new Error("로그인이 필요합니다.");
+    unauthorized();
   }
 
-  return userId;
+  return userId as string;
 }
 
 export async function getCurrentFamilyId(userId: string) {

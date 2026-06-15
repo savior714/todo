@@ -10,7 +10,7 @@ last_updated: 2026-05-06
 
 # /evidence: Certification Evidence Workflow
 
-이 워크플로우는 의료기관 인증 지표 구현 후, 필요한 물리적 증적(JSON/PDF)을 생성하고 이를 `docs/CRITICAL_LOGIC.md` 및 검증 리포트에 통합하는 과정을 표준화합니다.
+이 워크플로우는 의료기관 인증 지표 구현 후, 필요한 물리적 증적(JSON/PDF)을 생성하고 이를 `PROJECT_RULES.md` §8 및 검증 리포트에 통합하는 과정을 표준화합니다.
 
 ## 1. 전제 조건
 - 대상 인증 지표(예: `B005`)가 구현 완료되었거나 테스트 가능한 상태여야 함.
@@ -28,8 +28,8 @@ last_updated: 2026-05-06
 2. 생성된 JSON 또는 PDF 파일을 읽어, 요구사항(AC)을 충족하는 데이터가 포함되었는지 확인합니다.
    - FHIR 리소스의 경우 필수 필드 누락 여부를 체크합니다.
 
-### Step 3: CRITICAL_LOGIC.md 업데이트
-3. `docs/CRITICAL_LOGIC.md`의 `Decision Log`에 해당 지표의 결정 사항을 기록합니다.
+### Step 3: PROJECT_RULES.md §8 업데이트
+3. `PROJECT_RULES.md` §8의 Decision Log에 해당 지표의 결정 사항을 기록합니다.
    - `Decision`, `Rationale`, `증적(Evidence Path)`을 반드시 포함합니다.
 
 ### Step 4: 검증 리포트 생성 또는 업데이트
@@ -37,5 +37,5 @@ last_updated: 2026-05-06
 
 ## 3. 완료 체크리스트
 - [ ] 증적 파일이 물리적으로 존재하는가?
-- [ ] `CRITICAL_LOGIC.md`에 증적 경로가 올바르게 기재되었는가?
+- [ ] `PROJECT_RULES.md` §8에 증적 경로가 올바르게 기재되었는가?
 - [ ] `PROJECT_RULES.md`의 SSOT 원칙을 위배하지 않는가?

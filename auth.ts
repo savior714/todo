@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import { redirect } from "next/navigation";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db/client";
 import { accounts, authenticators, sessions, users, verificationTokens } from "@/db/schema";
@@ -47,3 +48,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+/** NextAuth v5는 unauthorized()를 내보내지 않으므로 래퍼 함수 제공. */
+export function unauthorized() {
+  redirect("/login");
+}

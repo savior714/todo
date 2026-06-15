@@ -24,7 +24,7 @@ last_updated: 2026-05-11
 | **프론트 타입** | `bun run typecheck:strict` | `tsc --noEmit` |
 | **계약/E2E 테스트** | `bun run test` | `node --test tests/e2e/*.test.mjs` — 로직·라우트·계약 변경 시 권장 |
 | **빌드 스모크** | `bun run build` | Next 빌드·번들 이슈가 의심될 때 |
-| **플랜·메모리 CI(최소 게이트)** | `just ci` | `just lint-fix` → `just plans-index` → `just memory-verify` 순 (`justfile` 참고) |
+| **플랜·메모리 CI(최소 게이트)** | `just ci` | `just lint-fix` → `just memory-verify` 순 (`justfile` 참고) |
 
 **`just lint-fix` (이 레포)**: `docs/plans/*.md`에 대해 `python3 scripts/plan_loop/plan_lint.py`를 실행한다. Ruff/Biome·`apps/renderer`와는 무관하다.
 
@@ -38,7 +38,7 @@ bun run lint && bun run typecheck:strict && just ci
 
 **`git commit --no-verify`**: 훅이 없어도, 위 검증을 건너뛰면 같은 실패가 다음 커밋·리뷰에서 되돌아온다. **불가피한 예외**일 때만 사용하고, 본문에 이유를 남기거나 후속 커밋에서 위 검증을 통과시킨다.
 
-**분리 triage**: `bun run lint` / `typecheck:strict` 실패는 앱 코드 쪽, `just ci` 실패는 Blueprint(`docs/plans`)·`docs/memory/MEMORY.md` 위생(`just memory-verify`) 쪽을 우선 본다.
+**분리 triage**: `bun run lint` / `typecheck:strict` 실패는 앱 코드 쪽, `just ci` 실패는 Blueprint(`docs/plans`)·`.agents/memory/MEMORY.md` 위생(`just memory-verify`) 쪽을 우선 본다.
 
 ---
 
@@ -56,24 +56,24 @@ bun run lint && bun run typecheck:strict && just ci
 
 ### 1단계: 세션 변경 사항 분석 및 SSOT 식별
 
-- [ ] **[Fatal Guard] 아키텍처 변경 누락 검사**: 이번 작업 중 인프라(DB, 스택, 공통 패턴) 설계 변경이 있었는가? 반영되었다면 `docs/CRITICAL_LOGIC.md`에 의사결정(Decision)이 등재되었는지 **반드시 검증**하라. 누락되었다면 커밋을 즉시 멈추고 로그 갱신부터 수행한다.
-- [ ] `docs/memory/MEMORY.md`와 현재 대화 기록을 검토하여 수정된 기능, 로직, 스펙을 추출한다.
+- [ ] **[Fatal Guard] 아키텍처 변경 누락 검사**: 이번 작업 중 인프라(DB, 스택, 공통 패턴) 설계 변경이 있었는가? 반영되었다면 `PROJECT_RULES.md` §8에 의사결정(Decision)이 등재되었는지 **반드시 검증**하라. 누락되었다면 커밋을 즉시 멈추고 로그 갱신부터 수행한다.
+- [ ] `.agents/memory/MEMORY.md`와 현재 대화 기록을 검토하여 수정된 기능, 로직, 스펙을 추출한다.
 - [ ] 업데이트가 필요한 SSOT 대상 문서를 결정한다 (`PROJECT_RULES.md` §1.1 준수):
   - 운영 규칙 / 프로토콜 → `PROJECT_RULES.md`
-  - 설계 결정 / 핵심 불변 정책 → `docs/CRITICAL_LOGIC.md`
+  - 설계 결정 / 핵심 불변 정책 → `PROJECT_RULES.md` §8
   - 기능 요구사항 및 명세 / 인터페이스 → `docs/specs/*.md`
-  - 진행 상황 (세션 정보) → `docs/memory/project_changelog_*.md`·`project_*.md` 등 본문 SSOT, **`MEMORY.md`에는 링크만** (`AGENTS.md` §2.1.1)
+  - 진행 상황 (세션 정보) → `.agents/memory/project_changelog_*.md`·`project_*.md` 등 본문 SSOT, **`MEMORY.md`에는 링크만** (`AGENTS.md` §2.1.1)
 
 ### 2단계: 문서 업데이트 (Surgical Edit)
 
 - [ ] **Surgical Edit**: 식별된 문서들을 외과적으로 정밀 수정하여 기존 포맷팅을 보존하며 새로운 정보만 병합한다.
 - [ ] **Standard Header**: 신규 문서 생성 시 `docs/templates/DOC_SSOT_HEADER_TEMPLATE.md` 헤더를 반드시 적용한다 (`Last Verified`, `Reference` 등).
-- [ ] **Memory Density / Anti-Drift**: `AGENTS.md` §10.2·`just memory-verify` 기준 — `MEMORY.md`가 **200라인**을 초과하면 `docs/memory/changelog/` 등으로 이관해 한도 이하로 맞춘다. **라인 수와 무관하게** `MEMORY.md`에 장문 요약·긴 괄호·기술 메모를 넣지 않는다.
+- [ ] **Memory Density / Anti-Drift**: `AGENTS.md` §10.2·`just memory-verify` 기준 — `MEMORY.md`가 **200라인**을 초과하면 `.agents/memory/changelog/` 등으로 이관해 한도 이하로 맞춘다. **라인 수와 무관하게** `MEMORY.md`에 장문 요약·긴 괄호·기술 메모를 넣지 않는다.
 
 ### 3단계: 통합 검증 및 결과 분석
 
 - [ ] **앱 코드·UI 변경 시**: `bun run lint`와 `bun run typecheck:strict`를 통과시킨다. 동작·계약이 바뀌면 `bun run test`를 추가하고, 빌드 이슈가 있으면 `bun run build`로 확인한다.
-- [ ] **플랜·메모리 게이트**: `just ci`를 통과시킨다. (`just ci`가 내부에서 `just lint-fix`·`just plans-index`·`just memory-verify`를 수행한다.)
+- [ ] **플랜·메모리 게이트**: `just ci`를 통과시킨다. (`just ci`가 내부에서 `just lint-fix`·`just memory-verify`를 수행한다.)
 - [ ] **문서 무결성**: 커밋에 한글 `docs/**`가 포함되면 `python3 scripts/verify_korean_text.py --dir docs`(또는 변경 범위에 맞는 `--dir` / `--file`)를 실행한다.
 - [ ] **산출 검증 파일**: 레포에 `verify-last-result.json` 등 별도 검증 산출물이 없으면 해당 단계는 생략한다. (검증 매트릭스는 `AGENTS.md` §4 — 이 레포: `bun`·`just ci`.)
 - [ ] **민감 정보 스캔**: `git status`를 통해 스테이징될 파일 목록 중 `.env`, `*.db`, `*.key`, `*.pem` 등 민감 데이터가 포함되지 않았는지 확인한다.
@@ -83,7 +83,7 @@ bun run lint && bun run typecheck:strict && just ci
 
 - [ ] 변경된 파일을 **파일명을 명시하여** 스테이징한다. (`git add .` 지양)
   ```bash
-  git add "app/(dashboard)/dashboard/page.tsx" docs/memory/MEMORY.md docs/CRITICAL_LOGIC.md
+  git add "app/(dashboard)/dashboard/page.tsx" .agents/memory/MEMORY.md PROJECT_RULES.md
   ```
 - [ ] 시니어 아키텍트 톤의 커밋 메시지를 작성한다 (`PROJECT_RULES.md` §5 준수).
   - 형식: `feat(scope): [인증지표] summary` / `fix(scope): [인증지표] summary` / `docs(scope): [인증지표] summary`
@@ -106,7 +106,7 @@ bun run lint && bun run typecheck:strict && just ci
 
 ### 5단계: 자기 최적화 및 최종 보고
 
-- [ ] **자기 최적화(Self-Optimization)**: 세션 중 반복된 작업 패턴(3회 이상)이 있다면 `docs/CRITICAL_LOGIC.md`에 기록하고 다음 에이전트를 위한 자동화나 워크플로우를 제안한다.
+- [ ] **자기 최적화(Self-Optimization)**: 세션 중 반복된 작업 패턴(3회 이상)이 있다면 `PROJECT_RULES.md` §8에 기록하고 다음 에이전트를 위한 자동화나 워크플로우를 제안한다.
 - [ ] `PROJECT_RULES.md` §4.4의 `Verify Report` 형식에 맞춰 최종 보고를 작성한다.
   - **통합 검증 요약**: `bun run lint`·`bun run typecheck:strict`·`just ci` (및 실행했다면 `bun run test` / `bun run build`) 통과 여부와 실패 시 마지막 에러 한 줄
   - **변경 파일**: 스테이징한 파일 목록

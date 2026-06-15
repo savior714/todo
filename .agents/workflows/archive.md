@@ -10,7 +10,7 @@ last_updated: 2026-05-06
 
 # 완료 플랜 아카이브 워크플로우 (/archive)
 
-진행이 끝난 **`docs/plans/*.md`** 를 **`docs/plans/archive/`** 로 옮기고, `docs/memory/`, `docs/specs/`, `docs/knowledge/`, `docs/CRITICAL_LOGIC.md` 등에 흩어진 **동일 파일명 링크를 한 번에** `plans/archive/` 경로로 맞춥니다.
+진행이 끝난 **`docs/plans/*.md`** 를 **`docs/plans/archive/`** 로 옮기고, `.agents/memory/`, `docs/specs/`, `docs/knowledge/`, `PROJECT_RULES.md` §8 등에 흩어진 **동일 파일명 링크를 한 번에** `plans/archive/` 경로로 맞춥니다.
 
 ## 언제 쓰는가
 
@@ -52,8 +52,6 @@ last_updated: 2026-05-06
 5. **실행**
    `python3 scripts/archive_plans.py archive -- 20260411_interop_hardening_blueprint.md`
    (여러 개 나열 가능)
-6. **[자동화] 인덱스 갱신**
-   이관 직후 `just plans-index`를 실행하여 활성 목록에서 제거하고 아카이브 정합성을 확인하십시오.
 6. **검증**
    - `python3 scripts/archive_plans.py check` → "No broken links found" 메시지 확인
    - `git add .` → `git diff` 로 의도한 치환만 있는지 확인
@@ -71,7 +69,7 @@ last_updated: 2026-05-06
 
 ## MEMORY Anti-Drift
 
-- `AGENTS.md` §2.1.1 참조 — `docs/memory/MEMORY.md` 에 장문 절차를 넣지 말고, **이 파일(워크플로우) + `docs/plans/archive/README.md`** 로만 링크합니다.
+- `AGENTS.md` §2.1.1 참조 — `.agents/memory/MEMORY.md` 에 장문 절차를 넣지 말고, **이 파일(워크플로우) + `docs/plans/archive/README.md`** 로만 링크합니다.
 
 ## SSOT
 
@@ -82,5 +80,5 @@ last_updated: 2026-05-06
 
 - **작업 전 확인**: 아카이브 전에 `git status`를 확인하고, 작업 중인 변경사항이 있다면 먼저 커밋하거나 stash 해주세요
 - **병렬 작업 금지**: 아카이브 작업 중에는 다른 사람이 docs/plans/를 수정하지 않도록 혼선 방지
-- **MEMORY.md 갱신**: 이 워크플로우 파일만 링크하고, `docs/memory/MEMORY.md`는 갱신하지 않음
+- **MEMORY.md 갱신**: 이 워크플로우 파일만 링크하고, `.agents/memory/MEMORY.md`는 갱신하지 않음
 - **복구 가능성**: `unarchive` 명령으로 아카이브를 취소할 수 있으나, 아카이브 후 다른 사람이 수정한 내용이 있다면 충돌 가능성 있음

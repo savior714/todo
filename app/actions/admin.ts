@@ -5,8 +5,9 @@ import { and, eq, max } from "drizzle-orm";
 import { db } from "@/db/client";
 import { dailyPins, events, homeworkLogs, homeworkTypes, quickActions, routineItems, routineLogs } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
-import { normalizeAndValidateEventMetadata } from "@/lib/event-metadata";
-import { assertHomeworkLogDateKey } from "@/lib/homework-date-key";
+import { getCreatedDateSql } from "@/lib/events/db-queries";
+import { normalizeAndValidateEventMetadata, CUSTOM_SLUG_REGEX } from "@/lib/events/metadata";
+import { assertHomeworkLogDateKey } from "@/lib/homework/date-key";
 
 const PRESET_ACTION_TYPES = new Set([
   "meal",
@@ -24,7 +25,7 @@ function parseActionTypeFromForm(formData: FormData): QuickActionParseResult<str
   const preset = String(formData.get("actionPreset") ?? "").trim();
   if (preset === "custom") {
     const slug = String(formData.get("actionCustom") ?? "").trim();
-    if (!/^[a-z][a-z0-9_]{0,63}$/.test(slug)) {
+    if (!CUSTOM_SLUG_REGEX.test(slug)) {
       return { ok: false, error: "커스텀 타입은 소문자 시작, 영문·숫자·밑줄만 사용할 수 있습니다." };
     }
     return { ok: true, value: slug };
@@ -78,11 +79,18 @@ export async function upsertDailyPin(content: string) {
 
 export async function createHomeworkType(childGroup: "kid7" | "kid4", title: string) {
   const profile = await resolveActiveAdmin();
+  const trimmedTitle = title.trim();
+  if (!trimmedTitle) {
+    throw new Error("숙제 제목을 입력해 주세요.");
+  }
+  if (trimmedTitle.length > 100) {
+    throw new Error("숙제 제목은 100자 이하여야 합니다.");
+  }
   await db.insert(homeworkTypes).values({
     id: crypto.randomUUID(),
     familyId: profile.familyId,
     childGroup,
-    title,
+    title: trimmedTitle,
     isActive: true,
   });
 
@@ -134,19 +142,6 @@ export async function completeHomework(homeworkTypeId: string, dateKeyOverride?:
       ? assertHomeworkLogDateKey(dateKeyOverride)
       : new Date().toISOString().slice(0, 10);
 
-  const [existingLog] = await db
-    .select({ id: homeworkLogs.id })
-    .from(homeworkLogs)
-    .where(
-      and(
-        eq(homeworkLogs.familyId, profile.familyId),
-        eq(homeworkLogs.homeworkTypeId, homeworkTypeId),
-        eq(homeworkLogs.dateKey, logDateKey)
-      )
-    )
-    .limit(1);
-  const alreadyCompleteForDate = Boolean(existingLog);
-
   const logId = crypto.randomUUID();
   const metadataJson = JSON.stringify(
     normalizeAndValidateEventMetadata("homework", {
@@ -156,6 +151,19 @@ export async function completeHomework(homeworkTypeId: string, dateKeyOverride?:
   );
 
   await db.transaction(async (tx) => {
+    const [existingLog] = await tx
+      .select({ id: homeworkLogs.id })
+      .from(homeworkLogs)
+      .where(
+        and(
+          eq(homeworkLogs.familyId, profile.familyId),
+          eq(homeworkLogs.homeworkTypeId, homeworkTypeId),
+          eq(homeworkLogs.dateKey, logDateKey)
+        )
+      )
+      .limit(1);
+    const alreadyCompleteForDate = Boolean(existingLog);
+
     await tx
       .insert(homeworkLogs)
       .values({
@@ -175,6 +183,7 @@ export async function completeHomework(homeworkTypeId: string, dateKeyOverride?:
       });
 
     if (!alreadyCompleteForDate) {
+      // P-4 해결: 첫 완료 시에만 이벤트 생성 (비즈니스 의도 — 이미 완료된 로그가 있으면 중복 이벤트 생성 안 함)
       await tx.insert(events).values({
         id: crypto.randomUUID(),
         familyId: profile.familyId,
@@ -183,6 +192,7 @@ export async function completeHomework(homeworkTypeId: string, dateKeyOverride?:
         target: hwType.childGroup,
         metadata: metadataJson,
         isReverted: false,
+        createdDate: getCreatedDateSql(),
       });
     }
   });
@@ -262,19 +272,6 @@ export async function completeRoutineItem(routineItemId: string, dateKeyOverride
       ? assertHomeworkLogDateKey(dateKeyOverride)
       : new Date().toISOString().slice(0, 10);
 
-  const [existingLog] = await db
-    .select({ id: routineLogs.id })
-    .from(routineLogs)
-    .where(
-      and(
-        eq(routineLogs.familyId, profile.familyId),
-        eq(routineLogs.routineItemId, routineItemId),
-        eq(routineLogs.dateKey, logDateKey)
-      )
-    )
-    .limit(1);
-  const alreadyCompleteForDate = Boolean(existingLog);
-
   const logId = crypto.randomUUID();
   const metadataJson = JSON.stringify(
     normalizeAndValidateEventMetadata("routine_check", {
@@ -284,6 +281,19 @@ export async function completeRoutineItem(routineItemId: string, dateKeyOverride
   );
 
   await db.transaction(async (tx) => {
+    const [existingLog] = await tx
+      .select({ id: routineLogs.id })
+      .from(routineLogs)
+      .where(
+        and(
+          eq(routineLogs.familyId, profile.familyId),
+          eq(routineLogs.routineItemId, routineItemId),
+          eq(routineLogs.dateKey, logDateKey)
+        )
+      )
+      .limit(1);
+    const alreadyCompleteForDate = Boolean(existingLog);
+
     await tx
       .insert(routineLogs)
       .values({
@@ -303,6 +313,7 @@ export async function completeRoutineItem(routineItemId: string, dateKeyOverride
       });
 
     if (!alreadyCompleteForDate) {
+      // P-4 해결: 첫 완료 시에만 이벤트 생성 (비즈니스 의도 — 이미 완료된 로그가 있으면 중복 이벤트 생성 안 함)
       await tx.insert(events).values({
         id: crypto.randomUUID(),
         familyId: profile.familyId,
@@ -311,6 +322,7 @@ export async function completeRoutineItem(routineItemId: string, dateKeyOverride
         target: item.target,
         metadata: metadataJson,
         isReverted: false,
+        createdDate: getCreatedDateSql(),
       });
     }
   });
@@ -324,6 +336,9 @@ export async function createQuickAction(formData: FormData): Promise<CreateQuick
   const label = String(formData.get("label") ?? "").trim();
   if (!label) {
     return { success: false, error: "버튼 이름을 입력해 주세요." };
+  }
+  if (label.length > 100) {
+    return { success: false, error: "버튼 이름은 100자 이하여야 합니다." };
   }
 
   const actionTypeResult = parseActionTypeFromForm(formData);

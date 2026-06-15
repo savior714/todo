@@ -27,7 +27,7 @@ test("care_guides 제거용 follow-up 마이그레이션이 존재한다", () =>
 test("투약 안전장치 로직이 서버 액션에 존재한다", () => {
   const eventsAction = read("app/actions/events.ts");
   const recordModal = read("app/(dashboard)/RecordEventModal.tsx");
-  assert.match(eventsAction, /payload\.actionType === "medication"/);
+  assert.match(eventsAction, /actionType === "medication"/);
   assert.match(eventsAction, /blocked:\s*true/);
   assert.match(recordModal, /override:\s*true/);
 });
@@ -38,8 +38,8 @@ test("이벤트 생성·실행 취소 후 router.refresh가 새 타임라인을 
   assert.ok(matches && matches.length >= 2, "createEvent·undoEvent 각각 revalidatePath(/dashboard) 필요");
 });
 
-test("이벤트 메타데이터 검증이 lib/event-metadata에 정의되어 있다", () => {
-  const meta = read("lib/event-metadata.ts");
+test("이벤트 메타데이터 검증이 lib/events/metadata에 정의되어 있다", () => {
+  const meta = read("lib/events/metadata.ts");
   const eventsAction = read("app/actions/events.ts");
   assert.match(meta, /normalizeAndValidateEventMetadata/);
   assert.match(meta, /medicationDetailSchema/);
@@ -80,7 +80,7 @@ test("대시보드 퀵 액션에 오늘 숙제 완료 바로가기가 연결된�
 
 test("숙제 완료 시 타임라인용 events 행이 함께 기록된다", () => {
   const admin = read("app/actions/admin.ts");
-  const meta = read("lib/event-metadata.ts");
+  const meta = read("lib/events/metadata.ts");
   assert.match(admin, /actionType:\s*"homework"/);
   assert.match(admin, /\.insert\(events\)/);
   assert.match(admin, /normalizeAndValidateEventMetadata\(\s*"homework"/);
@@ -89,7 +89,7 @@ test("숙제 완료 시 타임라인용 events 행이 함께 기록된다", () =
 
 test("루틴 완료 시 타임라인용 events 행이 함께 기록된다", () => {
   const admin = read("app/actions/admin.ts");
-  const meta = read("lib/event-metadata.ts");
+  const meta = read("lib/events/metadata.ts");
   assert.match(admin, /actionType:\s*"routine_check"/);
   assert.match(admin, /\.insert\(events\)/);
   assert.match(admin, /normalizeAndValidateEventMetadata\(\s*"routine_check"/);
@@ -147,7 +147,7 @@ test("대시보드 로딩은 프로필 캐시·병렬 데이터 패치·핀 배�
 });
 
 test("타임라인 조회 상수와 이벤트 부분 인덱스 마이그레이션이 존재한다", () => {
-  const constants = read("lib/dashboard-timeline.ts");
+  const constants = read("lib/dashboard/timeline.ts");
   const migration = read("db/migrations/0003_events_timeline_idx.sql");
   const routineMigration = read("db/migrations/0004_routine_checklist.sql");
   assert.match(constants, /TIMELINE_EVENT_LIMIT/);
@@ -159,7 +159,7 @@ test("타임라인 조회 상수와 이벤트 부분 인덱스 마이그레이�
 });
 
 test("실행 취소 정책이 액션 타입별 SSOT로 정의되고 서버·타임라인이 공유한다", () => {
-  const policy = read("lib/event-undo-policy.ts");
+  const policy = read("lib/events/undo-policy.ts");
   const eventsAction = read("app/actions/events.ts");
   const feed = read("app/(dashboard)/TimelineFeed.tsx");
   assert.match(policy, /getUndoWindowMsForActionType/);

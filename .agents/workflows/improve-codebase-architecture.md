@@ -11,6 +11,18 @@ last_updated: 2026-05-06
 
 Surface architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
 
+## 프로젝트 컨텍스트 (FamilySync)
+
+본 레포는 Next.js App Router 기반 단일 앱이다. Matt Pocock의 shallow/deep 모듈 개념은 다음 레이어 경계에 적용한다.
+
+| Pokock 용어 | 프로젝트 매핑 |
+|---|---|
+| Module | `app/`, `lib/`, `db/` 하위 모듈 |
+| Interface | Server Actions, Route Handlers, lib/ export 함수 |
+| Implementation | UI 컴포넌트, 도메인 로직, Drizzle 쿼리 |
+| Seam | `app/actions/` ↔ `lib/`, `lib/` ↔ `db/` 경계 |
+| Depth | lib/ 도메인 함수의 레버리지 (작은 인터페이스 → 복잡한 로직) |
+
 ## 📚 Glossary
 
 Use these terms exactly in every suggestion. Consistent language is the point — don't drift into "component," "service," "API," or "boundary." Full definitions in [Glossary](#-glossary).
@@ -24,6 +36,12 @@ Use these terms exactly in every suggestion. Consistent language is the point �
 - **Leverage**: What callers get from depth.
 - **Locality**: What maintainers get from depth: change, bugs, knowledge concentrated in one place.
 
+### 프로젝트 매핑
+
+- **Seam**: `app/actions/` ↔ `lib/events/`, `lib/` ↔ `db/` 등 레이어 경계
+- **Adapter**: Server Action이 lib/ 함수를 호출하는 패턴
+- **Locality**: `lib/events/metadata.ts` — 모든 이벤트 검증 로직이 한 곳에 집중
+
 ### Key Principles
 - **Deletion test**: Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.
 - **The interface is the test surface.**
@@ -32,7 +50,7 @@ Use these terms exactly in every suggestion. Consistent language is the point �
 ## 🔄 Process
 
 ### 1. Explore
-Read the project's domain glossary and any ADRs in the area you're touching first.
+Read `lib/` 하위 모듈, `app/actions/`, `db/schema.ts`를 확인하고 도메인 경계를 파악한다.
 Explore organically and note where you experience friction:
 - Where does understanding one concept require bouncing between many small modules?
 - Where are modules **shallow** — interface nearly as complex as the implementation?
@@ -49,7 +67,7 @@ Present a numbered list of deepening opportunities. For each candidate:
 - **Solution**: Plain English description of what would change.
 - **Benefits**: Explained in terms of locality and leverage, and also in how tests would improve.
 
-**Use domain vocabulary** from `README.md` or `docs/specs/`.
+**도메인 어휘는 `db/schema.ts` (테이블명), `lib/` 하위 폴더명, `app/actions/` 함수명을 사용한다.**
 Do NOT propose interfaces yet. Ask the user: "Which of these would you like to explore?"
 
 ### 3. Grilling Loop
@@ -76,7 +94,7 @@ Propose radically different interfaces for the deepened module:
 - **Option A (Minimal)**: 1–3 entry points max. Maximise leverage per entry point.
 - **Option B (Flexible)**: Support many use cases and extension.
 - **Option C (Common Case)**: Optimise for the most common caller.
-- **Option D (Ports & Adapters)**: Design around ports & adapters for cross-seam dependencies.
+- **Option D (Server Action → lib/)**: Server Action을 port, lib/ 함수를 adapter로 설계
 
 For each option, provide:
 1. Interface (types, methods, params — plus invariants, ordering, error modes)

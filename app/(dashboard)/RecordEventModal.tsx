@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { MEDICATION_UNITS } from "@/lib/event-metadata";
+import { MEDICATION_UNITS } from "@/lib/events/metadata";
+import { useConfirm } from "@/app/(dashboard)/useConfirm";
 
 export type RecordDraft = {
   actionType: string;
@@ -75,6 +76,12 @@ export default function RecordEventModal({
   const [genericNote, setGenericNote] = useState("");
   const [schoolChild, setSchoolChild] = useState<"kid7" | "kid4">("kid4");
   const [schoolPlace, setSchoolPlace] = useState("");
+  const [medError, setMedError] = useState<string | null>(null);
+  const [confirm, ConfirmDialog] = useConfirm();
+
+  useEffect(() => {
+    setMedError(null);
+  }, [medItems, medNote]);
 
   useEffect(() => {
     const el = dialogRef.current;
@@ -121,9 +128,11 @@ export default function RecordEventModal({
 
     const result = await tryCreate(meta);
     if ("blocked" in result && result.blocked) {
-      const shouldOverride = window.confirm(
-        "최근 2시간 내 동일 투약 기록이 있습니다. 정말 강행하시겠습니까?"
-      );
+      const shouldOverride = await confirm({
+        message: "최근 2시간 내 동일 투약 기록이 있습니다. 정말 강행하시겠습니까?",
+        confirmLabel: "강행",
+        cancelLabel: "취소",
+      });
       if (!shouldOverride) {
         return false;
       }
@@ -154,17 +163,21 @@ export default function RecordEventModal({
       try {
         let ok = false;
         if (draft.actionType === "medication") {
-          const items = medItems
+          const validItems = medItems
             .map((row) => ({
               name: row.name.trim(),
               amount: row.amount,
               unit: row.unit,
             }))
             .filter((row) => row.name.length > 0);
+          if (validItems.length === 0 && !medNote.trim()) {
+            setMedError("최소 1개의 투약 항목 또는 메모를 입력해주세요.");
+            return;
+          }
           const meta: Record<string, unknown> = {
             medication: {
               subject,
-              items,
+              items: validItems,
               ...(medNote.trim() ? { note: medNote.trim() } : {}),
             },
           };
@@ -211,28 +224,29 @@ export default function RecordEventModal({
   const title = isMedication ? `투약 — ${draft.label}` : `${draft.label} 기록`;
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="dialog-record m-auto max-h-none w-[min(36rem,calc(100vw-1rem))] max-w-none border-0 bg-transparent p-0 shadow-none"
-      aria-labelledby="record-event-title"
-      onClose={handleDialogClose}
-    >
-      <div className="dialog-record-panel flex max-h-[min(90dvh,48rem)] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white text-neutral-900 shadow-2xl dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100">
-        <header className="border-b border-neutral-200 px-4 py-3.5 dark:border-neutral-700">
-          <h2
-            id="record-event-title"
-            className="text-lg font-semibold leading-snug tracking-tight text-neutral-900 dark:text-neutral-50"
-          >
-            {title}
-          </h2>
-          {timelineDate && (
-            <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-              날짜: {timelineDate}
-            </p>
-          )}
-        </header>
+    <>
+      <dialog
+        ref={dialogRef}
+        className="dialog-record m-auto max-h-none w-[min(36rem,calc(100vw-1rem))] max-w-none border-0 bg-transparent p-0 shadow-none"
+        aria-labelledby="record-event-title"
+        onClose={handleDialogClose}
+      >
+        <div className="dialog-record-panel flex max-h-[min(90dvh,48rem)] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white text-neutral-900 shadow-2xl dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100">
+          <header className="border-b border-neutral-200 px-4 py-3.5 dark:border-neutral-700">
+            <h2
+              id="record-event-title"
+              className="text-lg font-semibold leading-snug tracking-tight text-neutral-900 dark:text-neutral-50"
+            >
+              {title}
+            </h2>
+            {timelineDate && (
+              <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+                날짜: {timelineDate}
+              </p>
+            )}
+          </header>
 
-        <form onSubmit={handleSubmit} className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-4">
+          <form onSubmit={handleSubmit} className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-4">
           {isMedication ? (
             <>
               <label className="grid gap-1.5 text-sm leading-normal">
@@ -338,6 +352,11 @@ export default function RecordEventModal({
                   placeholder="식후 30분 등"
                 />
               </label>
+              {medError && (
+                <p role="alert" className="text-sm leading-relaxed text-red-600 dark:text-red-400">
+                  {medError}
+                </p>
+              )}
             </>
           ) : isSchoolRun ? (
             <>
@@ -414,6 +433,8 @@ export default function RecordEventModal({
           </footer>
         </form>
       </div>
-    </dialog>
+      </dialog>
+      <ConfirmDialog />
+    </>
   );
 }

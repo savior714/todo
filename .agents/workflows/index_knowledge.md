@@ -118,7 +118,7 @@ python3 scripts/index_knowledge.py --check
 `docs/knowledge/INDEX.md`에 추가할 때:
 - **한 줄 링크**: `| [파일명](링크) | 설명 | SSOT 링크 |`
 - **긴 설명 금지**: 설명은 문서 본문에만 작성
-- **SSOT 링크**: 관련 `docs/specs/` 또는 `docs/CRITICAL_LOGIC.md` 링크
+- **SSOT 링크**: 관련 `docs/specs/` 또는 `PROJECT_RULES.md` §8 링크
 
 ### 3. 500라인 제한 준수
 
@@ -170,8 +170,8 @@ python3 scripts/index_knowledge.py --check
 |:---|:---|
 | [`docs/knowledge/INDEX.md`](../knowledge/INDEX.md) | 인덱스 SSOT |
 | [`docs/knowledge/README.md`](../knowledge/README.md) | 상세 설명 (보조) |
-| [`docs/memory/MEMORY.md`](../memory/MEMORY.md) | 세션 지식 인덱스 |
-| [`docs/CRITICAL_LOGIC.md`](../CRITICAL_LOGIC.md) | 핵심 설계 결정 |
+| [`.agents/memory/MEMORY.md`](../memory/MEMORY.md) | 세션 지식 인덱스 |
+| [`PROJECT_RULES.md`](../../PROJECT_RULES.md) | 핵심 설계 결정 |
 | [`docs/specs/`](../specs/) | 요구사항 SSOT |
 
 ---

@@ -12,14 +12,14 @@ last_updated: 2026-05-06
 
 - **목적**: `docs/specs/`의 **문서 1개(또는 논리적으로 묶인 소수)**를 SSOT로 삼아, **최근 시장에서 타 브랜드·관행**이 어떻게 구현·운영하는지 조사하고, **freeEMR 명세의 수정·보완**으로 이어지게 한다.
 - **범위**: 임상 안전·인증 준수·연동·UX·운영 중 본 스펙이 다루는 영역만. 스펙에 없는 임의 확장은 **별도 스펙/플랜**으로 분리한다.
-- **산출물**: (1) 비교·갭 분석 기록, (2) 갱신된 스펙 본문 또는 명시적 “변경 없음” 근거, (3) 필요 시 `docs/CRITICAL_LOGIC.md`·`docs/knowledge/` 보강.
+- **산출물**: (1) 비교·갭 분석 기록, (2) 갱신된 스펙 본문 또는 명시적 “변경 없음” 근거, (3) 필요 시 `PROJECT_RULES.md §8`·`docs/knowledge/` 보강.
 
 ## 1. Fatal Rules (절대 준수)
 
-- **Docs-First**: 코드·UI 변경이 필요해 보여도 **먼저 `docs/specs/`를 갱신**하고, 구조적 결정은 **`docs/CRITICAL_LOGIC.md`**에 대안·채택 이유를 남긴다.
+- **Docs-First**: 코드·UI 변경이 필요해 보여도 **먼저 `docs/specs/`를 갱신**하고, 구조적 결정은 **`PROJECT_RULES.md §8`**에 대안·채택 이유를 남긴다.
 - **근거 고정**: 타사·시장 주장은 **출처(URL·문서명·확인일)** 없이 스펙 본문에 반영하지 않는다. 불확실하면 “가설”로 분리한다.
 - **비교 대상 투명성**: “타 브랜드”는 **실명(제품/회사)** 또는 **익명화된 역할**(예: “국내 대형 병원급 EMR A”) 중 하나로 표기하고, 혼동을 막는다.
-- **MEMORY Anti-Drift**: 장문 비교표는 **`docs/plans/` 또는 `docs/knowledge/`**에 두고, `AGENTS.md` §2.1.1 참조 — `docs/memory/MEMORY.md`에는 **링크 1줄**만 추가한다.
+- **MEMORY Anti-Drift**: 장문 비교표는 **`docs/plans/` 또는 `docs/knowledge/`**에 두고, `AGENTS.md` §2.1.1 참조 — `.agents/memory/MEMORY.md`에는 **링크 1줄**만 추가한다.
 
 ## 2. 사전 준비
 
@@ -102,7 +102,7 @@ last_updated: 2026-05-06
 
 ### Step G — 설계 판단이 스펙을 넘어설 때
 
-- 아키텍처·보안·데이터 모델 등 **구조적 선택**이 수반되면 `docs/CRITICAL_LOGIC.md`에 **대안·채택 이유·증적**을 기록하고 스펙에서는 링크만 유지한다.
+- 아키텍처·보안·데이터 모델 등 **구조적 선택**이 수반되면 `PROJECT_RULES.md §8`에 **대안·채택 이유·증적**을 기록하고 스펙에서는 링크만 유지한다.
 
 ### Step H — 구현 연계 플랜 도출 (자동화된 Handoff)
 
@@ -125,7 +125,7 @@ last_updated: 2026-05-06
 - [ ] 비교 매트릭스에 **freeEMR vs 최소 2출처(또는 1출처+명시적 시장 관행)**가 있다.
 - [ ] 모든 비자명 주장에 **출처·확인일**이 있다.
 - [ ] P0/P1 항목이 스펙에 **추적 가능한 문장**으로 반영되었거나, Hold로 **이유**가 적혀 있다.
-|- [ ] `AGENTS.md` §2.1.1 참조 — MEMORY.md에 장문을 쓰지 않고, 필요 시 `docs/memory/project_changelog_*.md` 또는 플랜 링크만 추가했다.
+|- [ ] `AGENTS.md` §2.1.1 참조 — MEMORY.md에 장문을 쓰지 않고, 필요 시 `.agents/memory/project_changelog_*.md` 또는 플랜 링크만 추가했다.
 - [ ] **SearXNG MCP 도구 사용**: `CallMcpTool`로 검색/본문 읽기 도구를 호출하여 웹 검색 수행
 
 ## 5. 에이전트·휴먼 공통 프롬프트 (세션 시작용)
@@ -133,7 +133,7 @@ last_updated: 2026-05-06
 ```text
 워크플로우: compare
 대상 스펙: docs/specs/{category}/{file}.md
-산출: 비교 매트릭스 + 갭 등급 + 스펙 수정(또는 변경 없음 근거) + 필요 시 CRITICAL_LOGIC/knowledge
+산출: 비교 매트릭스 + 갭 등급 + 스펙 수정(또는 변경 없음 근거) + 필요 시 PROJECT_RULES.md §8/knowledge
 제약: 출처 없는 타사 단정 금지, MEMORY.md 장문 금지, Docs-First
 웹 검색: SearXNG MCP 도구(`CallMcpTool` 기반 검색/본문 읽기 호출) 사용, 로컬 docs/knowledge/ 우선 조회
 ```
@@ -143,4 +143,4 @@ last_updated: 2026-05-06
 - 스펙 허브: `docs/specs/README.md`
 - 정합성 인덱스: `docs/specs/SPECS_CONSISTENCY_INDEX.md`
 - 지식 아카이브: `docs/knowledge/`
-- 결정 로그: `docs/CRITICAL_LOGIC.md`
+- 결정 로그: `PROJECT_RULES.md §8`

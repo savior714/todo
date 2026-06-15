@@ -1,0 +1,46 @@
+{
+  "skill_name": "sync",
+  "evals": [
+    {
+      "id": 0,
+      "name": "required-drift-pass",
+      "prompt": "just sync --check 했는데 출력에 'Spec drift level: required'랑 'Reason: 라우트·Next 설정·프록시/미들웨어 변경'이 보이는데, 맨 아래에는 '✅ [PASS] Spec alignment'도 같이 나와. Blueprint Phase 1만 끝낸 상태고 plan-close는 아직 안 했어. 지금 세션 끝내도 되는지, 아니면 spec 본문부터 전부 고쳐야 하는지 알려줘.",
+      "expected_output": "required 힌트와 PASS 공존 시 통과 조건·Phase 2 루프·plan-close 시점 defer 설명. 불필요한 즉시 spec 전량 편집 지시 없음.",
+      "files": [],
+      "assertions": [
+        "PASS와 required 힌트가 동시에 있어도 code lock + spec alignment PASS면 세션 종료 가능하다고 설명",
+        "spec 본문 전량 즉시 편집을 필수로 단정하지 않음",
+        "just sync-turn-end 또는 Phase 2 just sync --check 루프를 언급",
+        "Blueprint Phase 종료(plan-close) 시점 defer 또는 점진적 개발 패턴을 언급"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "css-false-positive",
+      "prompt": "{{FRONTEND_APP_PATH}}/src/styles/tokens.css랑 globals.css에서 border-radius CSS 변수만 조정했어. git diff에 .css만 있고 라우트·next.config·middleware 파일은 안 건드렸어. just sync --check가 required drift(라우트 변경)로 나오는데, docs/specs 전부 역검증해서 고쳐야 해?",
+      "expected_output": "CSS-only false positive 판단, git diff 확인, PASS면 spec 편집 생략, drift-false-positives reference 인용.",
+      "files": [],
+      "assertions": [
+        "CSS-only 변경은 런타임 라우트 계약에 영향 없을 수 있다고 설명",
+        "git diff로 라우트·config·middleware 미변경 확인을 권장",
+        "just sync --check PASS면 spec 본문 편집 없이 통과 가능하다고 설명",
+        "review 스킬이나 Linear sync로 오분기하지 않음"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "session-end-dod",
+      "prompt": "오늘 ConsultationPage.tsx랑 useExaminationQueue.ts 수정했고 docs/specs/ui/SPEC_ui_consultation.md는 아직 안 맞춤. 세션 마무리 직전에 어떤 just 명령을 어떤 순서로 실행해야 하는지 체크리스트로 알려줘. lint-turn-end랑 sync --check 중복 실행해도 되는지도.",
+      "expected_output": "SKILL §2 SSOT 순서: Phase 2 sync --check → sync-turn-end, 중복 sync 금지, Unified Sync PASS 보고.",
+      "files": [],
+      "assertions": [
+        "Phase 2 just sync --check가 sync-turn-end보다 먼저라고 명시",
+        "just sync-turn-end가 sync --check와 lint-turn-end를 체인한다고 명시",
+        "sync-turn-end PASS 후 별도 just sync --check는 불필요하다고 명시",
+        "lint-turn-end 실행 여부를 AskQuestion으로 묻지 않는다고 명시",
+        "Unified Sync PASS 보고 또는 Last Verified 반영을 언급",
+        "just linear-sync만으로 sync를 대체한다고 하지 않음"
+      ]
+    }
+  ]
+}

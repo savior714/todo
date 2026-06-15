@@ -26,9 +26,9 @@ last_updated: 2026-05-06
 
 - `docs/specs/`: 기능/계약 변경이 있었을 때만 반영
 - `docs/plans/`: 활성 Architecture 청사진이 있으면 [`docs/specs/_meta/architecture_blueprint_ssot.md`](../../docs/specs/_meta/architecture_blueprint_ssot.md) 준수 여부를 **링크 한 줄**로만 기록한다(장문·본문 복붙 금지, `AGENTS.md` MEMORY Anti-Drift와 합치).
-- `docs/CRITICAL_LOGIC.md`: 설계 결정이 생겼을 때만 반영
-- `docs/memory/MEMORY.md`: 인덱스 링크 1줄만 추가(AGENTS.md §2.1.1 참조, 장문 금지)
-- `docs/memory/project_*.md`: 세션 상세가 필요할 때만 기록
+- `PROJECT_RULES.md` §8: 설계 결정이 생겼을 때만 반영
+- `.agents/memory/MEMORY.md`: 인덱스 링크 1줄만 추가(AGENTS.md §2.1.1 참조, 장문 금지)
+- `.agents/memory/project_*.md`: 세션 상세가 필요할 때만 기록
 
 > 원칙: **변경 없는 문서는 읽거나 재서술하지 않는다.**
 
@@ -60,7 +60,7 @@ last_updated: 2026-05-06
 
 ## 6. 출력 품질 규칙
 
-- 전문 인용 금지: `AGENTS.md` / `PROJECT_RULES.md` / `CRITICAL_LOGIC.md` / `MEMORY.md`
+- 전문 인용 금지: `AGENTS.md` / `PROJECT_RULES.md` / `MEMORY.md`
 - HANDOFF는 섹션별 1~3줄 원칙
 - 동일 수정 3회 실패 시 중단 후 전략 전환
 - `/go`는 Push를 강제하지 않음(상태만 보고)
@@ -70,7 +70,7 @@ last_updated: 2026-05-06
 ## 7. 에이전트 맞춤형 HANDOFF 전략
 - **To VS Code (Executor)**: [READY FOR VS CODE] 마킹과 함께 원자적 수정 명령(파일 경로, 구체적 로직)을 명시합니다.
 - **To Cursor (Reviewer)**: 전체 SSOT 정합성 체크 리스트와 `verify-last-result.json` 결과 요약을 강조합니다.
-- **To Antigravity (Architect)**: 현재까지의 아키텍처 결정 사항(`CRITICAL_LOGIC.md`)과 열린 리스트(Open Questions)를 우선 보고합니다.
+- **To Antigravity (Architect)**: 현재까지의 아키텍처 결정 사항(`PROJECT_RULES.md` §8)과 열린 리스트(Open Questions)를 우선 보고합니다.
 
 ---
 
@@ -83,8 +83,8 @@ last_updated: 2026-05-06
 
 ## 📌 Context Load Order
 1. `AGENTS.md` / `PROJECT_RULES.md`
-2. `docs/CRITICAL_LOGIC.md`
-3. `docs/memory/MEMORY.md`
+2. `PROJECT_RULES.md` §8 (Critical Logic)
+3. `.agents/memory/MEMORY.md`
 4. 관련 `docs/specs/*`
 
 ## ✅ Done
@@ -101,7 +101,7 @@ last_updated: 2026-05-06
 
 ## 🧭 SSOT Sync
 - specs: [변경 있음/없음]
-- CRITICAL_LOGIC: [변경 있음/없음]
+- CRITICAL_LOGIC: [변경 있음/없음] (PROJECT_RULES.md §8)
 - MEMORY index: [변경 있음/없음]
 - README: [변경 있음/없음]
 - knowledge update: [반영됨/N/A]

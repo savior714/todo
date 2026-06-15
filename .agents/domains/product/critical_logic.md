@@ -1,5 +1,5 @@
 ---
-scope: ["docs/CRITICAL_LOGIC.md", "CRITICAL_RULES.md"]
+scope: ["PROJECT_RULES.md", "CRITICAL_RULES.md"]
 always_apply: false
 priority: high
 description: FamilySync 불변·의사결정 SSOT
@@ -10,9 +10,9 @@ description: FamilySync 불변·의사결정 SSOT
 
 ## MUST
 
-- **SSOT**: 가족 격리·투약 안전·인증·세션·타임라인 메타데이터 등 **불변**은 [`docs/CRITICAL_LOGIC.md`](../../../docs/CRITICAL_LOGIC.md)에 따른다.
+- **SSOT**: 가족 격리·투약 안전·인증·세션·타임라인 메타데이터 등 **불변**은 [`PROJECT_RULES.md`](../../PROJECT_RULES.md) §8(Critical Logic)에 따른다.
 - **동기화**: 계약·동작을 바꾸면 관련 테스트·`PRD`/`TRD`·본 문서를 함께 갱신한다.
-- **진입점**: [`CRITICAL_RULES.md`](../../../CRITICAL_RULES.md)는 본 SSOT로의 링크만 제공한다.
+- **진입점**: [`CRITICAL_RULES.md`](../../CRITICAL_RULES.md)는 본 SSOT로의 링크만 제공한다.
 
 ## MUST NOT
 

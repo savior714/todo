@@ -98,7 +98,7 @@ priority: 1
 
 #### 2.6 Guideline Compliance
 
-- 모든 작업 시작 전 `docs/memory/ADAPTIVE_GUIDELINES.json`을 읽는다.
+- 모든 작업 시작 전 `.agents/memory/ADAPTIVE_GUIDELINES.json`을 읽는다.
 - 현재 태스크와 연관된 규칙이 있으면 계획(`blueprint`)에 반드시 반영한다.
 - 누적 권장사항을 무시하면 정책 위반으로 간주한다.
 
@@ -119,8 +119,8 @@ priority: 1
 
 1. `PROJECT_RULES.md`
 2. 관련 specs (`docs/specs/PRD.md`, `TRD.md` 등)
-3. `docs/memory/MEMORY.md`
-4. `docs/memory/ADAPTIVE_GUIDELINES.json`
+3. `.agents/memory/MEMORY.md`
+4. `.agents/memory/ADAPTIVE_GUIDELINES.json`
 5. `tests/`
 
 `db/migrations` SQL을 추가·수정하는 작업이면 `PROJECT_RULES.md`의 Turso 마이그레이션 적용 절차와 `ADAPTIVE_GUIDELINES.json`(AAG-007)을 따른다.

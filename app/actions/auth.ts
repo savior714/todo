@@ -7,13 +7,17 @@ import { signIn, signOut } from "@/auth";
 import { db } from "@/db/client";
 import { profiles } from "@/db/schema";
 import { ACTIVE_PROFILE_COOKIE, getCurrentFamilyId, requireUserId } from "@/lib/auth/session";
+import { z } from "zod";
 
+
+const profileIdSchema = z.string().uuid();
 
 export async function beginGoogleLogin() {
   await signIn("google", { redirectTo: "/select-profile" });
 }
 
 export async function selectProfile(profileId: string) {
+  profileIdSchema.parse(profileId);
   const userId = await requireUserId();
   const familyId = await getCurrentFamilyId(userId);
 
@@ -43,7 +47,10 @@ export async function selectProfile(profileId: string) {
 }
 
 export async function logoutProfile() {
-  const cookieStore = await cookies();
-  cookieStore.delete(ACTIVE_PROFILE_COOKIE);
-  await signOut({ redirectTo: "/login" });
+  try {
+    await signOut({ redirectTo: "/login" });
+  } finally {
+    const cookieStore = await cookies();
+    cookieStore.delete(ACTIVE_PROFILE_COOKIE);
+  }
 }

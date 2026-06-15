@@ -8,7 +8,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-MEMORY_PATH = Path("docs/memory/MEMORY.md")
+MEMORY_PATH = Path(".agents/memory/MEMORY.md")
 MAX_LINES = 200
 LINK_PATTERN = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 

@@ -22,4 +22,4 @@
 ## 관련 (도입 시)
 
 - `LINEAR_API_KEY`
-- `docs/memory/ADAPTIVE_GUIDELINES.json` — AAG-009, AAG-010
+- `.agents/memory/ADAPTIVE_GUIDELINES.json` — AAG-009, AAG-010

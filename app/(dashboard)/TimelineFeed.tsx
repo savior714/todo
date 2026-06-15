@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TimelineEventDetailModal, { type TimelineDetailOpen } from "@/app/(dashboard)/TimelineEventDetailModal";
-import { formatEventTargetForDisplay, summarizeEventMetadataForDisplay } from "@/lib/event-metadata";
-import { getUndoWindowMsForActionType } from "@/lib/event-undo-policy";
-import { timelineActionLabel } from "@/lib/timeline-action-labels";
+import { formatEventTargetForDisplay, summarizeEventMetadataForDisplay } from "@/lib/events/metadata";
+import { getUndoWindowMsForActionType } from "@/lib/events/undo-policy";
+import { timelineActionLabel } from "@/lib/timeline/action-labels";
 import {
   addDays,
   formatDateKey,
@@ -15,7 +15,7 @@ import {
   isWeekend,
   parseDateKey,
   startOfLocalDay,
-} from "@/lib/timeline-date";
+} from "@/lib/timeline/date";
 
 export type TimelineItem = {
   id: string;
@@ -91,10 +91,16 @@ export default function TimelineFeed({
     setEvents(initialEvents);
   }, [initialEvents]);
 
-  const todayStart = startOfLocalDay(new Date());
-  const yesterdayKey = formatDateKey(addDays(todayStart, -1));
-  const todayKey = formatDateKey(todayStart);
-  const tomorrowKey = formatDateKey(addDays(todayStart, 1));
+  const dateCache = useMemo(() => {
+    const now = new Date();
+    return {
+      yesterdayKey: formatDateKey(addDays(now, -1)),
+      todayKey: formatDateKey(now),
+      tomorrowKey: formatDateKey(addDays(now, 1)),
+    };
+  }, []);
+
+  const { yesterdayKey, todayKey, tomorrowKey } = dateCache;
 
   const visibleEvents = useMemo(() => events.filter((event) => !event.is_reverted), [events]);
 
@@ -284,6 +290,13 @@ export default function TimelineFeed({
               <div
                 key={key}
                 ref={colIndex === 1 ? centerColumnRef : undefined}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    selectDayColumn(day);
+                  }
+                }}
                 onClick={(e) => {
                   const t = e.target as HTMLElement;
                   if (t.closest("button")) {
@@ -291,7 +304,7 @@ export default function TimelineFeed({
                   }
                   selectDayColumn(day);
                 }}
-                className={`flex min-h-[280px] cursor-pointer flex-col gap-2 p-2 sm:p-3 ${columnBg}`}
+                className={`flex min-h-[280px] cursor-pointer flex-col gap-2 p-2 sm:p-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 ${columnBg}`}
               >
                 <div className="pointer-events-none w-full rounded-lg border border-transparent px-1 py-2 text-left">
                   <p className="text-xs font-medium leading-snug text-neutral-500 dark:text-neutral-400">

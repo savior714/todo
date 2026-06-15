@@ -136,13 +136,13 @@ export default function QuickActionPanel({
         </div>
         {hasHomework ? (
           <div className="grid gap-3 sm:grid-cols-2">
-            {homeworkShortcuts.map((hw) => {
+            {homeworkShortcuts.filter((hw) => !hw.completedToday).map((hw) => {
               const busy = hwPendingId === hw.id;
               return (
                 <article key={hw.id} className="grid gap-1">
                   <button
                     type="button"
-                    disabled={hw.completedToday || busy}
+                    disabled={busy}
                     onClick={() => handleHomeworkComplete(hw.id)}
                     className="inline-flex min-h-[60px] w-full flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-4 py-3 text-center text-white disabled:opacity-60"
                   >
@@ -159,7 +159,9 @@ export default function QuickActionPanel({
           </div>
         ) : (
           <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            표시할 숙제 유형이 없습니다.
+            {homeworkShortcuts.some((hw) => !hw.completedToday)
+              ? "오늘 완료할 숙제가 없습니다."
+              : "표시할 숙제 유형이 없습니다."}
             {showAdminSettingsLink
               ? " 위 링크에서 유형을 추가하면 버튼이 나타납니다."
               : " 가족 관리자가 /admin 에서 숙제 유형을 등록하면 여기에 버튼이 나타납니다."}
@@ -174,13 +176,13 @@ export default function QuickActionPanel({
         createEventAction={createEventAction}
       />
       {toastMessage && (
-        <p
+        <div
           role="status"
           aria-live="polite"
-          className="rounded-lg bg-neutral-900 px-4 py-3 text-sm leading-relaxed text-white dark:bg-neutral-100 dark:text-neutral-900"
+          className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 animate-[fade-in-up_0.2s_ease-out] rounded-lg bg-neutral-900 px-4 py-3 text-sm leading-relaxed text-white shadow-lg dark:bg-neutral-100 dark:text-neutral-900"
         >
           {toastMessage}
-        </p>
+        </div>
       )}
     </section>
   );

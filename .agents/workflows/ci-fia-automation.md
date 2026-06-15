@@ -12,7 +12,7 @@ last_updated: 2026-05-11
 ## 0. 페르소나
 이 워크플로우는 **CI 실패 시 반복 문제 자동 감지 및 FIA 조사 자동 호출** 프로세스를 정의합니다.
 
-> **FamilySync MVP (`todo`)**: `scripts/ci_failure_detector.py`·`recurring_issue_tracker.py`·`fia_auto_trigger.py` 등은 **레포에 없을 수 있다**. 스크립트가 없으면 `just ci` / `bun run test` 실패 로그를 **수동**으로 분석하고, `/fia` 등으로 조사한 뒤 `docs/memory/MEMORY.md`에 요약한다. **§2 이하는 스크립트가 있을 때의 참고 템플릿**이다.
+> **FamilySync MVP (`todo`)**: `scripts/ci_failure_detector.py`·`recurring_issue_tracker.py`·`fia_auto_trigger.py` 등은 **레포에 없을 수 있다**. 스크립트가 없으면 `just ci` / `bun run test` 실패 로그를 **수동**으로 분석하고, `/fia` 등으로 조사한 뒤 `.agents/memory/MEMORY.md`에 요약한다. **§2 이하는 스크립트가 있을 때의 참고 템플릿**이다.
 
 ---
 
@@ -30,7 +30,7 @@ last_updated: 2026-05-11
 
 - 개발자가 `/ci-fia-manual <문제설명>` 명령어 실행
 - PR 리뷰어 반복 문제 태그 지정
-- `docs/memory/recurring_issues.md` 수동 업데이트
+- `.agents/memory/recurring_issues.md` 수동 업데이트
 
 ---
 
@@ -101,7 +101,7 @@ python3 scripts/assetize_fia_result.py \
 
 **출력 검증**:
 - `docs/specs/technical/fia_decisions/DEC-*.md` 생성 확인
-- `docs/memory/MEMORY.md` Decisions 섹션 업데이트 확인
+- `.agents/memory/MEMORY.md` Decisions 섹션 업데이트 확인
 - `docs/plans/PLAN-FIA-*.md` 생성 확인 (P0/P1인 경우)
 
 ---
@@ -110,12 +110,12 @@ python3 scripts/assetize_fia_result.py \
 
 ```bash
 # 실행 리포트 생성
-echo "## CI-FIA 자동화 실행 리포트" >> docs/memory/recurring_issues.md
-echo "- **날짜**: $$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> docs/memory/recurring_issues.md
-echo "- **패턴**: $$(jq -r '.pattern_hash' ci-failure-analysis.json)" >> docs/memory/recurring_issues.md
-echo "- **우선순위**: $$(jq -r '.priority' recurring-issue.json)" >> docs/memory/recurring_issues.md
-echo "- **FIA 조사**: docs/reports/fia_investigations/fia_*.md" >> docs/memory/recurring_issues.md
-echo "- **기술 결정**: docs/specs/technical/fia_decisions/DEC-*.md" >> docs/memory/recurring_issues.md
+echo "## CI-FIA 자동화 실행 리포트" >> .agents/memory/recurring_issues.md
+echo "- **날짜**: $$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> .agents/memory/recurring_issues.md
+echo "- **패턴**: $$(jq -r '.pattern_hash' ci-failure-analysis.json)" >> .agents/memory/recurring_issues.md
+echo "- **우선순위**: $$(jq -r '.priority' recurring-issue.json)" >> .agents/memory/recurring_issues.md
+echo "- **FIA 조사**: docs/reports/fia_investigations/fia_*.md" >> .agents/memory/recurring_issues.md
+echo "- **기술 결정**: docs/specs/technical/fia_decisions/DEC-*.md" >> .agents/memory/recurring_issues.md
 ```
 
 ---
@@ -156,10 +156,10 @@ echo "- **기술 결정**: docs/specs/technical/fia_decisions/DEC-*.md" >> docs/
 
 ```bash
 # 워크플로우 실패 시 수동 조치 권장
-echo "⚠️ CI-FIA 자동화 실패 - 수동 조치 필요" >> docs/memory/MEMORY.md
-echo "- **날짜**: $$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> docs/memory/MEMORY.md
-echo "- **실패 단계**: <단계명>" >> docs/memory/MEMORY.md
-echo "- **대응**: 수동 FIA 조사 권장" >> docs/memory/MEMORY.md
+echo "⚠️ CI-FIA 자동화 실패 - 수동 조치 필요" >> .agents/memory/MEMORY.md
+echo "- **날짜**: $$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> .agents/memory/MEMORY.md
+echo "- **실패 단계**: <단계명>" >> .agents/memory/MEMORY.md
+echo "- **대응**: 수동 FIA 조사 권장" >> .agents/memory/MEMORY.md
 ```
 
 ---
@@ -192,7 +192,7 @@ python3 scripts/generate_improvement_report.py --include-ci-fia
 ### 6.2 로깅
 
 - 각 실행별 로그: `docs/reports/fia_investigations/audit.log`
-- 패턴 매칭 히스토리: `docs/memory/recurring_issues.md`
+- 패턴 매칭 히스토리: `.agents/memory/recurring_issues.md`
 
 ---
 

@@ -9,10 +9,10 @@ description: 활성화된 계획(docs/plans) 중 다음에 할 일을 논리적�
 
 ## 실행 절차
 
-1.  **데이터 추출**: `just next` 명령을 실행합니다. 이 명령은 `scripts/plan_loop/plan_orchestrator.py`를 실행하여 `docs/plans/PLAN_STATUS.json`을 갱신하고 요약을 출력합니다.
+1.  **데이터 추출**: `just next` 명령을 실행합니다. 이 명령은 `scripts/plan_loop/plan_orchestrator.py`를 실행하여 `docs/plans/` 하위의 활성 Blueprint를 분석하고 요약을 출력합니다.
 2.  **컨텍스트 최적화**: 
     *   **절대 금지**: `docs/plans/*.md` 파일들을 직접 모두 읽지 마십시오.
-    *   대신 `docs/plans/PLAN_STATUS.json` 파일 하나만 읽어 현재 상태를 파악하십시오.
+    *   대신 `docs/plans/archive/` 하위의 Blueprint 파일들을 읽어 현재 상태를 파악하십시오.
 3.  **결과 보고**: 추천된 태스크와 해당 파일 경로를 사용자에게 제시하고, 사용자가 특정 태스크의 상세 내용을 원할 때만 해당 `.md` 파일을 읽으십시오.
 
 ## 사용법

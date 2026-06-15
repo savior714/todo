@@ -11,7 +11,7 @@ Checks:
 
 Usage:
   python3 scripts/verify_korean_text.py --dir docs
-  python3 scripts/verify_korean_text.py --file docs/memory/MEMORY.md
+  python3 scripts/verify_korean_text.py --file .agents/memory/MEMORY.md
 """
 
 from __future__ import annotations

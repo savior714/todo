@@ -4,9 +4,9 @@ import { createEvent } from "@/app/actions/events";
 import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import { db } from "@/db/client";
 import { homeworkLogs, homeworkTypes, quickActions } from "@/db/schema";
-import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard-perf";
+import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard/perf";
 import type { ResolvedActiveProfile } from "@/lib/auth/session";
-import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions-seed";
+import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions/seed";
 
 type DashboardDeferredProps = Readonly<{
   profile: ResolvedActiveProfile;

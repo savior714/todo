@@ -19,12 +19,15 @@
 규칙 충돌 시 아래 우선순위를 적용한다.
 
 ```text
-PROJECT_RULES.md
+PROJECT_RULES.md (§8 Critical Logic 포함)
   > AGENTS.md
-    > .agents/core/
-      > .agents/domains/
-        > 기타 명세
+    > .agents/core/ (상시 적용, priority: 1)
+      > .agents/domains/ (경로별 동적 적용)
+        > .agents/workflows/ (명시적 트리거 시)
+          > .agents/adaptive/ (조건부)
 ```
+
+`PROJECT_RULES.md` §8(Critical Logic)은 **가족 데이터 격리·투약 안전·인증** 등 코드에서 절대 깨지면 안 되는 경계를 정의한다.
 
 충돌 또는 해석 불가 상황에서는 작업을 중단하고 사용자에게 질의한다.
 
@@ -73,24 +76,40 @@ PROJECT_RULES.md
 
 ---
 
-## 3.4 Debug Workflow
+## 3.4 Schema Change Checklist (P-11)
+
+`db/schema.ts` 의 컬럼 mode 변경 시 반드시 확인:
+
+1. `.select()` 반환 타입 (number vs Date 객체)
+2. 비교 연산자 사용처 (`gte`, `lte`, `gt`, `lt`)
+3. `getTime()` 호출 필요 여부
+4. JSON 직렬화/역직렬화 영향
+
+변경 전 `bun run typecheck:strict` 필수 + 영향 범위 grep 자동화.
+
+---
+
+## 3.5 Debug Workflow
 
 버그 수정 시:
 
 ```text
-/diagnose
-→ /investigate
+/diagnose (Matt Pocock 6단계 진단 — 피드백 루프 → 수정 → 회귀 테스트)
+→ /debug_error (Frontend→Backend 전체 호출 흐름 추적 — 근본 원인 분석)
 → 수정
 → 검증
 ```
 
 순서로 수행한다.
 
+- `/diagnose`: 단순 버그, 성능 회귀, 빠른 원인 추적
+- `/debug_error`: 복잡한 에러, 전체 스택 트레이스 추적, Blueprint 연계 필요 시
+
 원인 분석 없이 추측성 수정 금지.
 
 ---
 
-## 3.5 Review Workflow
+## 3.6 Review Workflow
 
 병합 전 반드시:
 
@@ -102,7 +121,7 @@ PROJECT_RULES.md
 
 ---
 
-## 3.6 Commit Gate
+## 3.7 Commit Gate
 
 다음을 금지한다.
 
@@ -114,7 +133,7 @@ git commit --no-verify
 
 ---
 
-## 3.7 Quality Lifecycle
+## 3.8 Quality Lifecycle
 
 모든 변경은 다음 사이클을 따른다.
 
@@ -138,21 +157,6 @@ git commit --no-verify
 PROJECT_RULES.md
 MEMORY.md
 ```
-
----
-
-## 4.2 Before Editing
-
-편집 직전 반드시:
-
-```text
-just route
-→ Read
-→ route-read
-→ route-gate-check
-```
-
-절차를 수행한다.
 
 ---
 
@@ -215,8 +219,6 @@ No changes to apply
 * 병렬 Subagent 실행
 * 동시 파일 수정
 * 동일 파일 중복 담당
-
-`.agents/core/execution.md` §4의 병렬 subagent 규정은 본 AGENTS.md §6.1에 의해 무효.
 
 ---
 
@@ -335,6 +337,63 @@ Main Agent
 
 ---
 
+## 6.4 Proactive Subagent Usage
+
+모든 작업에서 subagent를 적극적으로 활용한다.
+
+### 6.4.1 When to Use Subagent
+
+다음 조건 중 하나라도 해당되면 subagent를 사용한다:
+
+* 파일 검색 / 패턴 탐색
+* 코드 구조 파악 / 영향 범위 분석
+* 단일 파일 수정 (read → edit → verify)
+* 테스트 작성 / 테스트 실행
+* lint / typecheck 실행 및 결과 확인
+* git diff 검토
+
+### 6.4.2 Mandatory Subagent Triggers
+
+다음 작업은 **항상** subagent를 통해 수행한다:
+
+| 작업 | Agent Type |
+|------|-----------|
+| 코드베이스 탐색 | `explore` |
+| 구현 작업 | `general` |
+| 검증 / 감사 | `general` (별도 컨텍스트) |
+
+### 6.4.3 Main Agent Role
+
+Main Agent는 subagent를 직접 지시하고 결과를 검토한다:
+
+```text
+Main Agent → Subagent 지시 → 결과 확인 → 다음 단계
+```
+
+Main Agent가 직접 파일을 수정하지 않는다. 가능한 한 subagent에 위임한다.
+
+### 6.4.4 Subagent Delegation Pattern
+
+```text
+1. Main Agent: 작업 범위와 성공 기준 명시
+2. Subagent: 할당된 범위 구현
+3. Main Agent: 결과 검토 및 다음 작업 지시
+```
+
+한 번에 하나의 subagent만 지시한다. 병렬 지시 금지.
+
+### 6.4.5 Non-Negotiable
+
+다음은 예외 없이 금지한다:
+
+```text
+Main Agent의 직접 파일 수정 (subagent 위임이 가능한 경우)
+복잡한 작업을 Main Agent가 혼자 수행
+subagent 결과 검토 없이 다음 단계 진행
+```
+
+위 항목 위반 시 작업을 중단하고 재평가한다.
+
 # 7. Planning & Blueprint Governance
 
 ## 7.1 Plan First
@@ -426,13 +485,13 @@ Lint PASS
 
 ## 8.3 Test Requirement
 
-테스트 존재 시:
+모든 변경은 `just verify` 실행 후 통과 필수:
 
 ```text
-Test PASS
+just verify (runs lint + typecheck:strict + test)
 ```
 
-필수
+테스트 존재 시: `Test PASS` 필수
 
 ---
 
