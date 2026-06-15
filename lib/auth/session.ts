@@ -31,36 +31,40 @@ export async function getCurrentFamilyId(userId: string) {
 }
 
 async function loadActiveProfileContext(): Promise<ResolvedActiveProfile | null> {
-  const session = await auth();
-  const userId = session?.user?.id;
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
 
-  if (!userId) {
+    if (!userId) {
+      return null;
+    }
+
+    const cookieStore = await cookies();
+    const profileId = cookieStore.get(ACTIVE_PROFILE_COOKIE)?.value;
+
+    if (!profileId) {
+      return null;
+    }
+
+    const familyId = await getCurrentFamilyId(userId);
+    if (!familyId) {
+      return null;
+    }
+
+    const [profile] = await db
+      .select({
+        id: profiles.id,
+        familyId: profiles.familyId,
+        role: profiles.role,
+        name: profiles.name,
+      })
+      .from(profiles)
+      .where(and(eq(profiles.id, profileId), eq(profiles.familyId, familyId)));
+
+    return profile ?? null;
+  } catch {
     return null;
   }
-
-  const cookieStore = await cookies();
-  const profileId = cookieStore.get(ACTIVE_PROFILE_COOKIE)?.value;
-
-  if (!profileId) {
-    return null;
-  }
-
-  const familyId = await getCurrentFamilyId(userId);
-  if (!familyId) {
-    return null;
-  }
-
-  const [profile] = await db
-    .select({
-      id: profiles.id,
-      familyId: profiles.familyId,
-      role: profiles.role,
-      name: profiles.name,
-    })
-    .from(profiles)
-    .where(and(eq(profiles.id, profileId), eq(profiles.familyId, familyId)));
-
-  return profile ?? null;
 }
 
 /** 동일 RSC 요청 내 `auth`/프로필 조회 중복을 제거합니다. */

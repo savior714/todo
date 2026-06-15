@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { events } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
@@ -17,7 +17,7 @@ type CreateEventInput = {
 
 type CreateEventResult =
   | { success: true; eventId: string }
-  | { blocked: true; lastEventAt: string | null };
+  | { blocked: true; lastEventAt: string | null; reason?: "duplicate" };
 
 export async function createEvent(payload: CreateEventInput): Promise<CreateEventResult> {
   const profile = await getActiveProfileContext();
@@ -60,30 +60,59 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
 
   const eventId = crypto.randomUUID();
 
-  const result = await db.transaction(async (tx) => {
-    if (actionType === "medication" && !isOverride) {
-      const medicationCheck = await checkRecentMedicationTx(tx, profile.familyId, target);
-      if (medicationCheck.blocked) {
-        return { blocked: true, lastEventAt: medicationCheck.lastEventAt } as const;
-      }
-    }
+  const today = new Date().toISOString().split("T")[0];
 
-    await tx.insert(events).values({
-      id: eventId,
-      familyId: profile.familyId,
-      profileId: profile.id,
-      actionType,
-      target,
-      metadata: metadataJson,
-      isReverted: false,
-      createdDate: getCreatedDateSql(),
+  try {
+    const result = await db.transaction(async (tx) => {
+      if (actionType === "medication" && !isOverride) {
+        const medicationCheck = await checkRecentMedicationTx(tx, profile.familyId, target);
+        if (medicationCheck.blocked) {
+          return { blocked: true, lastEventAt: medicationCheck.lastEventAt } as const;
+        }
+      }
+
+      await tx.insert(events).values({
+        id: eventId,
+        familyId: profile.familyId,
+        profileId: profile.id,
+        actionType,
+        target,
+        metadata: metadataJson,
+        isReverted: false,
+        createdDate: getCreatedDateSql(),
+      });
+
+      return { success: true, eventId } as const;
     });
 
-    return { success: true, eventId } as const;
-  });
+    revalidatePath("/dashboard");
+    return result;
+  } catch (err) {
+    if ((err as { code?: string }).code === "2067" || (err as Error).message?.includes("UNIQUE constraint")) {
+      const [lastEvent] = await db
+        .select({ createdAt: events.createdAt })
+        .from(events)
+        .where(
+          and(
+            eq(events.familyId, profile.familyId),
+            eq(events.actionType, actionType),
+            eq(events.target, target),
+            eq(events.createdDate, today),
+          ),
+        )
+        .orderBy(desc(events.createdAt))
+        .limit(1);
 
-  revalidatePath("/dashboard");
-  return result;
+      return {
+        blocked: true,
+        lastEventAt: lastEvent
+          ? new Date(lastEvent.createdAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
+          : null,
+        reason: "duplicate" as const,
+      } as const;
+    }
+    throw err;
+  }
 }
 
 export async function undoEvent(eventId: string) {

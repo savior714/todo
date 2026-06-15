@@ -18,7 +18,7 @@ type CreateEventInput = {
 
 type CreateEventResult =
   | { success: true; eventId: string }
-  | { blocked: true; lastEventAt: string | null };
+  | { blocked: true; lastEventAt: string | null; reason?: "duplicate" };
 
 export type CreateEventAction = (payload: CreateEventInput) => Promise<CreateEventResult>;
 
@@ -131,6 +131,12 @@ export default function RecordEventModal({
 
     const result = await tryCreate(meta);
     if ("blocked" in result && result.blocked) {
+      if (result.reason === "duplicate") {
+        showToast("이미 기록된 항목입니다.");
+        dialogRef.current?.close();
+        onRecorded();
+        return true;
+      }
       const shouldOverride = await confirm({
         message: "최근 2시간 내 동일 투약 기록이 있습니다. 정말 강행하시겠습니까?",
         confirmLabel: "강행",

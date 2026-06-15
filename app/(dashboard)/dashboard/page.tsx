@@ -46,9 +46,6 @@ export default async function DashboardPage() {
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">FamilySync Dashboard</h1>
-          <p className="mt-1.5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-            active_profile_id 쿠키가 있는 경우에만 접근 가능합니다.
-          </p>
         </div>
         <form action={logoutProfile} className="shrink-0 pt-0.5">
           <button
