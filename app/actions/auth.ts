@@ -28,7 +28,7 @@ export async function selectProfile(profileId: string) {
   const [allowedProfile] = await db
     .select({ id: profiles.id })
     .from(profiles)
-    .where(and(eq(profiles.id, profileId), eq(profiles.familyId, familyId)));
+    .where(and(eq(profiles.id, profileId), eq(profiles.familyId, familyId), eq(profiles.isDeleted, false)));
 
   if (!allowedProfile) {
     throw new Error("선택한 프로필에 접근할 수 없습니다.");

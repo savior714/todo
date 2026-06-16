@@ -96,6 +96,7 @@ export const profiles = sqliteTable(
     name: text("name").notNull(),
     avatarUrl: text("avatar_url"),
     role: text("role", { enum: ["admin", "executor"] }).notNull().default("executor"),
+    isDeleted: integer("is_deleted", { mode: "boolean" }).notNull().default(false),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
   },
   (table) => ({
@@ -198,6 +199,7 @@ export const homeworkLogs = sqliteTable(
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
     completedAt: integer("completed_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
+    isReverted: integer("is_reverted", { mode: "boolean" }).notNull().default(false),
   },
   (table) => ({
     homeworkDateUnique: uniqueIndex("homework_logs_type_date_unique_idx").on(table.homeworkTypeId, table.dateKey),
@@ -271,6 +273,7 @@ export const routineLogs = sqliteTable(
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
     completedAt: integer("completed_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
+    isReverted: integer("is_reverted", { mode: "boolean" }).notNull().default(false),
   },
   (table) => ({
     routineDateUnique: uniqueIndex("routine_logs_item_date_unique_idx").on(table.routineItemId, table.dateKey),

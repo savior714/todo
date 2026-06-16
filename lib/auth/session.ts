@@ -59,7 +59,7 @@ async function loadActiveProfileContext(): Promise<ResolvedActiveProfile | null>
         name: profiles.name,
       })
       .from(profiles)
-      .where(and(eq(profiles.id, profileId), eq(profiles.familyId, familyId)));
+      .where(and(eq(profiles.id, profileId), eq(profiles.familyId, familyId), eq(profiles.isDeleted, false)));
 
     return profile ?? null;
   } catch {

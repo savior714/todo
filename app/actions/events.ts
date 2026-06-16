@@ -101,6 +101,7 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
             eq(events.actionType, actionType),
             eq(events.target, target),
             eq(events.createdDate, today),
+            eq(events.isReverted, false),
           ),
         )
         .orderBy(desc(events.createdAt))

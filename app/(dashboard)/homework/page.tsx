@@ -25,7 +25,7 @@ export default async function HomeworkPage() {
   const logs = await db
     .select({ homework_type_id: homeworkLogs.homeworkTypeId })
     .from(homeworkLogs)
-    .where(and(eq(homeworkLogs.familyId, profile.familyId), eq(homeworkLogs.dateKey, today)));
+    .where(and(eq(homeworkLogs.familyId, profile.familyId), eq(homeworkLogs.dateKey, today), eq(homeworkLogs.isReverted, false)));
 
   const completedSet = new Set((logs ?? []).map((row) => row.homework_type_id));
 

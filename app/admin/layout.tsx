@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
 import { profiles } from "@/db/schema";
@@ -15,7 +15,7 @@ export default async function AdminLayout({
   const [profile] = await db
     .select({ role: profiles.role })
     .from(profiles)
-    .where(eq(profiles.id, context.id));
+    .where(and(eq(profiles.id, context.id), eq(profiles.isDeleted, false)));
 
   if (!profile || profile.role !== "admin") {
     redirect("/dashboard");
