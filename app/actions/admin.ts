@@ -184,16 +184,33 @@ export async function completeHomework(homeworkTypeId: string, dateKeyOverride?:
 
     if (!alreadyCompleteForDate) {
       // P-4 해결: 첫 완료 시에만 이벤트 생성 (비즈니스 의도 — 이미 완료된 로그가 있으면 중복 이벤트 생성 안 함)
-      await tx.insert(events).values({
-        id: crypto.randomUUID(),
-        familyId: profile.familyId,
-        profileId: profile.id,
-        actionType: "homework",
-        target: hwType.childGroup,
-        metadata: metadataJson,
-        isReverted: false,
-        createdDate: getCreatedDateSql(),
-      });
+      // 추가: 같은 family + actionType + target + createdDate UNIQUE constraint 위반 방지
+      const createdDate = getCreatedDateSql();
+      const [existingEvent] = await tx
+        .select({ id: events.id })
+        .from(events)
+        .where(
+          and(
+            eq(events.familyId, profile.familyId),
+            eq(events.actionType, "homework"),
+            eq(events.target, hwType.childGroup),
+            eq(events.createdDate, createdDate)
+          )
+        )
+        .limit(1);
+
+      if (!existingEvent) {
+        await tx.insert(events).values({
+          id: crypto.randomUUID(),
+          familyId: profile.familyId,
+          profileId: profile.id,
+          actionType: "homework",
+          target: hwType.childGroup,
+          metadata: metadataJson,
+          isReverted: false,
+          createdDate,
+        });
+      }
     }
   });
 
