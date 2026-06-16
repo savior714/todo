@@ -1,4 +1,6 @@
 import { upsertDailyPin } from "@/app/actions/admin";
+import { getActiveProfileContext } from "@/lib/auth/session";
+import { ProfileDeleteSection } from "./profile-delete-section";
 
 export default async function AdminPage() {
   async function submitPin(formData: FormData) {
@@ -9,6 +11,8 @@ export default async function AdminPage() {
     }
     await upsertDailyPin(content);
   }
+
+  const profile = await getActiveProfileContext();
 
   return (
     <main className="mx-auto max-w-3xl p-6">
@@ -32,6 +36,10 @@ export default async function AdminPage() {
           </button>
         </form>
       </section>
+
+      {profile ? (
+        <ProfileDeleteSection profileId={profile.id} profileName={profile.name} />
+      ) : null}
     </main>
   );
 }
