@@ -73,9 +73,7 @@ export default async function DashboardPage() {
           </button>
         </form>
       </header>
-      <Suspense fallback={null}>
-        <DailyPinBanner familyId={profile.familyId} />
-      </Suspense>
+      <DailyPinBanner familyId={profile.familyId} />
       <Suspense fallback={<DashboardBodySkeleton />}>
         <DashboardDeferred profile={profile} />
       </Suspense>

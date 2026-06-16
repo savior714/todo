@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-06-16: 대시보드 React #418 하이드레이션 에러 최종 수정 — `dashboard/page.tsx`에서 `DailyPinBanner` Suspense boundary 제거. 서버 컴포넌트가 `null`을 반환할 수 있는데 Suspense로 감싸면 SSR/CSR 간 DOM 트리 구조 불일치 발생. `bun run lint`·`typecheck:strict`·`test`(33 pass) 통과.
 - 2026-06-16: React #418 하이드레이션 에러 근본 원인 수정 — `TimelineFeed.tsx`에서 `isClient` state → `useEffect` 기반 `canUndo` 계산이 SSR/CSR 간 DOM 불일치를 유발하던 문제 해결. `canUndo`를 `false`로 고정하여 하이드레이션 일관성 보장, 관련 import 정리. `package.json` 의존성 버전 고정(next ^16.2.6, react ^19.2.6, typescript ^6.0.3), `.github/workflows/migrate.yml` bun 버전 1.3.14 고정, `README.md` 프로젝트 상태 종합 갱신(버전 0.1.0, MVP 완료 표기, 최근 업데이트 이력 추가). `bun run lint`·`typecheck:strict`·`test`(33 pass) 통과.
 - 2026-06-16: 등원/하원·투약 타임라인 카드 "대상:" 중복 노출 수정 — `summarizeEventMetadataForDisplay`에서 school_dropoff/school_pickup("대상: ${who}")과 medication("대상: ${subject}") 라인 제거, `formatEventTargetForDisplay(event.target)`가 이미 대상 표시하므로 중복 제거. `bun run test`(33 pass) 통과.
 - 2026-06-16: 숙제 완료 시 events UNIQUE constraint 위반 버그 수정 — `completeHomework()`에서 같은 family + actionType("homework") + target(kid7/kid4) + createdDate 로 이미 events 행이 있으면 INSERT를 건너뛰는 중복 체크 추가. 그림일기 + 르네상스 등 여러 숙제 타입을 같은 날 완료할 때 `events_family_action_target_date_unique_idx` 위반으로 500 에러가 발생하던 문제 해결. `bun run lint`·`typecheck:strict`·`test`(33 pass) 통과.
