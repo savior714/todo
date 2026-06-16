@@ -30,9 +30,6 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
   const todayStart = startOfLocalDay(new Date());
   const minLogKey = formatDateKey(addDays(todayStart, -90));
   const maxLogKey = formatDateKey(addDays(todayStart, 14));
-  const todayKey = formatDateKey(startOfLocalDay(new Date()));
-  const yesterdayKey = formatDateKey(addDays(startOfLocalDay(new Date()), -1));
-  const tomorrowKey = formatDateKey(addDays(startOfLocalDay(new Date()), 1));
 
   const { rows: timelineRows, failed: timelineFailed } = await safeDbQuery(
     () =>
@@ -153,9 +150,6 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
         </p>
       )}
       <TimelineFeed
-        initialTodayKey={todayKey}
-        initialYesterdayKey={yesterdayKey}
-        initialTomorrowKey={tomorrowKey}
         initialEvents={normalizedEvents}
         undoEventAction={undoEvent}
         homeworkTypes={homeworkTypes}

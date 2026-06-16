@@ -5,7 +5,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { events } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
-import { checkRecentMedicationTx, getCreatedDateSql } from "@/lib/events/db-queries";
+import { checkRecentMedicationTx } from "@/lib/events/db-queries";
 import { formatMetadataValidationMessage, normalizeAndValidateEventMetadata } from "@/lib/events/metadata";
 import { getUndoWindowMsForActionType } from "@/lib/events/undo-policy";
 
@@ -91,7 +91,7 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
         target,
         metadata: metadataJson,
         isReverted: false,
-        createdDate: getCreatedDateSql(),
+        createdDate: today,
       });
 
       return { success: true, eventId } as const;

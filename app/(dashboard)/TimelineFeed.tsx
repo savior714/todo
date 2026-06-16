@@ -58,9 +58,6 @@ type TimelineSlot =
   | { key: string; kind: "event"; event: TimelineItem };
 
 type TimelineFeedProps = {
-  initialTodayKey: string;
-  initialYesterdayKey: string;
-  initialTomorrowKey: string;
   initialEvents: TimelineItem[];
   undoEventAction: (eventId: string) => Promise<unknown>;
   homeworkTypes: HomeworkTypeForTimeline[];
@@ -72,9 +69,6 @@ type TimelineFeedProps = {
 };
 
 export default function TimelineFeed({
-  initialTodayKey,
-  initialYesterdayKey,
-  initialTomorrowKey,
   initialEvents,
   undoEventAction,
   homeworkTypes,
@@ -86,23 +80,26 @@ export default function TimelineFeed({
 }: TimelineFeedProps) {
   const router = useRouter();
   const [events, setEvents] = useState<TimelineItem[]>(initialEvents);
-  const [centerDate, setCenterDate] = useState(() => parseDateKey(initialTodayKey));
+  const [centerDate, setCenterDate] = useState(() => startOfLocalDay(new Date()));
   const [detailOpen, setDetailOpen] = useState<TimelineDetailOpen>({ kind: "closed" });
   const dateInputRef = useRef<HTMLInputElement | null>(null);
   const centerColumnRef = useRef<HTMLDivElement | null>(null);
 
 
-  const todayLocalKey = initialTodayKey;
+  const todayLocalKey = formatDateKey(startOfLocalDay(new Date()));
 
   useEffect(() => {
     setEvents(initialEvents);
   }, [initialEvents]);
 
-  const dateCache = useMemo(() => ({
-    yesterdayKey: initialYesterdayKey,
-    todayKey: initialTodayKey,
-    tomorrowKey: initialTomorrowKey,
-  }), [initialYesterdayKey, initialTodayKey, initialTomorrowKey]);
+  const dateCache = useMemo(() => {
+    const today = startOfLocalDay(new Date());
+    return {
+      yesterdayKey: formatDateKey(addDays(today, -1)),
+      todayKey: formatDateKey(today),
+      tomorrowKey: formatDateKey(addDays(today, 1)),
+    };
+  }, []);
 
   const { yesterdayKey, todayKey, tomorrowKey } = dateCache;
 
