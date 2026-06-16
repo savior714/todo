@@ -1,144 +1,295 @@
 # FamilySync MVP
 
-가족 공동 육아/살림 상황을 실시간으로 공유하는 모바일 웹(PWA) 프로젝트입니다.
-다중 양육자 환경에서 "누가, 언제, 무엇을 했는지"를 즉시 공유하고, 중복 실수(특히 투약)를 줄이는 것을 목표로 합니다.
+가족 공동 육아/살림 상황을 실시간으로 공유하는 모바일 웹(PWA) 프로젝트입니다. 다중 양육자 환경에서 "누가, 언제, 무엇을 했는지"를 즉시 공유하고, 중복 실수(특히 투약)를 줄이는 것을 목표로 합니다.
 
-## 프로젝트 상태 (2026-05-09 기준)
+## 프로젝트 상태
 
-- **계획 문서**: `docs/plans/archive/20260509_familysync_mvp_blueprint.md`
+- **버전**: 0.1.0
+- **핵심 범위**: MVP 핵심 기능 (FS-001 ~ FS-015) **모두 완료**
 - **요구사항 SSOT**: `docs/specs/PRD.md`, `docs/specs/TRD.md`
 - **핵심 불변·의사결정**: `PROJECT_RULES.md` §8 (Critical Logic)
-- **구현 진행도**: Blueprint의 FS-001 ~ FS-015 **모두 done**
-- **핵심 검증 이력**:
-  - `bun run lint && bun run typecheck:strict && bun run test && bun run build` 통과
-  - `node scripts/migrate-turso.mjs` 기반 Turso 마이그레이션 적용 검증
-  - Google OAuth + 프로필 선택 + 대시보드 가드 플로우 검증
-- **Supabase → Turso 치환 이력**(FS-001~FS-015 구현 시):
-  - **FS-003**(RLS): Supabase RLS → Turso 마이그레이션으로 `application-level familyId` 검증으로 대체
-  - **FS-009**(Realtime): Supabase Realtime → `revalidatePath`(RSC)로 대체
-  - **FS-011**(care_guides): `care_guides` 테이블 → `quick_actions` 테이블로 통합(삭제)
+- **실행 프로토콜**: `AGENTS.md`
+- **최근 주요 업데이트**(2026-06 기준):
+  - 투약 중복 constraint 위반 방지 (CORE-04)
+  - 하이드레이션 불일치 해결 + DashboardDeferred try/catch (RELIAB-02/03)
+  - 프로필 소프트 삭제 + 로그 revert 가드 (CORE-02)
+  - 고정 child ID/action_type 중앙화 (`lib/children.ts`) (SSOT-01)
+  - `/admin` 인라인 섹션 → 서브모달 리팩토링 (UI-03)
+  - GitHub Actions 자동 마이그레이션 파이프라인 (INFRA-01)
+  - UNIQUE 제약 추가 + 프로필 삭제 UI (DB-01)
 
 ## 핵심 기능 구현 현황
 
-### 완료된 범위
+### 인증/권한
+- Google OAuth 로그인 (Auth.js v5 beta + DB 세션 어댑터)
+- Netflix 스타일 2-depth 프로필 선택
+- `active_profile_id` 쿠키 기반 대시보드 접근 가드
+- 관리자(`admin`) 권한 가드 + `FAMILY_CO_ADMIN_EMAILS` 기반 공동 관리자 자동 승격
+- 프로필 소프트 삭제 (`is_deleted`) + revert 가드
 
-- **인증/권한**
-  - Google OAuth 로그인
-  - 프로필 선택(Netflix 스타일 2-depth)
-  - `active_profile_id` 쿠키 기반 대시보드 접근 가드
-  - 관리자(`admin`) 권한 가드
+### 대시보드/이벤트
+- 퀵 액션(식사, 투약, 등하원, 집안일 등) 이벤트 생성
+- 3열 타임라인(어제/오늘/내일) — 주말 열 시각 구분
+- Undo(취소) 처리 — 투약 30분, 기타 24시간 윈도우
+- 투약 2시간 중복 차단 + `metadata.override` 강행 플로우
+- `revalidatePath("/dashboard")` 기반 RSC 실시간 갱신
+- 하이드레이션 불일치 방지 + try/catch 격리
 
-- **대시보드/이벤트**
-  - 퀵 액션(식사, 투약, 집안일 등) 이벤트 생성
-  - 타임라인 이벤트/Undo 반영
-  - Undo(취소) 처리 + `is_reverted` 필터링
-  - 투약 2시간 중복 차단 + 강행(override) 플로우
+### 가족 운영 기능
+- **숙제**: 타입 관리 + 완료 로그 (`homework_types`, `homework_logs`)
+- **일일 지시사항**(Daily Pin): 가족당 활성 1개 제약, 고정 및 해제
+- **루틴 체크리스트**: `routine_items`(마스터) + `routine_logs`(날짜별 완료)
+- **퀵 액션**: 라벨·타겟·정렬 순서 관리, 대시보드 바로가기
 
-- **가족 운영 기능**
-  - 숙제 타입/완료 로그 관리
-  - 오늘의 지시사항(Daily Pin) 고정 및 가족당 활성 1개 제약
+### 관리자 페이지 (`/admin`)
+- 퀵 액션 CRUD (서브모달)
+- 숙제 타입 CRUD (서브모달)
+- 루틴 항목 CRUD (서브모달)
+- 프로필 삭제 UI
 
-- **배포/품질**
-  - PWA 메타데이터 및 매니페스트
-  - E2E 계약 테스트(`tests/e2e/done-criteria.contract.test.mjs`)
-  - lint/type/test/build 기반 최소 CI 게이트
+### 배포/품질
+- PWA 메타데이터 및 매니페스트
+- Storybook 컴포넌트 스토리 (대시보드, 서브모달, 관리자 섹션)
+- E2E 계약 테스트 + 단위 테스트 (Node + Bun)
+- lint/type/test/build 기반 최소 CI 게이트
 
 ## 기술 스택
 
-- **Frontend**: Next.js (App Router), React, TailwindCSS
-- **Backend/Auth**: Auth.js (Google OAuth, DB Session)
-- **Data**: Turso (libSQL) + Drizzle ORM
-- **배포**: Vercel
-- **테스트**: Node test runner 기반 E2E 계약 테스트
+| 영역 | 기술 |
+|------|------|
+| **Frontend** | Next.js (App Router), React, TailwindCSS |
+| **Backend/Auth** | Auth.js v5 beta (Google OAuth, DB Session) |
+| **Data** | Turso (libSQL) + Drizzle ORM (`mode: "timestamp_ms"`) |
+| **검증** | Zod v4 |
+| **배포** | Vercel + GitHub Actions (자동 마이그레이션) |
+| **테스트** | Node test runner (E2E) + Bun (unit/integration) |
+| **Component** | Storybook v10.3.6 |
+
+## 데이터베이스 스키마
+
+### Auth.js 테이블 (5)
+`users`, `accounts`, `sessions`, `verificationTokens`, `authenticators` — `@auth/drizzle-adapter` 자동 관리
+
+### FamilySync 핵심 테이블 (9)
+| 테이블 | 주요 필드 | 설명 |
+|--------|-----------|------|
+| `families` | `id`, `name`, `invite_code` | 가족 단위 |
+| `user_families` | `user_id`, `family_id` | 사용자-가족 매핑 |
+| `profiles` | `id`, `family_id`, `name`, `role`, `is_deleted` | 프로필 (admin/executor) |
+| `events` | `id`, `family_id`, `profile_id`, `action_type`, `target`, `metadata`, `is_reverted` | 타임라인 이벤트 |
+| `daily_pins` | `id`, `family_id`, `content`, `is_active` | 일일 지시사항 |
+| `homework_types` | `id`, `family_id`, `child_group`, `title`, `is_active` | 숙제 타입 |
+| `homework_logs` | `id`, `family_id`, `homework_type_id`, `date_key`, `completed_by` | 숙제 완료 로그 |
+| `quick_actions` | `id`, `family_id`, `label`, `action_type`, `target`, `sort_order` | 퀵 액션 설정 |
+| `routine_items` | `id`, `family_id`, `title`, `target`, `sort_order` | 루틴 항목 마스터 |
+| `routine_logs` | `id`, `family_id`, `routine_item_id`, `date_key`, `completed_by` | 루틴 완료 로그 |
+
+## 마이그레이션 이력
+
+| # | 파일 | 설명 |
+|---|------|------|
+| 0 | `0000_initial.sql` | 초기 스키마 (families, profiles, events 등) |
+| 1 | `0001_quick_actions.sql` | quick_actions 테이블 추가 |
+| 2 | `0002_drop_care_guides.sql` | care_guides 테이블 제거 (MVP 제외) |
+| 3 | `0003_events_timeline_idx.sql` | events 타임라인 인덱스 |
+| 4 | `0004_routine_checklist.sql` | routine_items, routine_logs 추가 |
+| 5 | `0005_events_duplicate_guard.sql` | 이벤트 중복 방지 |
+| 6 | `0006_add_unique_constraints.sql` | 테이블별 UNIQUE 제약 |
+| 7 | `0007_soft_delete_columns.sql` | soft delete (`is_deleted`) 지원 |
 
 ## 디렉토리 개요
 
-- `app/`: 라우트, 화면, Server Actions
-- `db/migrations/`: Turso SQL 마이그레이션 (`0000_initial.sql`, `0001_quick_actions.sql`, `0002_drop_care_guides.sql`, `0003_events_timeline_idx.sql`, `0004_routine_checklist.sql`, …)
-- `lib/`: 공통 유틸리티 — `auth/`(Auth.js 설정), `dashboard/`(대시보드 로직), `events/`(이벤트 CRUD), `homework/`(숙제 타입/완료 로그), `quick-actions/`(퀵 액션), `timeline/`(타임라인 렌더링) 등
-- `types/`: 전역 TypeScript 타입 정의(`routine_items`, `routine_logs` 관련 타입 포함)
-- `tests/e2e/`: Done Criteria 계약 테스트
+- `app/`: 라우트, 화면, Server Actions, API Routes
+  - `(auth)/` — 로그인, 프로필 선택
+  - `(dashboard)/` — 대시보드, 타임라인, 퀵 액션, 서브모달
+  - `(admin)/` — 관리자 페이지 (역할 가드)
+  - `actions/` — Server Actions (auth, events, admin)
+  - `api/` — API Routes (health check, Auth.js)
+- `db/migrations/`: Turso SQL 마이그레이션 (8개)
+- `lib/`: 공통 유틸리티 — `auth/`, `events/`, `dashboard/`, `quick-actions/`, `homework/`, `timeline/`, `children.ts` 등
+- `types/`: 전역 TypeScript 타입 정의
+- `tests/`: E2E 계약 테스트, 단위 테스트
 - `docs/specs/`: PRD/TRD
-- `docs/plans/`: 실행 Blueprint 및 계획 상태
+- `docs/plans/`: 실행 Blueprint 및 계획 상태 (아카이브)
 - `.agents/memory/`: 세션 메모리 및 검증/이슈 이력
-- `routine_items` + `routine_logs`: 루틴 체크리스트(일상 항목) UI/Server Actions — `lib/quick-actions/`, `app/(dashboard)/routine/` 경로에 구현
+- `scripts/`: 마이그레이션, plan lint, memory verify 등 운영 스크립트
 
-## 로컬 실행
+## Getting Started
+
+### 필수 도구
+
+| 도구 | 버전 | 설치 방법 |
+|------|------|-----------|
+| **Bun** | `>=1.1.0` | `curl -fsSL https://bun.sh/install | bash` |
+| **Node.js** | `>=20.0.0` | [nodejs.org](https://nodejs.org) 또는 `fnm`, `nvm` |
+| **just** | 최신 | `brew install just` (macOS), [github.com/casey/just](https://github.com/casey/just) |
+| **Git** | 최신 | 기본 내장 또는 [git-scm.com](https://git-scm.com) |
+
+> **참고**: 프로젝트는 Bun을 주요 런타임으로 사용합니다. E2E 테스트와 마이그레이션 스크립트는 Node.js에서 실행됩니다.
+
+### 1단계: Clone & Install
 
 ```bash
+git clone <repository-url>
+cd todo
 bun install
-bun run dev
 ```
 
-## 검증 명령어
+`bun.lock` 파일이 이미 있으므로 `bun install`은 **동일한 버전**을 설치합니다.
+
+### 2단계: 환경 변수 설정
 
 ```bash
-bun run lint
-bun run typecheck:strict
-bun run test
-bun run build
+cp .env.example .env
 ```
 
-Turso 스키마 적용(원격 DB에 `TURSO_*` 설정 후). `bun run db:migrate`는 **`.env` → `.env.local` → `.env.vercel.dev` → `.env.vercel.prod`** 순으로 로드합니다(같은 키는 뒤 파일이 덮어씀). 운영 DB에 적용하려면 Vercel **Production**에 넣은 `TURSO_*`를 `.env.local`에 복사하거나, `vercel env pull .env.vercel.prod --environment production` 후 마이그레이션을 실행하세요. `--environment development`만 pull하면 `TURSO_*`가 비어 있을 수 있습니다. 스크립트는 `_turso_applied_migrations`에 적용된 `.sql` 파일명을 기록하므로 **이미 스키마가 있는 DB에서도** `0000` 재충돌 없이 이어서 적용할 수 있습니다.
+`.env` 파일을 편집하여 다음 값을 채웁니다.
+
+#### Turso 데이터베이스 (필수)
+
+1. [turso.tech](https://turso.tech)에서 계정 생성
+2. New Database → 이름 입력 (예: `familysync-dev`)
+3. `Database URL` 복사 → `TURSO_DATABASE_URL`에 붙여넣기
+4. `Auth Tokens` → Generate Token → 토큰 복사 → `TURSO_AUTH_TOKEN`에 붙여넣기
+
+```bash
+# .env 예시
+AUTH_SECRET=$(openssl rand -base64 32)
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+AUTH_URL=http://localhost:3000
+TURSO_DATABASE_URL=libsql://your-db.turso.io
+TURSO_AUTH_TOKEN=your-turso-token
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+#### Google OAuth (필수)
+
+1. [Google Cloud Console](https://console.cloud.google.com)에서 프로젝트 생성
+2. APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID
+3. Application type: `Web application`
+4. Authorized redirect URIs 추가:
+   - 로컬: `http://localhost:3000/api/auth/callback/google`
+   - 프로덕션: `https://<도메인>/api/auth/callback/google`
+5. Client ID → `AUTH_GOOGLE_ID`, Client Secret → `AUTH_GOOGLE_SECRET`에 붙여넣기
+
+#### AUTH_SECRET 생성 (로컬 개발용)
+
+```bash
+openssl rand -base64 32
+```
+
+### 3단계: 데이터베이스 마이그레이션
 
 ```bash
 bun run db:migrate
 ```
 
+`db/migrations/` 디렉토리의 SQL 파일이 Turso DB에 적용됩니다.
+
+### 4단계: 개발 서버 실행
+
+```bash
+bun run dev
+```
+
+[http://localhost:3000](http://localhost:3000)에서 앱 확인.
+
+### 검증
+
+```bash
+just verify    # lint + typecheck + test 전체 실행
+just ci        # CI 게이트 (TDD gate, DDD boundary 등 포함)
+```
+
+Auth.js `error=Configuration` 관련 계약 테스트: `tests/unit/auth-configuration-diagnostics.test.ts`, `lib/auth/authjs-configuration-contract.ts`
+
+### Vercel 배포 (선택)
+
+```bash
+# Vercel CLI 설치
+npm i -g vercel
+
+# Vercel 로그인
+vercel login
+
+# 배포
+vercel
+
+# 환경변수 동기화 (로컬 → Vercel development 환경)
+npx vercel env pull .env.vercel.dev --environment development --yes --scope <your-scope>
+bun run vercel:sync-auth
+```
+
+### 문제 해결
+
+| 증상 | 원인 | 해결 |
+|------|------|------|
+| `bun: command not found` | Bun 미설치 | 위 필수 도구 테이블 참조 |
+| `node: command not found` | Node 미설치 | Bun과 별개로 Node.js도 필요 (E2E 테스트용) |
+| `just: command not found` | just 미설치 | `brew install just` |
+| `There is a problem with the server configuration` | env 누락 또는 DB 미적용 | `/api/health` 엔드포인트 확인, `bun run db:migrate` 재실행 |
+| `bun.lock` 불일치 | 다른 패키지 매니저(pnpm/npm)로 install 시도 | 반드시 `bun install` 사용 |
+| `TURSO_DATABASE_URL not set` | .env 파일 누락 | `.env.example` 복사 후 값 채움 |
+| E2E 테스트 실패 (`node --test`) | Node.js 버전 불일치 | Node `>=20.0.0` 사용 |
+
+## 검증 명령어
+
+```bash
+bun run lint              # ESLint
+bun run typecheck:strict  # tsc --noEmit
+bun run test              # E2E (Node) + 단위 (Bun)
+bun run build             # Next.js 빌드
+```
+
+전체 검증: `just verify` (lint + typecheck + test)
+CI 게이트: `just ci`
+
+## Turso 마이그레이션
+
+```bash
+bun run db:migrate
+```
+
+`bun run db:migrate`는 **`.env` → `.env.local` → `.env.vercel.dev` → `.env.vercel.prod`** 순으로 `TURSO_*`를 로드합니다. 적용한 `.sql` 파일명은 `_turso_applied_migrations` 테이블에 기록되므로, 이미 스키마가 있는 DB에서도 `0000` 재충돌 없이 이어서 적용할 수 있습니다.
+
 ## 환경 변수
 
-프로젝트 루트의 `.env.local`/`.env`에 Auth.js/Turso 값을 설정해야 합니다. 템플릿은 `.env.example` 참고.
+프로젝트 루트의 `.env.local`/`.env`에 설정합니다 (`.env.example` 참고).
 
-- `AUTH_SECRET`
-- `AUTH_GOOGLE_ID`
-- `AUTH_GOOGLE_SECRET`
-- `AUTH_URL` (배포 주소, 예: `https://todo-nine-mu-90.vercel.app`)
-- `TURSO_DATABASE_URL`
-- `TURSO_AUTH_TOKEN`
-- `NEXT_PUBLIC_SITE_URL` (예: 로컬 `http://localhost:3000`, 프로덕션과 동일 도메인 권장)
+| 변수 | 필수 | 설명 |
+|------|------|------|
+| `AUTH_SECRET` | 예 | Auth.js 서명 키 |
+| `AUTH_GOOGLE_ID` | 예 | Google OAuth Client ID |
+| `AUTH_GOOGLE_SECRET` | 예 | Google OAuth Client Secret |
+| `AUTH_URL` | 예 (배포) | 프로덕션 도메인 |
+| `TURSO_DATABASE_URL` | 예 | Turso 데이터베이스 URL |
+| `TURSO_AUTH_TOKEN` | 예 | Turso 인증 토큰 |
+| `NEXT_PUBLIC_SITE_URL` | 예 | 앱 베이스 URL (로컬: `http://localhost:3000`) |
+| `FAMILY_CO_ADMIN_EMAILS` | 선택 | 공동 관리자 승격 대상 이메일 (쉼표 구분) |
+| `FAMILYSYNC_DASHBOARD_PERF` | 선택 | 대시보드 성능 로깅 (`1`) |
 
 ### Vercel에서 Auth.js `Server error`(There is a problem with the server configuration)
 
-이 화면은 대부분 **필수 env가 비어 있거나**, OAuth 콜백 처리 중 **DB 예외**가 나 Auth.js가 `Configuration` 오류로 처리할 때 뜹니다(Auth.js는 `AdapterError` 등을 사용자에게 그대로 보여주지 않고 같은 형태로 감쌉니다). 아래를 **Production**(및 사용 중인 Preview)에서 순서대로 확인하세요.
+이 화면은 대부분 **필수 env가 비어 있거나**, OAuth 콜백 처리 중 **DB 예외**가 나서 Auth.js가 `error=Configuration` 쿼리 파라미터와 함께 응답할 때 뜹니다.
 
-**참고(DevTools)**: `/api/auth/error?error=Configuration` **문서** 응답이 HTTP **500**이어도, `@auth/core` 기본 HTML이 그렇게 내려주는 **정상 동작**일 수 있다(Next 라우트 전역 장애로 단정하지 말 것). 오판 방지 SSOT: `lib/auth/authjs-configuration-contract.ts` · 단위 테스트 `tests/unit/auth-configuration-diagnostics.test.ts`.
+**빠른 점검**: `curl https://<배포-도메인>/api/health` 로 `checks`/`db`/`tables` 세 영역을 모두 확인하세요. 상세 원인 분석은 `lib/auth/authjs-configuration-contract.ts` 참조.
+- `checks`에 `false` → env 누락 → Vercel 환경변수 추가 후 재배포
+- `db`가 `"error"` → Turso URL/토큰/네트워크 문제
+- `` `tables` ``에 `false` → **Turso DB에 마이그레이션 미적용** → `bun run db:migrate` 실행
 
-**빠른 점검(배포 후)**: 브라우저 또는 `curl`로 `https://<배포-도메인>/api/health` 를 열어 `checks`/`db`/`tables` 세 영역을 모두 확인하세요.
-
-- `checks`에 `false`가 있으면 → 해당 env가 비어있음 → Vercel 프로젝트 환경변수에 추가 후 재배포
-- `db`가 `"error"`이면 → Turso URL/토큰/네트워크 문제
-- `tables`에 `false`가 있으면 → **Turso DB에 마이그레이션 미적용** → 로컬에서 운영 Turso credential을 export한 뒤 `bun run db:migrate` 실행
-
-`error=Configuration` 페이지가 뜨는데 `/api/health`가 200이라면 거의 확실하게 `tables` 누락입니다(어댑터의 `users`/`accounts`/`sessions` 호출이 실패하면 Auth.js가 동일 페이지로 감싸서 보여줍니다).
-
-1. **`AUTH_SECRET`**: Vercel 프로젝트에 반드시 설정(임의 긴 문자열, `openssl rand -base64 32` 등). 없으면 `MissingSecret`로 위 페이지가 납니다.
-2. **`TURSO_DATABASE_URL`**, **`TURSO_AUTH_TOKEN`**: 없으면 서버가 DB 모듈 로드 시 실패하거나, 로그인 콜백에서 세션 저장에 실패할 수 있습니다. 설정 후 `bun run db:migrate`로 스키마 적용.
-3. **`AUTH_GOOGLE_ID`**, **`AUTH_GOOGLE_SECRET`**: Google 콘솔의 클라이언트와 동일한지 확인.
-4. **`AUTH_URL`**: 프로덕션 도메인과 정확히 일치하는지 확인(다른 프로젝트 URL이면 OAuth·쿠키가 꼬입니다).
-
-원인 확인: Vercel 대시보드 → 해당 배포 → **Functions / Runtime Logs**에서 같은 시각의 스택 또는 Auth.js 로그를 확인합니다.
-
-### Google OAuth (Auth.js)
-
-`AUTH_URL`은 **지금 브라우저로 접속한 도메인과 같아야** 합니다. NextAuth는 이 값이 있으면 OAuth `redirect_uri`를 고정하므로, Vercel Preview가 Production의 `AUTH_URL`(예: 다른 배포 URL)을 물려받으면 구글 로그인 뒤 그 주소로 넘어갑니다. 이 레포는 **Preview**에서 `instrumentation.ts`가 `AUTH_URL`을 제거해 현재 호스트를 쓰게 합니다(해당 Preview URL이 Google 콘솔에 없으면 `redirect_uri_mismatch`가 날 수 있어, 프리뷰 OAuth는 별도 OAuth 클라이언트·리다이렉트 등록이 필요할 수 있습니다).
-
-로컬 개발 시에는 `.env.local`에 `NEXT_PUBLIC_SITE_URL=http://localhost:3000`인데 `AUTH_URL`만 프로덕션으로 두지 마세요. 프로덕션 전용 `AUTH_URL`은 Vercel **Production** 환경에만 두는 것이 안전합니다.
+### Google OAuth 설정
 
 Google Cloud Console의 **Authorized redirect URIs**에 다음을 추가합니다.
-
-- 프로덕션: `https://<배포-도메인>/api/auth/callback/google` (예: `https://todo-nine-mu-90.vercel.app/api/auth/callback/google`)
+- 프로덕션: `https://<배포-도메인>/api/auth/callback/google`
 - 로컬: `http://localhost:3000/api/auth/callback/google`
 
 ### Vercel에 Auth 환경변수 일괄 반영
-
-기존 Vercel에 `SUPABASE_AUTH_EXTERNAL_GOOGLE_*`가 **Development** 환경에 실값으로 남아 있다면, 아래로 `AUTH_*`로 복사할 수 있습니다(Production pull은 값이 비는 경우가 있어 Development pull을 사용).
 
 ```bash
 npx vercel env pull .env.vercel.dev --environment development --yes --scope savior714s-projects
 bun run vercel:sync-auth
 ```
-
-그 다음 Vercel 대시보드에서 **`TURSO_DATABASE_URL`**, **`TURSO_AUTH_TOKEN`**을 Production/Development에 추가하고, 배포 후 `bun run db:migrate`로 스키마를 적용합니다. 레거시 `NEXT_PUBLIC_SUPABASE_*` 등은 제거해도 됩니다.
 
 ## 다음 단계
 

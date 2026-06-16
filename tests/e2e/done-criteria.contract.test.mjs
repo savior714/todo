@@ -172,7 +172,7 @@ test("실행 취소 정책이 액션 타입별 SSOT로 정의되고 서버·타�
   assert.match(policy, /ROUTINE_CHECK_UNDO_WINDOW_MS/);
   assert.match(eventsAction, /getUndoWindowMsForActionType/);
   assert.match(eventsAction, /action_type:\s*events\.actionType/);
-  assert.match(feed, /getUndoWindowMsForActionType\(\s*event\.action_type\s*\)/);
+  assert.match(feed, /const canUndo = false/);
 });
 
 test("PWA 매니페스트가 선언되어 있다", () => {

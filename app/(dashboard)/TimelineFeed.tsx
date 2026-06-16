@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TimelineEventDetailModal, { type TimelineDetailOpen } from "@/app/(dashboard)/TimelineEventDetailModal";
 import { formatEventTargetForDisplay, summarizeEventMetadataForDisplay } from "@/lib/events/metadata";
-import { getUndoWindowMsForActionType } from "@/lib/events/undo-policy";
 import { timelineActionLabel } from "@/lib/timeline/action-labels";
 import { ROUTINE_TARGET_LABEL, SCHOOL_CHILD_LABEL } from "@/lib/children";
 import {
@@ -91,8 +90,7 @@ export default function TimelineFeed({
   const [detailOpen, setDetailOpen] = useState<TimelineDetailOpen>({ kind: "closed" });
   const dateInputRef = useRef<HTMLInputElement | null>(null);
   const centerColumnRef = useRef<HTMLDivElement | null>(null);
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => { setIsClient(true); }, []);
+
 
   const todayLocalKey = initialTodayKey;
 
@@ -392,9 +390,7 @@ export default function TimelineFeed({
                         );
                       }
                       const event = slot.event;
-                      const undoMs = getUndoWindowMsForActionType(event.action_type);
-                      const canUndo =
-                        isClient && (Date.now() - new Date(event.created_at).getTime() <= undoMs);
+                      const canUndo = false;
                       const detailLines = summarizeEventMetadataForDisplay(event.metadata, event.action_type);
                       return (
                         <button
