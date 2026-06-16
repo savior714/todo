@@ -1,6 +1,7 @@
 # MEMORY
 
 ## Session Notes
+- 2026-06-16: 대시보드 500 에러 + React Error #418 하이드레이션 불일치 근본 원인 수정 — `TimelineFeed.tsx`에서 `new Date()` 기반 렌더링 분기를 서버 계산 prop(`initialTodayKey`, `initialYesterdayKey`, `initialTomorrowKey`) 전달 방식으로 변경, `canUndo`는 `isClient` state로 SSR/CSR 일치 보장. `DashboardDeferred.tsx`에 3개 DB 쿼리 try/catch 추가 (`loadHomeworkTypesForDashboard`, `loadRoutineItemsForDashboard`, `loadHomeworkLogsTodayForDashboard`). `.env.vercel.prod`에서 `AUTH_SECRET=""`, `AUTH_GOOGLE_ID=""`, `AUTH_GOOGLE_SECRET=""` 빈 값 확인 — Vercel 대시보드에서 실제 값 설정 후 redeploy 필요. `bun run lint`·`typecheck:strict`·`test`(33 pass)·`just ci` 통과.
 - 2026-06-16: `TimelineFeedSection` `Promise.all` DB 쿼리에 try/catch 추가 — 단일 쿼리 실패 시 전체 페이지 500/하이드레이션 불일치 방지, 빈 배열 fallback + `console.error` 로깅. `bun run lint`·`typecheck:strict`·`test`(33 pass) 통과.
 - 2026-06-16: `/admin` 인라인 섹션(`QuickActionsAdminSection` 등) 제거 — 3개 서브모달(`QuickActionsAdminModal`, `HomeworkTypesAdminModal`, `RoutineItemsAdminModal`)이 대시보드에서 SSOT로 동작. 모달에 `onChanged` prop + `router.refresh()` 리프레시 연동, 서버 액션 래퍼(`*ForModal`)에 `revalidatePath("/dashboard")` 추가. `bun run lint`·`typecheck:strict`·`test`(31 pass) 통과.
 - 2026-06-16: 대시보드 `QuickActionPanel`의 「퀵 액션 편집」「숙제 유형 관리」「루틴 체크 관리」링크(`/admin#section-id` 스크롤 이동)를 네이티브 `<dialog>` 기반 서브모달로 분리(`QuickActionsAdminModal`, `HomeworkTypesAdminModal`, `RoutineItemsAdminModal`). `DashboardDeferred`에서 admin 데이터(`quickActions`, `homeworkTypes`, `routineItems`)를 fetch해 prop으로 전달. `bun run lint`·`typecheck:strict` 통과.
