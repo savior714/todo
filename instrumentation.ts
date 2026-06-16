@@ -19,7 +19,10 @@ export function register(): void {
   }
 
   if (process.env.VERCEL === "1" && process.env.VERCEL_ENV === "preview") {
-    delete process.env.AUTH_URL;
+    const vercelUrl = process.env.VERCEL_URL;
+    if (vercelUrl) {
+      process.env.AUTH_URL = `https://${vercelUrl}`;
+    }
     delete process.env.NEXTAUTH_URL;
     return;
   }
