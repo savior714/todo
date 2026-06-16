@@ -143,11 +143,7 @@ export function summarizeEventMetadataForDisplay(metadataJson: string, actionTyp
     const raw = JSON.parse(metadataJson || "{}") as Record<string, unknown>;
     if (actionType === "medication" && raw.medication && typeof raw.medication === "object") {
       const med = raw.medication as MedicationDetail;
-      const subject = med.subject ? EVENT_TARGET_LABEL[med.subject] ?? med.subject : "";
       const parts: string[] = [];
-      if (subject) {
-        parts.push(`대상: ${subject}`);
-      }
       if (Array.isArray(med.items)) {
         for (const it of med.items) {
           if (it?.name) {
@@ -179,10 +175,6 @@ export function summarizeEventMetadataForDisplay(metadataJson: string, actionTyp
     ) {
       const sr = raw.schoolRun as SchoolRunDetail;
       const lines: string[] = [];
-      const who = sr.child ? (SCHOOL_CHILD_LABEL[sr.child] ?? sr.child) : "";
-      if (who) {
-        lines.push(`대상: ${who}`);
-      }
       if (sr.place) {
         lines.push(`장소: ${sr.place}`);
       }
