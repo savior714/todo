@@ -137,13 +137,13 @@ test("타임라인 피드가 3열·주 단위 이동·날짜 메타를 지원한
   assert.match(dashboard, /Suspense/);
 });
 
-test("대시보드 로딩은 프로필 캐시·병렬 데이터 패치·핀 배너 familyId를 사용한다", () => {
+test("대시보드 로딩은 프로필 조회·병렬 데이터 패치·핀 배너 familyId를 사용한다", () => {
   const session = read("lib/auth/session.ts");
   const banner = read("app/(dashboard)/DailyPinBanner.tsx");
   const dashboard = read("app/(dashboard)/dashboard/page.tsx");
   const deferred = read("app/(dashboard)/dashboard/DashboardDeferred.tsx");
-  assert.match(session, /from\s+["']react["']/);
-  assert.match(session, /\bcache\(/);
+  assert.match(session, /export async function getActiveProfileContext/);
+  assert.match(session, /async function loadActiveProfileContext/);
   assert.match(banner, /familyId:\s*string/);
   assert.match(deferred, /Promise\.all\(/);
   assert.match(dashboard, /<DailyPinBanner\s+familyId=\{/);

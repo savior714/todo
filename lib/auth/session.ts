@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { and, eq } from "drizzle-orm";
-import { cache } from "react";
 import { auth, unauthorized } from "@/auth";
 import { db } from "@/db/client";
 import { profiles, userFamilies } from "@/db/schema";
@@ -67,5 +66,6 @@ async function loadActiveProfileContext(): Promise<ResolvedActiveProfile | null>
   }
 }
 
-/** 동일 RSC 요청 내 `auth`/프로필 조회 중복을 제거합니다. */
-export const getActiveProfileContext = cache(loadActiveProfileContext);
+export async function getActiveProfileContext(): Promise<ResolvedActiveProfile | null> {
+  return await loadActiveProfileContext();
+}

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { MEDICATION_UNITS } from "@/lib/events/metadata";
 import { useConfirm } from "@/app/(dashboard)/useConfirm";
-import { CHILD_LABEL, SCHOOL_CHILD_LABEL } from "@/lib/children";
+import { SCHOOL_CHILD_LABEL, ROUTINE_TARGET_LABEL } from "@/lib/children";
 
 export type RecordDraft = {
   actionType: string;
@@ -24,9 +24,9 @@ type CreateEventResult =
 export type CreateEventAction = (payload: CreateEventInput) => Promise<CreateEventResult>;
 
 const TARGET_OPTIONS: { value: "kid7" | "kid4" | "family"; label: string }[] = [
-  { value: "kid7", label: CHILD_LABEL.kid7 },
-  { value: "kid4", label: CHILD_LABEL.kid4 },
-  { value: "family", label: "가족 공통" },
+  { value: "kid7", label: SCHOOL_CHILD_LABEL.kid7 },
+  { value: "kid4", label: SCHOOL_CHILD_LABEL.kid4 },
+  { value: "family", label: ROUTINE_TARGET_LABEL.family },
 ];
 
 const SCHOOL_CHILD_OPTIONS: { value: "kid7" | "kid4"; label: string; hint: string }[] = [
@@ -106,11 +106,16 @@ export default function RecordEventModal({
       setSubject(t);
       setMedItems([{ name: "", amount: 5, unit: "ml" }]);
       setMedNote("");
+      setGenericNote("");
     } else if (draft.actionType === "school_dropoff" || draft.actionType === "school_pickup") {
       setSchoolChild(defaultSchoolChildFromDraftTarget(draft.target));
       setSchoolPlace("");
+      setGenericNote("");
     } else if (draft.actionType === "brushing") {
       setBrushChild(defaultSchoolChildFromDraftTarget(draft.target));
+      setGenericNote("");
+    } else if (draft.actionType === "meal") {
+      setGenericNote("");
     } else {
       setGenericNote("");
     }
