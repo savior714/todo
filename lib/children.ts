@@ -96,13 +96,18 @@ export function formatEventTargetForDisplay(target: string): string {
 
 /** DB child_group/target 값을 UI safe 값으로 normalize */
 export function normalizeChildGroup(raw: string): ChildId {
-  return raw === "kid7" || raw === "kid4" ? (raw as ChildId) : DEFAULT_CHILD_TARGET;
+  if (raw === "kid7" || raw === "kid4") {
+    return raw as ChildId;
+  }
+  console.warn(`[normalizeChildGroup] Invalid childGroup: "${raw}" — defaulting to "${DEFAULT_CHILD_TARGET}"`);
+  return DEFAULT_CHILD_TARGET;
 }
 
 export function normalizeRoutineTarget(raw: string): ChildTarget {
   if (raw === "kid7" || raw === "kid4" || raw === "family") {
     return raw as ChildTarget;
   }
+  console.warn(`[normalizeRoutineTarget] Invalid routine target: "${raw}" — defaulting to "family"`);
   return "family";
 }
 

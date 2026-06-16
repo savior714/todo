@@ -10,7 +10,7 @@ export default function AdminError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("[Admin Error]", error);
+    console.error("[Admin Error]", error.message, error.digest);
   }, [error]);
 
   return (

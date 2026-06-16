@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   createRoutineItemForModal,
   deactivateRoutineItemForModal,
 } from "@/app/actions/admin";
 import { ROUTINE_TARGET_LABEL } from "@/lib/children";
-
-function StatusWrapper({ children }: { children: React.ReactNode }) {
-  const status = useFormStatus();
-  void status.pending;
-  return <>{children}</>;
-}
 
 export type RoutineItemAdminRow = {
   id: string;
@@ -28,29 +22,19 @@ type RoutineItemsAdminModalProps = {
   rows: RoutineItemAdminRow[];
 };
 
-
-
 export default function RoutineItemsAdminModal({
   open,
   onClose,
-  onChanged,
   rows,
 }: RoutineItemsAdminModalProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (open) {
       dialogRef.current?.showModal();
     }
   }, [open]);
-
-  useEffect(() => {
-    if (formSubmitted) {
-      setFormSubmitted(false);
-      onChanged?.();
-    }
-  }, [formSubmitted, onChanged]);
 
   const handleDialogClose = () => {
     onClose();
@@ -98,32 +82,39 @@ export default function RoutineItemsAdminModal({
                   </span>
                 </div>
                 {row.isActive ? (
-                  <StatusWrapper>
-                    <form action={deactivateRoutineItemForModal}>
-                      <input type="hidden" name="id" value={row.id} />
-                      <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500">
-                        숨기기
-                      </button>
-                    </form>
-                  </StatusWrapper>
+                  <form
+                    action={async (formData) => {
+                      await deactivateRoutineItemForModal(formData);
+                      router.refresh();
+                    }}
+                  >
+                    <input type="hidden" name="id" value={row.id} />
+                    <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500">
+                      숨기기
+                    </button>
+                  </form>
                 ) : null}
               </li>
             ))}
           </ul>
 
-          <StatusWrapper>
-            <form action={createRoutineItemForModal} className="mt-4 grid gap-2">
-              <input name="title" required placeholder="예: 물통 채우기, 준비물 가방" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700" />
-              <select name="target" defaultValue="family" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700">
-                <option value="family">{ROUTINE_TARGET_LABEL.family}</option>
-                <option value="kid7">{ROUTINE_TARGET_LABEL.kid7}</option>
-                <option value="kid4">{ROUTINE_TARGET_LABEL.kid4}</option>
-              </select>
-              <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white">
-                추가
-              </button>
-            </form>
-          </StatusWrapper>
+          <form
+            action={async (formData) => {
+              await createRoutineItemForModal(formData);
+              router.refresh();
+            }}
+            className="mt-4 grid gap-2"
+          >
+            <input name="title" required placeholder="예: 물통 채우기, 준비물 가방" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700" />
+            <select name="target" defaultValue="family" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700">
+              <option value="family">{ROUTINE_TARGET_LABEL.family}</option>
+              <option value="kid7">{ROUTINE_TARGET_LABEL.kid7}</option>
+              <option value="kid4">{ROUTINE_TARGET_LABEL.kid4}</option>
+            </select>
+            <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white">
+              추가
+            </button>
+          </form>
         </div>
       </div>
     </dialog>

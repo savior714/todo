@@ -1,8 +1,7 @@
 import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { events } from "@/db/schema";
-
-const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+import { TWO_HOURS_MS } from "@/lib/config";
 
 type TxType = Parameters<typeof db.transaction>[0] extends (tx: infer Tx) => unknown ? Tx : never;
 

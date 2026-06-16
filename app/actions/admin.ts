@@ -53,6 +53,7 @@ async function resolveActiveAdmin() {
   return profile;
 }
 
+/** 일일 핀 생성/업데이트. 기존 활성 핀은 비활성화되고 새 핀이 생성됨. */
 export async function upsertDailyPin(content: string) {
   const profile = await resolveActiveAdmin();
 
@@ -72,6 +73,7 @@ export async function upsertDailyPin(content: string) {
   return { success: true };
 }
 
+/** 숙제 유형 생성. kid7/kid4 대상의 숙제 유형을 활성 상태로 추가함. */
 export async function createHomeworkType(childGroup: "kid7" | "kid4", title: string) {
   const profile = await resolveActiveAdmin();
   const trimmedTitle = title.trim();
@@ -94,6 +96,7 @@ export async function createHomeworkType(childGroup: "kid7" | "kid4", title: str
   return { success: true };
 }
 
+/** 숙제 유형 비활성화. 해당 유형의 isActive를 false로 설정함. */
 export async function deactivateHomeworkType(formData: FormData) {
   const profile = await resolveActiveAdmin();
   const id = String(formData.get("id") ?? "").trim();
@@ -111,6 +114,7 @@ export async function deactivateHomeworkType(formData: FormData) {
   return { success: true };
 }
 
+/** 숙제 완료 처리. 날짜별 숙제 로그를 생성하고 첫 완료 시 이벤트도 함께 생성함. */
 export async function completeHomework(homeworkTypeId: string, dateKeyOverride?: string) {
   const profile = await getActiveProfileContext();
 
@@ -198,6 +202,7 @@ export async function completeHomework(homeworkTypeId: string, dateKeyOverride?:
   return { success: true };
 }
 
+/** 루틴 항목 생성. kid7/kid4/family 대상의 루틴을 활성 상태로 추가함. */
 export async function createRoutineItem(target: "kid7" | "kid4" | "family", title: string) {
   const profile = await resolveActiveAdmin();
   const trimmed = title.trim();
@@ -225,6 +230,7 @@ export async function createRoutineItem(target: "kid7" | "kid4" | "family", titl
   return { success: true };
 }
 
+/** 루틴 항목 비활성화. 해당 항목의 isActive를 false로 설정함. */
 export async function deactivateRoutineItem(formData: FormData) {
   const profile = await resolveActiveAdmin();
   const id = String(formData.get("id") ?? "").trim();
@@ -242,6 +248,7 @@ export async function deactivateRoutineItem(formData: FormData) {
   return { success: true };
 }
 
+/** 루틴 완료 처리. 날짜별 루틴 로그를 생성하고 첫 완료 시 이벤트도 함께 생성함. */
 export async function completeRoutineItem(routineItemId: string, dateKeyOverride?: string) {
   const profile = await getActiveProfileContext();
 
@@ -328,6 +335,7 @@ export async function completeRoutineItem(routineItemId: string, dateKeyOverride
   return { success: true };
 }
 
+/** 퀵 액션 버튼 생성. predefined/커스텀 액션 타입으로 빠른 실행 버튼을 추가함. */
 export async function createQuickAction(formData: FormData): Promise<CreateQuickActionResult> {
   const profile = await resolveActiveAdmin();
   const label = String(formData.get("label") ?? "").trim();
@@ -369,6 +377,7 @@ export async function createQuickAction(formData: FormData): Promise<CreateQuick
   return { success: true };
 }
 
+/** 퀵 액션 버튼 숨기기. 해당 버튼의 isActive를 false로 설정함. */
 export async function deactivateQuickAction(formData: FormData) {
   const profile = await resolveActiveAdmin();
   const id = String(formData.get("id") ?? "").trim();
@@ -388,6 +397,7 @@ export async function deactivateQuickAction(formData: FormData) {
 
 // --- Modal-specific wrappers (revalidate /dashboard) ---
 
+/** 모달용 퀵 액션 생성. createQuickAction 호출 후 /dashboard 경로만 revalidate함. */
 export async function createQuickActionForModal(formData: FormData): Promise<CreateQuickActionResult> {
   const result = await createQuickAction(formData);
   if (result.success) {
@@ -396,11 +406,13 @@ export async function createQuickActionForModal(formData: FormData): Promise<Cre
   return result;
 }
 
+/** 모달용 퀵 액션 숨기기. deactivateQuickAction 호출 후 /dashboard 경로를 revalidate함. */
 export async function deactivateQuickActionForModal(formData: FormData) {
   await deactivateQuickAction(formData);
   revalidatePath("/dashboard");
 }
 
+/** 모달용 숙제 유형 생성. createHomeworkType 호출 후 /dashboard 경로를 revalidate함. */
 export async function createHomeworkTypeForModal(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const childGroup = String(formData.get("childGroup") ?? "") as "kid7" | "kid4";
@@ -411,11 +423,13 @@ export async function createHomeworkTypeForModal(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
+/** 모달용 숙제 유형 숨기기. deactivateHomeworkType 호출 후 /dashboard 경로를 revalidate함. */
 export async function deactivateHomeworkTypeForModal(formData: FormData) {
   await deactivateHomeworkType(formData);
   revalidatePath("/dashboard");
 }
 
+/** 모달용 루틴 항목 생성. createRoutineItem 호출 후 /dashboard 경로를 revalidate함. */
 export async function createRoutineItemForModal(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const target = String(formData.get("target") ?? "") as "kid7" | "kid4" | "family";
@@ -426,11 +440,13 @@ export async function createRoutineItemForModal(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
+/** 모달용 루틴 항목 숨기기. deactivateRoutineItem 호출 후 /dashboard 경로를 revalidate함. */
 export async function deactivateRoutineItemForModal(formData: FormData) {
   await deactivateRoutineItem(formData);
   revalidatePath("/dashboard");
 }
 
+/** 프로필 삭제. 이벤트 revert, 일일핀 비활성화, homework/routine 로그 revert, 프로필 soft-delete를 단일 트랜잭션으로 처리함. */
 export async function deleteProfile(profileId: string) {
   const admin = await resolveActiveAdmin();
 

@@ -14,14 +14,14 @@ import {
   routineLogs,
 } from "@/db/schema";
 import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard/perf";
+import { safeDbQuery } from "@/lib/dashboard/error";
 import { TIMELINE_EVENT_LIMIT, TIMELINE_LOOKBACK_MS } from "@/lib/dashboard/timeline";
 import { addDays, formatDateKey, startOfLocalDay } from "@/lib/timeline/date";
+import { normalizeChildGroup, normalizeRoutineTarget } from "@/lib/children";
 
 type TimelineFeedSectionProps = Readonly<{
   familyId: string;
 }>;
-
-import { normalizeChildGroup, normalizeRoutineTarget } from "@/lib/children";
 
 export default async function TimelineFeedSection({ familyId }: TimelineFeedSectionProps) {
   const t0 = dashboardPerfNow();
@@ -34,45 +34,8 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
   const yesterdayKey = formatDateKey(addDays(startOfLocalDay(new Date()), -1));
   const tomorrowKey = formatDateKey(addDays(startOfLocalDay(new Date()), 1));
 
-  type TimelineRow = {
-    id: string;
-    action_type: string;
-    target: string;
-    created_at: Date | string;
-    is_reverted: boolean | null;
-    metadata: string | null;
-  };
-
-  type HomeworkTypeRow = {
-    id: string;
-    title: string;
-    childGroup: string;
-  };
-
-  type HomeworkLogRow = {
-    dateKey: string;
-    homeworkTypeId: string;
-  };
-
-  type RoutineTypeRow = {
-    id: string;
-    title: string;
-    target: string;
-  };
-
-  type RoutineLogRow = {
-    dateKey: string;
-    routineItemId: string;
-  };
-
-  let timelineRows: TimelineRow[] = [];
-  let hwRows: HomeworkTypeRow[] = [];
-  let logRows: HomeworkLogRow[] = [];
-  let rtRows: RoutineTypeRow[] = [];
-  let routineLogRows: RoutineLogRow[] = [];
-
-  try {
-    [timelineRows, hwRows, logRows, rtRows, routineLogRows] = await Promise.all([
+  const { rows: timelineRows, failed: timelineFailed } = await safeDbQuery(
+    () =>
       db
         .select({
           id: events.id,
@@ -88,6 +51,12 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
         )
         .orderBy(desc(events.createdAt))
         .limit(TIMELINE_EVENT_LIMIT),
+    "timeline_events",
+    { familyId }
+  );
+
+  const { rows: hwRows, failed: hwTypesFailed } = await safeDbQuery(
+    () =>
       db
         .select({
           id: homeworkTypesTable.id,
@@ -97,6 +66,12 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
         .from(homeworkTypesTable)
         .where(and(eq(homeworkTypesTable.familyId, familyId), eq(homeworkTypesTable.isActive, true)))
         .orderBy(asc(homeworkTypesTable.createdAt)),
+    "timeline_homework_types",
+    { familyId }
+  );
+
+  const { rows: logRows, failed: hwLogsFailed } = await safeDbQuery(
+    () =>
       db
         .select({
           dateKey: homeworkLogs.dateKey,
@@ -106,6 +81,12 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
         .where(
           and(eq(homeworkLogs.familyId, familyId), eq(homeworkLogs.isReverted, false), gte(homeworkLogs.dateKey, minLogKey), lte(homeworkLogs.dateKey, maxLogKey))
         ),
+    "timeline_homework_logs",
+    { familyId }
+  );
+
+  const { rows: rtRows, failed: rtTypesFailed } = await safeDbQuery(
+    () =>
       db
         .select({
           id: routineItemsTable.id,
@@ -115,6 +96,12 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
         .from(routineItemsTable)
         .where(and(eq(routineItemsTable.familyId, familyId), eq(routineItemsTable.isActive, true)))
         .orderBy(asc(routineItemsTable.sortOrder), asc(routineItemsTable.createdAt)),
+    "timeline_routine_types",
+    { familyId }
+  );
+
+  const { rows: routineLogRows, failed: rtLogsFailed } = await safeDbQuery(
+    () =>
       db
         .select({
           dateKey: routineLogs.dateKey,
@@ -124,15 +111,13 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
         .where(
           and(eq(routineLogs.familyId, familyId), eq(routineLogs.isReverted, false), gte(routineLogs.dateKey, minLogKey), lte(routineLogs.dateKey, maxLogKey))
         ),
-    ]);
-  } catch (err) {
-    console.error("[TimelineFeedSection] DB query failed", {
-      familyId,
-      error: err instanceof Error ? err.message : String(err),
-    });
-  }
+    "timeline_routine_logs",
+    { familyId }
+  );
 
   logDashboardPerf("timeline", t0);
+
+  const hasTimelineError = timelineFailed || hwTypesFailed || hwLogsFailed || rtTypesFailed || rtLogsFailed;
 
   const normalizedEvents = timelineRows.map((row) => ({
     ...row,
@@ -158,18 +143,28 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
   const routineLoggedKeys = routineLogRows.map((r) => `${r.dateKey}|${r.routineItemId}`);
 
   return (
-    <TimelineFeed
-      initialTodayKey={todayKey}
-      initialYesterdayKey={yesterdayKey}
-      initialTomorrowKey={tomorrowKey}
-      initialEvents={normalizedEvents}
-      undoEventAction={undoEvent}
-      homeworkTypes={homeworkTypes}
-      homeworkLoggedKeys={homeworkLoggedKeys}
-      completeHomeworkAction={completeHomework}
-      routineTypes={routineTypes}
-      routineLoggedKeys={routineLoggedKeys}
-      completeRoutineAction={completeRoutineItem}
-    />
+    <>
+      {hasTimelineError && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2 text-sm leading-relaxed text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+        >
+          타임라인 데이터를 불러오지 못했습니다.
+        </p>
+      )}
+      <TimelineFeed
+        initialTodayKey={todayKey}
+        initialYesterdayKey={yesterdayKey}
+        initialTomorrowKey={tomorrowKey}
+        initialEvents={normalizedEvents}
+        undoEventAction={undoEvent}
+        homeworkTypes={homeworkTypes}
+        homeworkLoggedKeys={homeworkLoggedKeys}
+        completeHomeworkAction={completeHomework}
+        routineTypes={routineTypes}
+        routineLoggedKeys={routineLoggedKeys}
+        completeRoutineAction={completeRoutineItem}
+      />
+    </>
   );
 }

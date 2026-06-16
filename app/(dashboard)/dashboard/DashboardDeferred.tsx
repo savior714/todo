@@ -5,167 +5,81 @@ import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import { db } from "@/db/client";
 import { homeworkLogs, homeworkTypes, quickActions, routineItems } from "@/db/schema";
 import { dashboardPerfNow, logDashboardPerf } from "@/lib/dashboard/perf";
+import { safeDbQuery } from "@/lib/dashboard/error";
 import type { ResolvedActiveProfile } from "@/lib/auth/session";
 import type { HomeworkQuickShortcut } from "@/app/(dashboard)/QuickActionPanel";
 import type { HomeworkTypeAdminRow } from "@/app/(dashboard)/HomeworkTypesAdminModal";
 import type { RoutineItemAdminRow } from "@/app/(dashboard)/RoutineItemsAdminModal";
 import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions/seed";
-import { isValidTarget } from "@/lib/children";
+import { isValidTarget, isChildId } from "@/lib/children";
 
 type DashboardDeferredProps = Readonly<{
   profile: ResolvedActiveProfile;
 }>;
 
-async function loadQuickActionsForDashboard(familyId: string): Promise<{
-  rows: { id: string; label: string; actionType: string; target: string }[];
-  failed: boolean;
-}> {
-  let rows: { id: string; label: string; actionType: string; target: string }[] = [];
-  let failed = false;
-  try {
-    await ensureDefaultQuickActionsForFamily(familyId);
-    rows = await db
-      .select({
-        id: quickActions.id,
-        label: quickActions.label,
-        actionType: quickActions.actionType,
-        target: quickActions.target,
-      })
-      .from(quickActions)
-      .where(and(eq(quickActions.familyId, familyId), eq(quickActions.isActive, true)))
-      .orderBy(asc(quickActions.sortOrder), asc(quickActions.createdAt));
-  } catch (err: unknown) {
-    failed = true;
-    const message = err instanceof Error ? err.message : String(err);
-    const code =
-      err &&
-      typeof err === "object" &&
-      "code" in err &&
-      (typeof (err as { code: unknown }).code === "string" || typeof (err as { code: unknown }).code === "number")
-        ? (err as { code: string | number }).code
-        : undefined;
-    console.error("[dashboard] quick_actions load failed", {
-      familyId,
-      message,
-      ...(code !== undefined ? { code } : {}),
-    });
-  }
-  return { rows, failed };
-}
-
-async function loadHomeworkTypesForDashboard(familyId: string): Promise<{
-  rows: { id: string; title: string; childGroup: string }[];
-  failed: boolean;
-}> {
-  let rows: { id: string; title: string; childGroup: string }[] = [];
-  let failed = false;
-  try {
-    rows = await db
-      .select({
-        id: homeworkTypes.id,
-        title: homeworkTypes.title,
-        childGroup: homeworkTypes.childGroup,
-      })
-      .from(homeworkTypes)
-      .where(and(eq(homeworkTypes.familyId, familyId), eq(homeworkTypes.isActive, true)))
-      .orderBy(asc(homeworkTypes.createdAt));
-  } catch (err: unknown) {
-    failed = true;
-    const message = err instanceof Error ? err.message : String(err);
-    const code =
-      err &&
-      typeof err === "object" &&
-      "code" in err &&
-      (typeof (err as { code: unknown }).code === "string" || typeof (err as { code: unknown }).code === "number")
-        ? (err as { code: string | number }).code
-        : undefined;
-    console.error("[dashboard] homework_types load failed", {
-      familyId,
-      message,
-      ...(code !== undefined ? { code } : {}),
-    });
-  }
-  return { rows, failed };
-}
-
-async function loadRoutineItemsForDashboard(familyId: string): Promise<{
-  rows: { id: string; title: string; target: string; isActive: boolean }[];
-  failed: boolean;
-}> {
-  let rows: { id: string; title: string; target: string; isActive: boolean }[] = [];
-  let failed = false;
-  try {
-    rows = await db
-      .select({
-        id: routineItems.id,
-        title: routineItems.title,
-        target: routineItems.target,
-        isActive: routineItems.isActive,
-      })
-      .from(routineItems)
-      .where(and(eq(routineItems.familyId, familyId), eq(routineItems.isActive, true)))
-      .orderBy(asc(routineItems.createdAt));
-  } catch (err: unknown) {
-    failed = true;
-    const message = err instanceof Error ? err.message : String(err);
-    const code =
-      err &&
-      typeof err === "object" &&
-      "code" in err &&
-      (typeof (err as { code: unknown }).code === "string" || typeof (err as { code: unknown }).code === "number")
-        ? (err as { code: string | number }).code
-        : undefined;
-    console.error("[dashboard] routine_items load failed", {
-      familyId,
-      message,
-      ...(code !== undefined ? { code } : {}),
-    });
-  }
-  return { rows, failed };
-}
-
-async function loadHomeworkLogsTodayForDashboard(familyId: string, todayKey: string): Promise<{
-  rows: { homeworkTypeId: string }[];
-  failed: boolean;
-}> {
-  let rows: { homeworkTypeId: string }[] = [];
-  let failed = false;
-  try {
-    rows = await db
-      .select({ homeworkTypeId: homeworkLogs.homeworkTypeId })
-      .from(homeworkLogs)
-      .where(and(eq(homeworkLogs.familyId, familyId), eq(homeworkLogs.dateKey, todayKey), eq(homeworkLogs.isReverted, false)));
-  } catch (err: unknown) {
-    failed = true;
-    const message = err instanceof Error ? err.message : String(err);
-    const code =
-      err &&
-      typeof err === "object" &&
-      "code" in err &&
-      (typeof (err as { code: unknown }).code === "string" || typeof (err as { code: unknown }).code === "number")
-        ? (err as { code: string | number }).code
-        : undefined;
-    console.error("[dashboard] homework_logs_today load failed", {
-      familyId,
-      todayKey,
-      message,
-      ...(code !== undefined ? { code } : {}),
-    });
-  }
-  return { rows, failed };
-}
-
 export default async function DashboardDeferred({ profile }: DashboardDeferredProps) {
   const t0 = dashboardPerfNow();
+  const familyId = profile.familyId;
   const todayKey = new Date().toISOString().slice(0, 10);
 
-  const [{ rows: quickActionRows, failed: quickActionsLoadFailed }, { rows: homeworkTypeRows, failed: homeworkTypesLoadFailed }, { rows: routineItemRows, failed: routineItemsLoadFailed }, { rows: homeworkLogsToday, failed: homeworkLogsLoadFailed }] =
-    await Promise.all([
-      loadQuickActionsForDashboard(profile.familyId),
-      loadHomeworkTypesForDashboard(profile.familyId),
-      loadRoutineItemsForDashboard(profile.familyId),
-      loadHomeworkLogsTodayForDashboard(profile.familyId, todayKey),
-    ]);
+  const { rows: quickActionRows, failed: quickActionsLoadFailed } = await safeDbQuery(
+    () => Promise.all([
+      ensureDefaultQuickActionsForFamily(familyId),
+      db
+        .select({
+          id: quickActions.id,
+          label: quickActions.label,
+          actionType: quickActions.actionType,
+          target: quickActions.target,
+        })
+        .from(quickActions)
+        .where(and(eq(quickActions.familyId, familyId), eq(quickActions.isActive, true)))
+        .orderBy(asc(quickActions.sortOrder), asc(quickActions.createdAt)),
+    ]).then(([, rows]) => rows),
+    "quick_actions",
+    { familyId }
+  );
+
+  const { rows: homeworkTypeRows, failed: homeworkTypesLoadFailed } = await safeDbQuery(
+    () =>
+      db
+        .select({
+          id: homeworkTypes.id,
+          title: homeworkTypes.title,
+          childGroup: homeworkTypes.childGroup,
+        })
+        .from(homeworkTypes)
+        .where(and(eq(homeworkTypes.familyId, familyId), eq(homeworkTypes.isActive, true)))
+        .orderBy(asc(homeworkTypes.createdAt)),
+    "homework_types",
+    { familyId }
+  );
+
+  const { rows: routineItemRows, failed: routineItemsLoadFailed } = await safeDbQuery(
+    () =>
+      db
+        .select({
+          id: routineItems.id,
+          title: routineItems.title,
+          target: routineItems.target,
+          isActive: routineItems.isActive,
+        })
+        .from(routineItems)
+        .where(and(eq(routineItems.familyId, familyId), eq(routineItems.isActive, true)))
+        .orderBy(asc(routineItems.createdAt)),
+    "routine_items",
+    { familyId }
+  );
+
+  const { rows: homeworkLogsToday, failed: homeworkLogsLoadFailed } = await safeDbQuery(
+    () =>
+      db
+        .select({ homeworkTypeId: homeworkLogs.homeworkTypeId })
+        .from(homeworkLogs)
+        .where(and(eq(homeworkLogs.familyId, familyId), eq(homeworkLogs.dateKey, todayKey), eq(homeworkLogs.isReverted, false))),
+    "homework_logs_today",
+    { familyId, todayKey }
+  );
 
   logDashboardPerf("parallel_quick_homework", t0);
 
@@ -173,7 +87,7 @@ export default async function DashboardDeferred({ profile }: DashboardDeferredPr
   const homeworkShortcuts: HomeworkQuickShortcut[] = homeworkTypeRows.map((row) => ({
     id: row.id,
     title: row.title,
-    childGroup: row.childGroup as "kid7" | "kid4",
+    childGroup: isChildId(row.childGroup) ? (row.childGroup as "kid7" | "kid4") : "kid4",
     completedToday: homeworkCompletedToday.has(row.id),
   }));
 
@@ -196,7 +110,7 @@ export default async function DashboardDeferred({ profile }: DashboardDeferredPr
   const homeworkTypeRowsTyped: HomeworkTypeAdminRow[] = homeworkTypeRows.map((r) => ({
     id: r.id,
     title: r.title,
-    childGroup: r.childGroup as "kid7" | "kid4",
+    childGroup: isChildId(r.childGroup) ? (r.childGroup as "kid7" | "kid4") : "kid4",
     isActive: true,
   }));
 

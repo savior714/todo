@@ -2,8 +2,7 @@ import { beginGoogleLogin } from "@/app/actions/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-
-const ACTIVE_PROFILE_COOKIE = "active_profile_id";
+import { ACTIVE_PROFILE_COOKIE } from "@/lib/auth/session";
 
 export default async function LoginPage() {
   const session = await auth();

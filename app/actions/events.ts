@@ -22,6 +22,15 @@ type CreateEventResult =
   | { success: true; eventId: string }
   | { blocked: true; lastEventAt: string | null; reason?: "duplicate" };
 
+/**
+ * 타임라인 이벤트를 생성합니다.
+ *
+ * medication 액션 타입의 경우 중복 체크를 수행하며,
+ * Turso UNIQUE constraint 위반 시 중복 차단 결과를 반환합니다.
+ *
+ * @param payload - 생성할 이벤트의 actionType, target, metadata 포함
+ * @returns 성공 시 eventId, 중복 차단 시 마지막 이벤트 시각과 함께 blocked 반환
+ */
 export async function createEvent(payload: CreateEventInput): Promise<CreateEventResult> {
   const profile = await getActiveProfileContext();
 
@@ -119,6 +128,16 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
   }
 }
 
+/**
+ * 이벤트의 실행을 취소합니다 (soft revert).
+ *
+ * isReverted 플래그를 true로 설정하여 논리적 취소를 수행하며,
+ * undo 정책(time window)을 준수하는지 검증합니다.
+ *
+ * @param eventId - 취소할 이벤트의 ID
+ * @returns 항상 성공 결과 반환 (이미 취소된 경우 포함)
+ * @throws Undo 가능 시간이 지났거나 이벤트가 존재하지 않을 경우
+ */
 export async function undoEvent(eventId: string) {
   const profile = await getActiveProfileContext();
 

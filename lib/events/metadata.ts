@@ -1,15 +1,10 @@
 import { z } from "zod";
-import { KNOWN_ACTION_TYPES } from "@/lib/constants";
 import { EVENT_TARGET_LABEL, SCHOOL_CHILD_LABEL } from "@/lib/children";
 
 const dateKeyRegex = /^\d{4}-\d{2}-\d{2}$/;
 
 export const CUSTOM_SLUG_REGEX = /^[a-z][a-z0-9_]{0,63}$/;
 
-/** @deprecated Use KNOWN_ACTION_TYPES from @/lib/constants (SSOT) */
-export const KNOWN_ACTION_TYPES_SET = new Set(KNOWN_ACTION_TYPES);
-
-// Re-export for backwards compatibility
 export { KNOWN_ACTION_TYPES, type ActionType } from "@/lib/constants";
 
 export const MEDICATION_UNITS = ["ml", "cc", "mg", "drop", "회"] as const;

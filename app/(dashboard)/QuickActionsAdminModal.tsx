@@ -1,18 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { TARGET_LABEL } from "@/lib/children";
+import { ACTION_TYPE_LABEL } from "@/lib/ui/labels";
 import {
   createQuickActionForModal,
   deactivateQuickActionForModal,
 } from "@/app/actions/admin";
-
-function StatusWrapper({ children }: { children: React.ReactNode }) {
-  const status = useFormStatus();
-  void status.pending;
-  return <>{children}</>;
-}
 
 export type QuickActionAdminRow = {
   id: string;
@@ -30,15 +25,6 @@ type QuickActionsAdminModalProps = {
   rows: QuickActionAdminRow[];
 };
 
-const ACTION_TYPE_LABEL: Record<string, string> = {
-  meal: "식사",
-  medication: "투약",
-  school_dropoff: "등원",
-  school_pickup: "하원",
-  brushing: "양치",
-  cleaning: "청소",
-};
-
 function formatQuickActionMeta(actionType: string, target: string) {
   const typeLabel = ACTION_TYPE_LABEL[actionType] ?? actionType;
   const who = TARGET_LABEL[target as "kid7" | "kid4" | "family"] ?? target;
@@ -48,11 +34,10 @@ function formatQuickActionMeta(actionType: string, target: string) {
 export default function QuickActionsAdminModal({
   open,
   onClose,
-  onChanged,
   rows,
 }: QuickActionsAdminModalProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!open) {
@@ -63,13 +48,6 @@ export default function QuickActionsAdminModal({
       el.showModal();
     }
   }, [open]);
-
-  useEffect(() => {
-    if (formSubmitted) {
-      setFormSubmitted(false);
-      onChanged?.();
-    }
-  }, [formSubmitted, onChanged]);
 
   const handleDialogClose = () => {
     onClose();
@@ -122,76 +100,83 @@ export default function QuickActionsAdminModal({
                     </div>
                   </div>
                   {row.isActive ? (
-                    <StatusWrapper>
-                      <form action={deactivateQuickActionForModal}>
-                        <input type="hidden" name="id" value={row.id} />
-                        <button
-                          type="submit"
-                          className="inline-flex min-h-[44px] shrink-0 items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500"
-                        >
-                          숨기기
-                        </button>
-                      </form>
-                    </StatusWrapper>
+                    <form
+                      action={async (formData) => {
+                        await deactivateQuickActionForModal(formData);
+                        router.refresh();
+                      }}
+                    >
+                      <input type="hidden" name="id" value={row.id} />
+                      <button
+                        type="submit"
+                        className="inline-flex min-h-[44px] shrink-0 items-center rounded-md border border-neutral-400 px-3 text-sm font-medium leading-snug dark:border-neutral-500"
+                      >
+                        숨기기
+                      </button>
+                    </form>
                   ) : null}
                 </li>
               ))}
             </ul>
 
-            <StatusWrapper>
-              <form action={async (formData) => { await createQuickActionForModal(formData); }} className="mt-4 grid gap-3">
-                <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
-                  버튼 이름
-                  <input
-                    name="label"
-                    required
-                    placeholder="예: 저녁 식사"
-                    className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
-                  />
-                </label>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
-                    기록 종류
-                    <select
-                      name="actionPreset"
-                      defaultValue="meal"
-                      className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
-                    >
-                      <option value="meal">식사</option>
-                      <option value="medication">투약</option>
-                      <option value="school_dropoff">등원</option>
-                      <option value="school_pickup">하원</option>
-                      <option value="brushing">양치</option>
-                      <option value="cleaning">청소</option>
-                      <option value="custom">기타(직접 입력)</option>
-                    </select>
-                  </label>
-                  <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
-                    기록 대상
-                    <select
-                      name="target"
-                      defaultValue="kid4"
-                      className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
-                    >
-                      <option value="family">{TARGET_LABEL.family}</option>
-                      <option value="kid7">{TARGET_LABEL.kid7}</option>
-                      <option value="kid4">{TARGET_LABEL.kid4}</option>
-                    </select>
-                  </label>
-                </div>
+            <form
+              action={async (formData) => {
+                await createQuickActionForModal(formData);
+                router.refresh();
+              }}
+              className="mt-4 grid gap-3"
+            >
+              <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
+                버튼 이름
                 <input
-                  name="actionCustom"
-                  placeholder="영문 코드 (예: laundry)"
-                  className="min-h-[44px] w-full rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
+                  name="label"
+                  required
+                  placeholder="예: 저녁 식사"
+                  className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
                 />
-                <button
-                  type="submit"
-                  className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white"
-                >
-                  버튼 추가
-                </button>
-              </form>
-            </StatusWrapper>
+              </label>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
+                  기록 종류
+                  <select
+                    name="actionPreset"
+                    defaultValue="meal"
+                    className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
+                  >
+                    <option value="meal">식사</option>
+                    <option value="medication">투약</option>
+                    <option value="school_dropoff">등원</option>
+                    <option value="school_pickup">하원</option>
+                    <option value="brushing">양치</option>
+                    <option value="cleaning">청소</option>
+                    <option value="custom">기타(직접 입력)</option>
+                  </select>
+                </label>
+                <label className="grid gap-1.5 text-sm font-medium leading-normal text-neutral-800 dark:text-neutral-100">
+                  기록 대상
+                  <select
+                    name="target"
+                    defaultValue="kid4"
+                    className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
+                  >
+                    <option value="family">{TARGET_LABEL.family}</option>
+                    <option value="kid7">{TARGET_LABEL.kid7}</option>
+                    <option value="kid4">{TARGET_LABEL.kid4}</option>
+                  </select>
+                </label>
+              </div>
+              <input
+                name="actionCustom"
+                placeholder="영문 코드 (예: laundry)"
+                className="min-h-[44px] w-full rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
+              />
+              <button
+                type="submit"
+                className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white"
+              >
+                버튼 추가
+              </button>
+            </form>
           </div>
         </div>
       </div>

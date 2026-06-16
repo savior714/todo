@@ -1,15 +1,7 @@
 "use client";
 
 import { TARGET_LABEL } from "@/lib/children";
-
-const ACTION_TYPE_LABEL: Record<string, string> = {
-  meal: "식사",
-  medication: "투약",
-  school_dropoff: "등원",
-  school_pickup: "하원",
-  brushing: "양치",
-  cleaning: "청소",
-};
+import { ACTION_TYPE_LABEL } from "@/lib/ui/labels";
 
 export type QuickActionAdminRow = {
   id: string;

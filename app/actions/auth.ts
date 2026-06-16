@@ -12,10 +12,21 @@ import { z } from "zod";
 
 const profileIdSchema = z.string().uuid();
 
+/**
+ * Google OAuth 로그인을 시작한다.
+ * Google signIn을 호출하고 /select-profile 페이지로 리다이렉트한다.
+ */
 export async function beginGoogleLogin() {
   await signIn("google", { redirectTo: "/select-profile" });
 }
 
+/**
+ * 프로필을 선택하고 활성 프로필 쿠키를 설정한다.
+ *
+ * @param profileId - 선택할 프로필 ID (UUID 형식)
+ * @throws 가족 정보가 없거나, 선택한 프로필에 접근 권한이 없을 경우
+ * @description 유효성 검증 → 사용자/가족 정보 조회 → 프로필 접근 권한 확인 → 쿠키 설정 → /dashboard 리다이렉트 순으로 실행한다.
+ */
 export async function selectProfile(profileId: string) {
   profileIdSchema.parse(profileId);
   const userId = await requireUserId();
@@ -46,6 +57,12 @@ export async function selectProfile(profileId: string) {
   redirect("/dashboard");
 }
 
+/**
+ * 로그아웃한다.
+ *
+ * @description signOut 호출 후 활성 프로필 쿠키를 삭제한다.
+ * 예외 발생 여부와 관계없이 finally 블록에서 쿠키 삭제를 보장한다.
+ */
 export async function logoutProfile() {
   try {
     await signOut({ redirectTo: "/login" });
