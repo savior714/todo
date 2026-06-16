@@ -9,6 +9,9 @@ import { checkRecentMedicationTx, getCreatedDateSql } from "@/lib/events/db-quer
 import { formatMetadataValidationMessage, normalizeAndValidateEventMetadata } from "@/lib/events/metadata";
 import { getUndoWindowMsForActionType } from "@/lib/events/undo-policy";
 
+/** Turso/libSQL UNIQUE constraint violation 에러 코드 (https://libsql.github.io/libsql/experimental-error-codes) */
+const TURSO_CONSTRAINT_ERROR_CODE = "2067";
+
 type CreateEventInput = {
   actionType: string;
   target: string;
@@ -88,7 +91,7 @@ export async function createEvent(payload: CreateEventInput): Promise<CreateEven
     revalidatePath("/dashboard");
     return result;
   } catch (err) {
-    if ((err as { code?: string }).code === "2067" || (err as Error).message?.includes("UNIQUE constraint")) {
+    if ((err as { code?: string }).code === TURSO_CONSTRAINT_ERROR_CODE || (err as Error).message?.includes("UNIQUE constraint")) {
       const [lastEvent] = await db
         .select({ createdAt: events.createdAt })
         .from(events)

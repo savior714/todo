@@ -74,7 +74,7 @@ export const families = sqliteTable("families", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   inviteCode: text("invite_code").notNull().unique(),
-  createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
 });
 
 export const userFamilies = sqliteTable("user_families", {
@@ -96,7 +96,7 @@ export const profiles = sqliteTable(
     name: text("name").notNull(),
     avatarUrl: text("avatar_url"),
     role: text("role", { enum: ["admin", "executor"] }).notNull().default("executor"),
-    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
   },
   (table) => ({
     familyIdx: index("profiles_family_idx").on(table.familyId),
@@ -151,7 +151,7 @@ export const dailyPins = sqliteTable(
     createdBy: text("created_by")
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
-    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
   },
   (table) => ({
     familyActiveUnique: uniqueIndex("daily_pins_active_family_unique_idx")
@@ -171,10 +171,15 @@ export const homeworkTypes = sqliteTable(
     childGroup: text("child_group", { enum: ["kid7", "kid4"] }).notNull(),
     title: text("title").notNull(),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
-    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
   },
   (table) => ({
     familyIdx: index("homework_types_family_idx").on(table.familyId),
+    familyChildTitleUnique: uniqueIndex("homework_types_family_child_title_unique_idx").on(
+      table.familyId,
+      table.childGroup,
+      table.title
+    ),
   })
 );
 
@@ -192,7 +197,7 @@ export const homeworkLogs = sqliteTable(
     completedBy: text("completed_by")
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
-    completedAt: integer("completed_at").notNull().default(sql`(unixepoch() * 1000)`),
+    completedAt: integer("completed_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
   },
   (table) => ({
     homeworkDateUnique: uniqueIndex("homework_logs_type_date_unique_idx").on(table.homeworkTypeId, table.dateKey),
@@ -212,13 +217,17 @@ export const quickActions = sqliteTable(
     target: text("target").notNull(),
     sortOrder: integer("sort_order").notNull().default(0),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
-    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
   },
   (table) => ({
     familyActiveSortIdx: index("quick_actions_family_active_sort_idx").on(
       table.familyId,
       table.isActive,
       table.sortOrder
+    ),
+    familyLabelUnique: uniqueIndex("quick_actions_family_label_unique_idx").on(
+      table.familyId,
+      table.label
     ),
   })
 );
@@ -235,7 +244,7 @@ export const routineItems = sqliteTable(
     target: text("target", { enum: ["kid7", "kid4", "family"] }).notNull(),
     sortOrder: integer("sort_order").notNull().default(0),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
-    createdAt: integer("created_at").notNull().default(sql`(unixepoch() * 1000)`),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
   },
   (table) => ({
     familyIdx: index("routine_items_family_idx").on(table.familyId),
@@ -261,7 +270,7 @@ export const routineLogs = sqliteTable(
     completedBy: text("completed_by")
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
-    completedAt: integer("completed_at").notNull().default(sql`(unixepoch() * 1000)`),
+    completedAt: integer("completed_at", { mode: "timestamp_ms" }).notNull().default(sql`(unixepoch() * 1000)`),
   },
   (table) => ({
     routineDateUnique: uniqueIndex("routine_logs_item_date_unique_idx").on(table.routineItemId, table.dateKey),

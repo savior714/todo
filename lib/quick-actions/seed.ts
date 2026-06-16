@@ -44,16 +44,13 @@ export async function seedQuickActionsForFamilyDb(
 /**
  * 트랜잭션 컨텍스트에서 퀵 액션 시드 삽입.
  * @param tx - db.transaction() 콜백의 tx 파라미터 (LibSQLTransaction)
- *
- * Note: Drizzle v0.45+ 의 엄격한 제네릭 타입으로 인해
- * tx 타입을 정확히 추출할 수 없어 `unknown` 으로 선언하고 내부에서 캐스팅.
- * 런타임에서는 db.transaction(async (tx) => { ... }) 의 tx 가 전달됨.
  */
+type TxType = Parameters<typeof db.transaction>[0] extends (tx: infer Tx) => unknown ? Tx : never;
+
 export async function seedQuickActionsForFamilyTx(
-  tx: unknown,
+  tx: TxType,
   familyId: string,
 ) {
-  // @ts-expect-error Drizzle v0.45+ tx 타입 추출 불가로 인한 우회
   const [row] = await tx
     .select({ value: count() })
     .from(quickActions)
@@ -63,7 +60,6 @@ export async function seedQuickActionsForFamilyTx(
     return;
   }
 
-  // @ts-expect-error Drizzle v0.45+ tx 타입 추출 불가로 인한 우회
   await tx.insert(quickActions).values(
     DEFAULT_QUICK_ACTION_SEEDS.map((s) => ({
       id: crypto.randomUUID(),

@@ -12,7 +12,7 @@ describe("createEvent constraint handling", () => {
 
   it("constraint error detection이 error code 2067과 메시지 패턴을 모두 확인한다", () => {
     const eventsAction = read("app/actions/events.ts");
-    expect(eventsAction).toMatch(/code.*2067/);
+    expect(eventsAction).toMatch(/TURSO_CONSTRAINT_ERROR_CODE\s*=\s*"2067"/);
     expect(eventsAction).toMatch(/UNIQUE constraint/);
   });
 

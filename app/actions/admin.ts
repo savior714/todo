@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, max } from "drizzle-orm";
 import { db } from "@/db/client";
-import { dailyPins, events, homeworkLogs, homeworkTypes, quickActions, routineItems, routineLogs } from "@/db/schema";
+import { dailyPins, events, homeworkLogs, homeworkTypes, profiles, quickActions, routineItems, routineLogs } from "@/db/schema";
 import { getActiveProfileContext } from "@/lib/auth/session";
 import { getCreatedDateSql } from "@/lib/events/db-queries";
 import { normalizeAndValidateEventMetadata, CUSTOM_SLUG_REGEX } from "@/lib/events/metadata";
@@ -172,13 +172,13 @@ export async function completeHomework(homeworkTypeId: string, dateKeyOverride?:
         homeworkTypeId,
         dateKey: logDateKey,
         completedBy: profile.id,
-        completedAt: Date.now(),
+        completedAt: new Date(),
       })
       .onConflictDoUpdate({
         target: [homeworkLogs.homeworkTypeId, homeworkLogs.dateKey],
         set: {
           completedBy: profile.id,
-          completedAt: Date.now(),
+          completedAt: new Date(),
         },
       });
 
@@ -302,13 +302,13 @@ export async function completeRoutineItem(routineItemId: string, dateKeyOverride
         routineItemId,
         dateKey: logDateKey,
         completedBy: profile.id,
-        completedAt: Date.now(),
+        completedAt: new Date(),
       })
       .onConflictDoUpdate({
         target: [routineLogs.routineItemId, routineLogs.dateKey],
         set: {
           completedBy: profile.id,
-          completedAt: Date.now(),
+          completedAt: new Date(),
         },
       });
 
@@ -432,4 +432,24 @@ export async function createRoutineItemForModal(formData: FormData) {
 export async function deactivateRoutineItemForModal(formData: FormData) {
   await deactivateRoutineItem(formData);
   revalidatePath("/dashboard");
+}
+
+export async function deleteProfile(profileId: string) {
+  const admin = await resolveActiveAdmin();
+
+  if (profileId !== admin.id) {
+    throw new Error("본인 프로필만 삭제할 수 있습니다.");
+  }
+
+  await db.transaction(async (tx) => {
+    await tx.delete(events).where(eq(events.profileId, profileId));
+    await tx.delete(dailyPins).where(eq(dailyPins.createdBy, profileId));
+    await tx.delete(homeworkLogs).where(eq(homeworkLogs.completedBy, profileId));
+    await tx.delete(routineLogs).where(eq(routineLogs.completedBy, profileId));
+    await tx.delete(profiles).where(eq(profiles.id, profileId));
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/admin");
+  return { success: true };
 }
