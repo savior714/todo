@@ -413,9 +413,10 @@ export default function TimelineFeed({
                             </ul>
                           )}
                           <p className="mt-1.5 text-xs tabular-nums text-neutral-500 dark:text-neutral-400">
-                            {new Date(event.created_at).toLocaleTimeString(undefined, {
+                            {new Date(event.created_at).toLocaleTimeString("ko-KR", {
                               hour: "2-digit",
                               minute: "2-digit",
+                              hour12: false,
                             })}
                           </p>
                           {canUndo && (
