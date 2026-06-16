@@ -245,6 +245,11 @@ export default function RecordEventModal({
         className="dialog-record m-auto max-h-none w-[min(36rem,calc(100vw-1rem))] max-w-none border-0 bg-transparent p-0 shadow-none"
         aria-labelledby="record-event-title"
         onClose={handleDialogClose}
+        onPointerDown={(e) => {
+          if (e.target === dialogRef.current) {
+            dialogRef.current?.close();
+          }
+        }}
       >
         <div className="dialog-record-panel flex max-h-[min(90dvh,48rem)] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white text-neutral-900 shadow-2xl dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100">
           <header className="border-b border-neutral-200 px-4 py-3.5 dark:border-neutral-700">
