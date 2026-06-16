@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs";
 import HomeworkTypesAdminModal, { type HomeworkTypeAdminRow } from "@/app/(dashboard)/HomeworkTypesAdminModal";
+import { KID7, KID4 } from "@/lib/children";
 
 const mockRows: HomeworkTypeAdminRow[] = [
-  { id: "hw-1", title: "한글 읽기", childGroup: "kid7", isActive: true },
-  { id: "hw-2", title: "수학 문제집", childGroup: "kid4", isActive: true },
-  { id: "hw-3", title: "그림 일기", childGroup: "kid7", isActive: false },
-  { id: "hw-4", title: "영어 단어장", childGroup: "kid4", isActive: true },
+  { id: "hw-1", title: "한글 읽기", childGroup: KID7, isActive: true },
+  { id: "hw-2", title: "수학 문제집", childGroup: KID4, isActive: true },
+  { id: "hw-3", title: "그림 일기", childGroup: KID7, isActive: false },
+  { id: "hw-4", title: "영어 단어장", childGroup: KID4, isActive: true },
 ];
 
 function HomeworkTypesModalPreview() {

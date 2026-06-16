@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { MEDICATION_UNITS } from "@/lib/events/metadata";
 import { useConfirm } from "@/app/(dashboard)/useConfirm";
+import { CHILD_LABEL, SCHOOL_CHILD_LABEL } from "@/lib/children";
 
 export type RecordDraft = {
   actionType: string;
@@ -23,14 +24,14 @@ type CreateEventResult =
 export type CreateEventAction = (payload: CreateEventInput) => Promise<CreateEventResult>;
 
 const TARGET_OPTIONS: { value: "kid7" | "kid4" | "family"; label: string }[] = [
-  { value: "kid7", label: "주원이" },
-  { value: "kid4", label: "승원이" },
+  { value: "kid7", label: CHILD_LABEL.kid7 },
+  { value: "kid4", label: CHILD_LABEL.kid4 },
   { value: "family", label: "가족 공통" },
 ];
 
 const SCHOOL_CHILD_OPTIONS: { value: "kid7" | "kid4"; label: string; hint: string }[] = [
-  { value: "kid7", label: "주원이", hint: "첫째" },
-  { value: "kid4", label: "승원이", hint: "둘째" },
+  { value: "kid7", label: SCHOOL_CHILD_LABEL.kid7, hint: "첫째" },
+  { value: "kid4", label: SCHOOL_CHILD_LABEL.kid4, hint: "둘째" },
 ];
 
 function parseTarget(t: string): "kid7" | "kid4" | "family" {

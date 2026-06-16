@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { CHILD_GROUP_LABEL } from "@/lib/children";
 import {
   createHomeworkTypeForModal,
   deactivateHomeworkTypeForModal,
@@ -25,11 +26,6 @@ type HomeworkTypesAdminModalProps = {
   onClose: () => void;
   onChanged?: () => void;
   rows: HomeworkTypeAdminRow[];
-};
-
-const CHILD_GROUP_LABEL: Record<"kid7" | "kid4", string> = {
-  kid7: "주원이",
-  kid4: "승원이",
 };
 
 export default function HomeworkTypesAdminModal({
@@ -134,8 +130,8 @@ export default function HomeworkTypesAdminModal({
                 defaultValue="kid7"
                 className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700"
               >
-                <option value="kid7">kid7 (주원이)</option>
-                <option value="kid4">kid4 (승원이)</option>
+<option value="kid7">{CHILD_GROUP_LABEL.kid7}</option>
+<option value="kid4">{CHILD_GROUP_LABEL.kid4}</option>
               </select>
               <button
                 type="submit"

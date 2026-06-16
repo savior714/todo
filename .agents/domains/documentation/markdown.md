@@ -20,7 +20,7 @@ description: 문서화·한국어 우선·언어 게이트
 ### Session Language Gate 실행
 
 1. 신규 `.md` 생성 시 첫 줄에 언어 주석
-2. 필요 시 `just session-gate` / `just session-gate-strict`
+2. 필요 시 `scripts/verify_korean_text.py`로 검사 (구 `just session-gate` / `just session-gate-strict` — 레시피 폐기)
 3. `scripts/verify_korean_text.py`로 연속 영문 단락 등 검사
 
 ## MUST NOT

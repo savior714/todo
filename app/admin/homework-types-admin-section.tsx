@@ -1,9 +1,6 @@
 "use client";
 
-const CHILD_GROUP_LABEL: Record<"kid7" | "kid4", string> = {
-  kid7: "주원이",
-  kid4: "승원이",
-};
+import { CHILD_GROUP_LABEL } from "@/lib/children";
 
 export type HomeworkTypeAdminRow = {
   id: string;

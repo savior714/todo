@@ -115,8 +115,6 @@ verify_with: []
 - multi-step task는 짧은 계획을 먼저 제시한다.
 - 약한 성공 기준만 있으면 반드시 보강한다.
 
-## 1.5 Pythonic Integrity (Ruff Standards)
-
 ## 1.6 Workaround Accountability & Close Turn Reflection
 **Do not sweep failures under the rug.**
 - 작업을 한 번에(직접적으로) 수행하지 못하고 우회책(Workaround/대체 방식)으로 진행하여 목표를 달성한 경우, 단순히 "진행되었다"고만 보고하고 넘어가는 것을 **절대 금지**한다.
@@ -134,4 +132,4 @@ verify_with: []
 - **리뷰**: 중복·죽은 코드·무음 에러·숨은 결합·re-export·fan-in/out 집중.
 - **강제**: strict 타입, ddd·coupling·`fe-boundary-gate`·`fe-function-length-gate`, Biome complexity ≤15.
 - **테스트**: 행동 검증, **외부 경계 Mock만**(DB 시드·fixture와 구분), 엣지케이스 고정.
-- **커밋 게이트**: `commit-gate`(Husky pre-commit) 실패 시 **반드시 오류를 수정**하고 재시도한다. `git commit --no-verify`로 우회하는 것은 **절대 금지**된다. (`just commit-gate-retry` 자동 수정 재시도 사용 가능)
+- **커밋 게이트**: `commit-gate`(Husky pre-commit) 실패 시 **반드시 오류를 수정**하고 재시도한다. `git commit --no-verify`로 우회하는 것은 **절대 금지**된다.

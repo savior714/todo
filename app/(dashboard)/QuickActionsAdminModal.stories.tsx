@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs";
 import QuickActionsAdminModal, { type QuickActionAdminRow } from "@/app/(dashboard)/QuickActionsAdminModal";
+import { KID7, KID4, FAMILY } from "@/lib/children";
 
 const mockRows: QuickActionAdminRow[] = [
-  { id: "qa-1", label: "저녁 식사", actionType: "meal", target: "family", sortOrder: 0, isActive: true },
-  { id: "qa-2", label: "약 먹기", actionType: "medication", target: "kid4", sortOrder: 1, isActive: true },
-  { id: "qa-3", label: "등원 확인", actionType: "school_dropoff", target: "kid7", sortOrder: 2, isActive: false },
-  { id: "qa-4", label: "하원 확인", actionType: "school_pickup", target: "kid4", sortOrder: 3, isActive: true },
+  { id: "qa-1", label: "저녁 식사", actionType: "meal", target: FAMILY, sortOrder: 0, isActive: true },
+  { id: "qa-2", label: "약 먹기", actionType: "medication", target: KID4, sortOrder: 1, isActive: true },
+  { id: "qa-3", label: "등원 확인", actionType: "school_dropoff", target: KID7, sortOrder: 2, isActive: false },
+  { id: "qa-4", label: "하원 확인", actionType: "school_pickup", target: KID4, sortOrder: 3, isActive: true },
 ];
 
 function QuickActionsModalPreview() {

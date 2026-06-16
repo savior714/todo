@@ -36,4 +36,4 @@ priority: 1
 - 영문 전용(English-only) 리포트
 - `Final Completion Report` 등 거창한 헤더
 - 증거 없는 "완료" 선언
-- 사용자에게 `just update-guidelines` 등을 **직접 실행하라고** 요구하는 것 (에이전트가 수행)
+- 사용자에게 `just update-guidelines` 등을 **직접 실행하라고** 요구하는 것 (해당 레시피 폐기 — 에이전트가 수행)

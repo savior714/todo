@@ -5,11 +5,12 @@
 
 import { KNOWN_ACTION_TYPES } from "@/lib/constants";
 
+export { type ActionType } from "@/lib/constants";
+
 /** @deprecated Use KNOWN_ACTION_TYPES from @/lib/constants (SSOT) */
 export const KNOWN_ACTION_TYPES_LIST = KNOWN_ACTION_TYPES;
 
-/** @deprecated Use ActionType from @/lib/constants (SSOT) */
-export type ActionType = (typeof KNOWN_ACTION_TYPES)[number];
+export { KNOWN_ACTION_TYPES };
 
 /** 식사·등하원 등 저위험 기록: 실수 복구를 넓게 */
 export const LOW_RISK_UNDO_WINDOW_MS = 24 * 60 * 60 * 1000;

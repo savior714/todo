@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { KNOWN_ACTION_TYPES } from "@/lib/constants";
+import { EVENT_TARGET_LABEL, SCHOOL_CHILD_LABEL } from "@/lib/children";
 
 const dateKeyRegex = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -7,6 +8,9 @@ export const CUSTOM_SLUG_REGEX = /^[a-z][a-z0-9_]{0,63}$/;
 
 /** @deprecated Use KNOWN_ACTION_TYPES from @/lib/constants (SSOT) */
 export const KNOWN_ACTION_TYPES_SET = new Set(KNOWN_ACTION_TYPES);
+
+// Re-export for backwards compatibility
+export { KNOWN_ACTION_TYPES, type ActionType } from "@/lib/constants";
 
 export const MEDICATION_UNITS = ["ml", "cc", "mg", "drop", "회"] as const;
 
@@ -133,26 +137,9 @@ export function formatMetadataValidationMessage(err: unknown): string {
   return "입력값을 확인해 주세요.";
 }
 
-const TARGET_KO: Record<string, string> = {
-  kid7: "주원이",
-  kid4: "승원이",
-  family: "가족",
-};
-
-const SCHOOL_CHILD_KO: Record<string, string> = {
-  kid7: "주원이 (첫째)",
-  kid4: "승원이 (둘째)",
-};
-
 /** 타임라인 카드의 `events.target` 한 줄 표기 (kid7/kid4/family 등). */
 export function formatEventTargetForDisplay(target: string): string {
-  if (target === "kid7" || target === "kid4") {
-    return SCHOOL_CHILD_KO[target] ?? target;
-  }
-  if (target === "family") {
-    return TARGET_KO.family;
-  }
-  return target;
+  return SCHOOL_CHILD_LABEL[target as "kid7" | "kid4"] ?? EVENT_TARGET_LABEL[target as "kid7" | "kid4" | "family"] ?? target;
 }
 
 /** Short lines for timeline cards (read-only). */
@@ -161,7 +148,7 @@ export function summarizeEventMetadataForDisplay(metadataJson: string, actionTyp
     const raw = JSON.parse(metadataJson || "{}") as Record<string, unknown>;
     if (actionType === "medication" && raw.medication && typeof raw.medication === "object") {
       const med = raw.medication as MedicationDetail;
-      const subject = med.subject ? TARGET_KO[med.subject] ?? med.subject : "";
+      const subject = med.subject ? EVENT_TARGET_LABEL[med.subject] ?? med.subject : "";
       const parts: string[] = [];
       if (subject) {
         parts.push(`대상: ${subject}`);
@@ -197,7 +184,7 @@ export function summarizeEventMetadataForDisplay(metadataJson: string, actionTyp
     ) {
       const sr = raw.schoolRun as SchoolRunDetail;
       const lines: string[] = [];
-      const who = sr.child ? (SCHOOL_CHILD_KO[sr.child] ?? sr.child) : "";
+      const who = sr.child ? (SCHOOL_CHILD_LABEL[sr.child] ?? sr.child) : "";
       if (who) {
         lines.push(`대상: ${who}`);
       }

@@ -6,6 +6,7 @@ import TimelineEventDetailModal, { type TimelineDetailOpen } from "@/app/(dashbo
 import { formatEventTargetForDisplay, summarizeEventMetadataForDisplay } from "@/lib/events/metadata";
 import { getUndoWindowMsForActionType } from "@/lib/events/undo-policy";
 import { timelineActionLabel } from "@/lib/timeline/action-labels";
+import { ROUTINE_TARGET_LABEL, SCHOOL_CHILD_LABEL } from "@/lib/children";
 import {
   addDays,
   formatDateKey,
@@ -356,18 +357,13 @@ export default function TimelineFeed({
                               {slot.title}
                             </p>
                             <p className="mt-0.5 text-xs leading-relaxed text-emerald-700/85 dark:text-emerald-300/85">
-                              {slot.childGroup === "kid7" ? "주원이 (첫째)" : "승원이 (둘째)"}
+                              {SCHOOL_CHILD_LABEL[slot.childGroup as "kid7" | "kid4"]}
                             </p>
                           </button>
                         );
                       }
                       if (slot.kind === "routine_pending") {
-                        const who =
-                          slot.target === "family"
-                            ? "가족 공통"
-                            : slot.target === "kid7"
-                              ? "주원이 (첫째)"
-                              : "승원이 (둘째)";
+                        const who = ROUTINE_TARGET_LABEL[slot.target as "kid7" | "kid4" | "family"];
                         return (
                           <button
                             key={slot.key}

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs";
 import RoutineItemsAdminModal, { type RoutineItemAdminRow } from "@/app/(dashboard)/RoutineItemsAdminModal";
+import { KID7, KID4, FAMILY } from "@/lib/children";
 
 const mockRows: RoutineItemAdminRow[] = [
-  { id: "ri-1", title: "물통 채우기", target: "kid7", isActive: true },
-  { id: "ri-2", title: "준비물 가방 확인", target: "kid4", isActive: true },
-  { id: "ri-3", title: "치약 바르기", target: "family", isActive: false },
-  { id: "ri-4", title: "손 씻기", target: "kid7", isActive: true },
+  { id: "ri-1", title: "물통 채우기", target: KID7, isActive: true },
+  { id: "ri-2", title: "준비물 가방 확인", target: KID4, isActive: true },
+  { id: "ri-3", title: "치약 바르기", target: FAMILY, isActive: false },
+  { id: "ri-4", title: "손 씻기", target: KID7, isActive: true },
 ];
 
 function RoutineItemsModalPreview() {

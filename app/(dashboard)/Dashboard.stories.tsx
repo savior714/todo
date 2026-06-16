@@ -3,6 +3,7 @@ import QuickActionPanel from "@/app/(dashboard)/QuickActionPanel";
 import TimelineFeed, { type TimelineItem } from "@/app/(dashboard)/TimelineFeed";
 import type { CreateEventAction } from "@/app/(dashboard)/RecordEventModal";
 import { addDays, formatDateKey, startOfLocalDay } from "@/lib/timeline/date";
+import { KID7, KID4, FAMILY } from "@/lib/children";
 
 const now = new Date();
 const storyTodayKey = formatDateKey(startOfLocalDay(now));
@@ -17,15 +18,15 @@ const createIso = (dayOffset: number, hour: number, minute: number) => {
 };
 
 const quickActions = [
-  { id: "qa-meal", label: "식사", actionType: "meal", target: "family" },
-  { id: "qa-medication", label: "투약", actionType: "medication", target: "kid4" },
-  { id: "qa-dropoff", label: "등원", actionType: "school_dropoff", target: "kid7" },
-  { id: "qa-pickup", label: "하원", actionType: "school_pickup", target: "kid4" },
+  { id: "qa-meal", label: "식사", actionType: "meal", target: FAMILY },
+  { id: "qa-medication", label: "투약", actionType: "medication", target: KID4 },
+  { id: "qa-dropoff", label: "등원", actionType: "school_dropoff", target: KID7 },
+  { id: "qa-pickup", label: "하원", actionType: "school_pickup", target: KID4 },
 ];
 
 const homeworkShortcuts = [
-  { id: "hw-reading", title: "한글 읽기", childGroup: "kid7" as const, completedToday: false },
-  { id: "hw-math", title: "수학 문제집", childGroup: "kid4" as const, completedToday: true },
+  { id: "hw-reading", title: "한글 읽기", childGroup: KID7, completedToday: false },
+  { id: "hw-math", title: "수학 문제집", childGroup: KID4, completedToday: true },
 ];
 
 const timelineEvents: TimelineItem[] = [
@@ -40,12 +41,12 @@ const timelineEvents: TimelineItem[] = [
   {
     id: "event-medication",
     action_type: "medication",
-    target: "kid4",
+    target: KID4,
     created_at: createIso(0, 9, 20),
     is_reverted: false,
     metadata: JSON.stringify({
       medication: {
-        subject: "kid4",
+        subject: KID4,
         items: [{ name: "해열제", amount: 5, unit: "ml" }],
         note: "식후 30분",
       },
@@ -54,10 +55,10 @@ const timelineEvents: TimelineItem[] = [
   {
     id: "event-dropoff",
     action_type: "school_dropoff",
-    target: "kid7",
+    target: KID7,
     created_at: createIso(-1, 8, 50),
     is_reverted: false,
-    metadata: JSON.stringify({ schoolRun: { child: "kid7", place: "유치원" } }),
+    metadata: JSON.stringify({ schoolRun: { child: KID7, place: "유치원" } }),
   },
 ];
 
@@ -113,8 +114,8 @@ function DashboardPreview() {
         initialEvents={timelineEvents}
         undoEventAction={mockAction}
         homeworkTypes={[
-          { id: "hw-reading", title: "한글 읽기", childGroup: "kid7" },
-          { id: "hw-math", title: "수학 문제집", childGroup: "kid4" },
+          { id: "hw-reading", title: "한글 읽기", childGroup: KID7 },
+          { id: "hw-math", title: "수학 문제집", childGroup: KID4 },
         ]}
         homeworkLoggedKeys={[`${new Date().toISOString().slice(0, 10)}|hw-math`]}
         completeHomeworkAction={mockAction}

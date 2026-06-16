@@ -23,7 +23,6 @@ priority: 1
 | L3 structural | L2 + `just ci` |
 | Frontend UI | `bun run lint` + `bun run typecheck:strict` |
 | Grid/layout | 수동 UI 점검 + `bun run test` 관련 케이스 |
-| Directory | `/directory_verify` |
 
 **산출물:**
 

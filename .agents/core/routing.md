@@ -255,7 +255,7 @@ tool X(action='B') → 실패
 
 ### 해석 SSOT
 - 도메인 규칙: [.agents/registry/CONTEXT_ROUTING.md](../registry/CONTEXT_ROUTING.md)
-- 엔진: `scripts/agent/route_context.py` (`get_route_bundle`)
+- 엔진: `scripts/agent/route_context.py`
 
 ### 검증
 편집 직전 턴 로그에 `just route` 출력(가이드라인) 또는 `must_read_paths` 목록이 있어야 한다. 없으면 게이트 미통과.
@@ -266,12 +266,12 @@ Cursor 훅이 아닌 **`just` 명령**으로 "필독 완료"를 기록·검증�
 | 시점 | 명령 (예) |
 | :--- | :--- |
 | **첫 턴** (선읽기) | `just route-smart '<사용자 메시지 요약>' <paths…> --full --write-manifest --phase turn1` |
-| **편집 준비** | `just route-prep <paths>` (= `route … --write-manifest --phase pre_edit`) |
-| **턴 종료** | `just route-gate-check-touched` — git 변경 경로에 대해 manifest 검증(매니페스트 없으면 skip). `ROUTE_GATE_SKIP=1` 로 생략. 편집 경로 합집합이 마지막 번들과 다를 때 live route heal 을 실행하고, stale 즉시 차단 대신 `healed` 플래그와 Δmust_read 만 반환한다. |
+| **편집 준비** | <!-- `just route-prep <paths>` (= `route … --write-manifest --phase pre_edit`) — recipe 없음 --> |
+| **턴 종료** | <!-- `just route-gate-check-touched` — recipe 없음 --> git 변경 경로에 대해 manifest 검증(매니페스트 없으면 skip). `ROUTE_GATE_SKIP=1` 로 생략. 편집 경로 합집합이 마지막 번들과 다를 때 live route heal 을 실행하고, stale 즉시 차단 대신 `healed` 플래그와 Δmust_read 만 반환한다. |
 
 - **질문·심문·리뷰만**(저장소 미편집): `route-gate-check` **호출하지 않음**.
 - **실패(exit 1)**: 해당 턴에서 편집 도구 중단; 누락 경로를 Read 한 뒤 `route-read` 재실행.
-- **상태 확인**: `just route-manifest-status`
+- **상태 확인**: <!-- `just route-manifest-status` — recipe 없음 -->
 - **Frontend TSX**: `{{FRONTEND_APP_PATH}}/**/*.tsx` 편집 시 lazy `detail_path` 도 gate 대상(자동).
 - **번들 heal**: 편집 경로 집합이 바뀌면 `route-gate-check` 가 **live route** 로 번들을 자동 갱신하고, **현재 번들의 `reads`** 에 없는 must_read 만 추가로 요구한다(stale 즉시 차단 없음). 세션 `all_reads` 만으로는 통과하지 않는다.
 - **편집 직전 strict**: `route-gate-check` 통과에는 **해당 편집 경로의 pre_edit 번들**에 `route-read` 기록이 있어야 한다. 번들이 없거나 번들 `reads` 가 비어 있으면 FAIL이며, session-reads-only 우회는 없다.

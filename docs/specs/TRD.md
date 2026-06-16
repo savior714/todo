@@ -56,10 +56,26 @@
    - `id (uuid pk)`, `family_id (uuid fk)`, `child_group (enum: kid7=주원이 | kid4=승원이)`, `title (text)`, `is_active (boolean)`, `created_at`
 7. **`homework_logs`** (숙제 완료 기록)
    - `id (uuid pk)`, `family_id (uuid fk)`, `homework_type_id (uuid fk)`, `date_key (date)`, `completed_by (uuid fk to profiles)`, `completed_at`
-   - *제약*: `UNIQUE(homework_type_id, date_key)`
-### 4.2 데이터 무결성
+    - *제약*: `UNIQUE(homework_type_id, date_key)`
+8. **`quick_actions`** (퀵 액션 미리설정)
+    - `id (uuid pk)`, `family_id (uuid fk)`, `label (text)`, `action_type (text)`, `target (text)`, `sort_order (integer default 0)`, `is_active (boolean default true)`, `created_at`
+    - *인덱스*: `(family_id, is_active, sort_order)`, `(family_id, label)` — 고유
+9. **`routine_items`** (반복 루틴 정의)
+    - `id (uuid pk)`, `family_id (uuid fk)`, `title (text)`, `target (enum: kid7|kid4|family)`, `sort_order (integer default 0)`, `is_active (boolean default true)`, `created_at`
+    - *인덱스*: `(family_id, is_active, sort_order)`
+10. **`routine_logs`** (반복 루틴 완료 기록)
+    - `id (uuid pk)`, `family_id (uuid fk)`, `routine_item_id (uuid fk)`, `date_key (text)`, `completed_by (uuid fk to profiles)`, `completed_at`, `is_reverted (boolean default false)`
+    - *제약*: `UNIQUE(routine_item_id, date_key)`
+11. **Auth.js tables** (Auth.js DB 어댑터 자동 생성)
+    - `users` — `id (text pk)`, `name`, `email`, `emailVerified (integer timestamp_ms)`, `image`
+    - `accounts` — `userId (text fk)`, `type`, `provider`, `providerAccountId`, `refresh_token`, `access_token`, `expires_at`, `token_type`, `scope`, `id_token`, `session_state` — PK: `(provider, providerAccountId)`
+    - `sessions` — `sessionToken (text pk)`, `userId (text fk)`, `expires (integer timestamp_ms)`
+    - `verificationTokens` — `identifier`, `token`, `expires` — PK: `(identifier, token)`
+    - `authenticators` — `credentialID (text unique)`, `userId (text fk)`, `providerAccountId`, `credentialPublicKey`, `counter`, `credentialDeviceType`, `credentialBackedUp (boolean)`, `transports` — PK: `(userId, credentialID)`
+### 4.2 데이터 무결성 및 타입 참고
 - 모든 FK는 `ON DELETE CASCADE` (가족 삭제 시) 또는 `RESTRICT` 정책을 명확히 한다.
 - 시간 기준은 `timestamptz` (UTC)로 저장하고, 클라이언트에서 `Intl.DateTimeFormat`을 사용해 기기 로컬 타임존으로 렌더링한다.
+- **타입 참고**: TRD의 `uuid`, `boolean`, `jsonb`, `timestamptz` 표기는 PostgreSQL 기준이다. 실제 Turso(SQLite)에서는 `text` (UUID 값 저장) + `integer` (`timestamp_ms` 모드)로 매핑되며, Drizzle ORM의 `mode: "timestamp_ms"`가 이를 처리한다.
 
 ---
 
@@ -159,8 +175,7 @@ app/
  │    ├── layout.tsx                 # 프로필 쿠키 검증 Guard, 하단 네비게이션
  │    ├── page.tsx                   # 메인 대시보드 (Server Component)
  │    │    ├── DailyPinBanner.tsx    # 오늘의 지시사항
- │    │    ├── StatusBoard.tsx       # 세탁 등 상태 보드
- │    │    ├── QuickActionPanel.tsx  #[Client] 퀵 액션 버튼 그룹 모달
+    │    │    ├── QuickActionPanel.tsx  #[Client] 퀵 액션 버튼 그룹 모달
  │    │    └── TimelineFeed.tsx      # [Client] Realtime 구독 및 이벤트 렌더링
  │    └── homework/page.tsx          # 숙제 트래커
  └── admin/

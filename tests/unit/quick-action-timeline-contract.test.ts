@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { normalizeAndValidateEventMetadata, summarizeEventMetadataForDisplay } from "@/lib/events/metadata";
+import { KID4 } from "@/lib/children";
 
 /** 퀵 액션 모달 제출 → DB `events.metadata` JSON → 타임라인 카드 요약 줄까지의 파이프라인 */
 function timelineSummaryLines(actionType: string, rawMetadata: Record<string, unknown>): string[] {
@@ -39,12 +40,12 @@ describe("퀵 액션으로 기록한 사용자 입력은 타임라인 요약에 
   test("투약: 약 항목 없이 메모만 있어도 정규화에 성공하고 요약에 메모가 포함된다", () => {
     expect(() =>
       normalizeAndValidateEventMetadata("medication", {
-        medication: { subject: "kid4", items: [], note: marker },
-      })
-    ).not.toThrow();
+      medication: { subject: KID4, items: [], note: marker },
+    })
+  ).not.toThrow();
 
     const lines = timelineSummaryLines("medication", {
-      medication: { subject: "kid4", items: [], note: marker },
+      medication: { subject: KID4, items: [], note: marker },
     });
     expect(lines.some((l) => l.includes(marker))).toBe(true);
   });
@@ -59,7 +60,7 @@ describe("퀵 액션으로 기록한 사용자 입력은 타임라인 요약에 
 
   test("등원·하원: 장소만 입력해도 요약에 장소 문자열이 포함된다", () => {
     const lines = timelineSummaryLines("school_dropoff", {
-      schoolRun: { child: "kid4", place: marker },
+      schoolRun: { child: KID4, place: marker },
     });
     expect(lines.some((l) => l.includes(marker))).toBe(true);
   });

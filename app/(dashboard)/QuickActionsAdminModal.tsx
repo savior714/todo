@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { TARGET_LABEL } from "@/lib/children";
 import {
   createQuickActionForModal,
   deactivateQuickActionForModal,
@@ -29,12 +30,6 @@ type QuickActionsAdminModalProps = {
   rows: QuickActionAdminRow[];
 };
 
-const TARGET_LABEL: Record<string, string> = {
-  kid7: "주원이",
-  kid4: "승원이",
-  family: "가족 전체",
-};
-
 const ACTION_TYPE_LABEL: Record<string, string> = {
   meal: "식사",
   medication: "투약",
@@ -46,7 +41,7 @@ const ACTION_TYPE_LABEL: Record<string, string> = {
 
 function formatQuickActionMeta(actionType: string, target: string) {
   const typeLabel = ACTION_TYPE_LABEL[actionType] ?? actionType;
-  const who = TARGET_LABEL[target] ?? target;
+  const who = TARGET_LABEL[target as "kid7" | "kid4" | "family"] ?? target;
   return `${typeLabel} · ${who}`;
 }
 
@@ -178,9 +173,9 @@ export default function QuickActionsAdminModal({
                       defaultValue="kid4"
                       className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base font-normal leading-normal dark:border-neutral-700"
                     >
-                      <option value="family">가족 전체</option>
-                      <option value="kid7">주원이</option>
-                      <option value="kid4">승원이</option>
+                      <option value="family">{TARGET_LABEL.family}</option>
+                      <option value="kid7">{TARGET_LABEL.kid7}</option>
+                      <option value="kid4">{TARGET_LABEL.kid4}</option>
                     </select>
                   </label>
                 </div>

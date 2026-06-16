@@ -1,10 +1,6 @@
 "use client";
 
-const TARGET_LABEL: Record<"kid7" | "kid4" | "family", string> = {
-  kid7: "주원이 (첫째)",
-  kid4: "승원이 (둘째)",
-  family: "가족 공통",
-};
+import { ROUTINE_TARGET_LABEL } from "@/lib/children";
 
 export type RoutineItemAdminRow = {
   id: string;
@@ -43,7 +39,7 @@ export function RoutineItemsAdminSection({
             <div className="min-w-0 leading-snug">
               <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{row.title}</span>
               <span className="ml-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-                {TARGET_LABEL[row.target]}
+                {ROUTINE_TARGET_LABEL[row.target]}
                 {!row.isActive ? " · 비활성" : ""}
               </span>
             </div>

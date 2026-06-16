@@ -6,6 +6,7 @@ import RecordEventModal, { type CreateEventAction, type RecordDraft } from "@/ap
 import QuickActionsAdminModal, { type QuickActionAdminRow } from "@/app/(dashboard)/QuickActionsAdminModal";
 import HomeworkTypesAdminModal, { type HomeworkTypeAdminRow } from "@/app/(dashboard)/HomeworkTypesAdminModal";
 import RoutineItemsAdminModal, { type RoutineItemAdminRow } from "@/app/(dashboard)/RoutineItemsAdminModal";
+import { CHILD_GROUP_LABEL } from "@/lib/children";
 
 export type QuickActionButton = {
   id: string;
@@ -19,11 +20,6 @@ export type HomeworkQuickShortcut = {
   title: string;
   childGroup: "kid7" | "kid4";
   completedToday: boolean;
-};
-
-const CHILD_GROUP_LABEL: Record<HomeworkQuickShortcut["childGroup"], string> = {
-  kid7: "주원이",
-  kid4: "승원이",
 };
 
 /** 패널 내 블록 제목 (퀵 액션 / 오늘 숙제) — 동일 크기 */

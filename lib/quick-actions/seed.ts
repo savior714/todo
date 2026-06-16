@@ -1,12 +1,13 @@
 import { count, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { quickActions } from "@/db/schema";
+import { DEFAULT_CHILD_TARGET } from "@/lib/children";
 
 export const DEFAULT_QUICK_ACTION_SEEDS = [
   { label: "식사 기록", actionType: "meal", target: "family", sortOrder: 0 },
-  { label: "투약 기록", actionType: "medication", target: "kid4", sortOrder: 1 },
-  { label: "등원", actionType: "school_dropoff", target: "kid4", sortOrder: 2 },
-  { label: "하원", actionType: "school_pickup", target: "kid4", sortOrder: 3 },
+  { label: "투약 기록", actionType: "medication", target: DEFAULT_CHILD_TARGET, sortOrder: 1 },
+  { label: "등원", actionType: "school_dropoff", target: DEFAULT_CHILD_TARGET, sortOrder: 2 },
+  { label: "하원", actionType: "school_pickup", target: DEFAULT_CHILD_TARGET, sortOrder: 3 },
   { label: "양치", actionType: "brushing", target: "family", sortOrder: 4 },
   { label: "청소", actionType: "cleaning", target: "family", sortOrder: 5 },
 ] as const;

@@ -21,16 +21,7 @@ type TimelineFeedSectionProps = Readonly<{
   familyId: string;
 }>;
 
-function normalizeChildGroup(raw: string): "kid7" | "kid4" {
-  return raw === "kid7" || raw === "kid4" ? raw : "kid4";
-}
-
-function normalizeRoutineTarget(raw: string): "kid7" | "kid4" | "family" {
-  if (raw === "kid7" || raw === "kid4" || raw === "family") {
-    return raw;
-  }
-  return "family";
-}
+import { normalizeChildGroup, normalizeRoutineTarget } from "@/lib/children";
 
 export default async function TimelineFeedSection({ familyId }: TimelineFeedSectionProps) {
   const t0 = dashboardPerfNow();
@@ -113,7 +104,7 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
         })
         .from(homeworkLogs)
         .where(
-          and(eq(homeworkLogs.familyId, familyId), gte(homeworkLogs.dateKey, minLogKey), lte(homeworkLogs.dateKey, maxLogKey))
+          and(eq(homeworkLogs.familyId, familyId), eq(homeworkLogs.isReverted, false), gte(homeworkLogs.dateKey, minLogKey), lte(homeworkLogs.dateKey, maxLogKey))
         ),
       db
         .select({
@@ -131,7 +122,7 @@ export default async function TimelineFeedSection({ familyId }: TimelineFeedSect
         })
         .from(routineLogs)
         .where(
-          and(eq(routineLogs.familyId, familyId), gte(routineLogs.dateKey, minLogKey), lte(routineLogs.dateKey, maxLogKey))
+          and(eq(routineLogs.familyId, familyId), eq(routineLogs.isReverted, false), gte(routineLogs.dateKey, minLogKey), lte(routineLogs.dateKey, maxLogKey))
         ),
     ]);
   } catch (err) {

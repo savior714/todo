@@ -8,15 +8,10 @@ import { getActiveProfileContext } from "@/lib/auth/session";
 import { getCreatedDateSql } from "@/lib/events/db-queries";
 import { normalizeAndValidateEventMetadata, CUSTOM_SLUG_REGEX } from "@/lib/events/metadata";
 import { assertHomeworkLogDateKey } from "@/lib/homework/date-key";
+import { isValidTarget } from "@/lib/children";
 
-const PRESET_ACTION_TYPES = new Set([
-  "meal",
-  "medication",
-  "school_dropoff",
-  "school_pickup",
-  "brushing",
-  "cleaning",
-]);
+import { KNOWN_ACTION_TYPES } from "@/lib/constants";
+const PRESET_ACTION_TYPES = new Set(KNOWN_ACTION_TYPES);
 
 type QuickActionParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 type CreateQuickActionResult = { success: true } | { success: false; error: string };
@@ -30,7 +25,7 @@ function parseActionTypeFromForm(formData: FormData): QuickActionParseResult<str
     }
     return { ok: true, value: slug };
   }
-  if (!PRESET_ACTION_TYPES.has(preset)) {
+  if (!PRESET_ACTION_TYPES.has(preset as "meal" | "medication" | "school_dropoff" | "school_pickup" | "brushing" | "cleaning" | "homework" | "routine_check")) {
     return { ok: false, error: "액션 타입이 올바르지 않습니다." };
   }
   return { ok: true, value: preset };
@@ -38,7 +33,7 @@ function parseActionTypeFromForm(formData: FormData): QuickActionParseResult<str
 
 function parseQuickActionTarget(formData: FormData): QuickActionParseResult<"kid7" | "kid4" | "family"> {
   const raw = String(formData.get("target") ?? "");
-  if (raw === "kid7" || raw === "kid4" || raw === "family") {
+  if (isValidTarget(raw)) {
     return { ok: true, value: raw };
   }
   return { ok: false, error: "대상이 올바르지 않습니다." };
@@ -158,7 +153,8 @@ export async function completeHomework(homeworkTypeId: string, dateKeyOverride?:
         and(
           eq(homeworkLogs.familyId, profile.familyId),
           eq(homeworkLogs.homeworkTypeId, homeworkTypeId),
-          eq(homeworkLogs.dateKey, logDateKey)
+          eq(homeworkLogs.dateKey, logDateKey),
+          eq(homeworkLogs.isReverted, false)
         )
       )
       .limit(1);
@@ -288,7 +284,8 @@ export async function completeRoutineItem(routineItemId: string, dateKeyOverride
         and(
           eq(routineLogs.familyId, profile.familyId),
           eq(routineLogs.routineItemId, routineItemId),
-          eq(routineLogs.dateKey, logDateKey)
+          eq(routineLogs.dateKey, logDateKey),
+          eq(routineLogs.isReverted, false)
         )
       )
       .limit(1);
@@ -442,11 +439,11 @@ export async function deleteProfile(profileId: string) {
   }
 
   await db.transaction(async (tx) => {
-    await tx.delete(events).where(eq(events.profileId, profileId));
-    await tx.delete(dailyPins).where(eq(dailyPins.createdBy, profileId));
-    await tx.delete(homeworkLogs).where(eq(homeworkLogs.completedBy, profileId));
-    await tx.delete(routineLogs).where(eq(routineLogs.completedBy, profileId));
-    await tx.delete(profiles).where(eq(profiles.id, profileId));
+    await tx.update(events).set({ isReverted: true }).where(eq(events.profileId, profileId));
+    await tx.update(dailyPins).set({ isActive: false }).where(eq(dailyPins.createdBy, profileId));
+    await tx.update(homeworkLogs).set({ isReverted: true }).where(eq(homeworkLogs.completedBy, profileId));
+    await tx.update(routineLogs).set({ isReverted: true }).where(eq(routineLogs.completedBy, profileId));
+    await tx.update(profiles).set({ isDeleted: true }).where(eq(profiles.id, profileId));
   });
 
   revalidatePath("/dashboard");

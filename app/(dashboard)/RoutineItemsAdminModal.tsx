@@ -6,6 +6,7 @@ import {
   createRoutineItemForModal,
   deactivateRoutineItemForModal,
 } from "@/app/actions/admin";
+import { ROUTINE_TARGET_LABEL } from "@/lib/children";
 
 function StatusWrapper({ children }: { children: React.ReactNode }) {
   const status = useFormStatus();
@@ -27,11 +28,7 @@ type RoutineItemsAdminModalProps = {
   rows: RoutineItemAdminRow[];
 };
 
-const TARGET_LABEL: Record<"kid7" | "kid4" | "family", string> = {
-  kid7: "주원이 (첫째)",
-  kid4: "승원이 (둘째)",
-  family: "가족 공통",
-};
+
 
 export default function RoutineItemsAdminModal({
   open,
@@ -97,7 +94,7 @@ export default function RoutineItemsAdminModal({
                 <div className="min-w-0 leading-snug">
                   <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{row.title}</span>
                   <span className="ml-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-                    {TARGET_LABEL[row.target]}
+                    {ROUTINE_TARGET_LABEL[row.target]}
                   </span>
                 </div>
                 {row.isActive ? (
@@ -118,9 +115,9 @@ export default function RoutineItemsAdminModal({
             <form action={createRoutineItemForModal} className="mt-4 grid gap-2">
               <input name="title" required placeholder="예: 물통 채우기, 준비물 가방" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700" />
               <select name="target" defaultValue="family" className="min-h-[44px] rounded-md border border-neutral-300 bg-transparent px-2 text-base leading-normal dark:border-neutral-700">
-                <option value="family">가족 공통</option>
-                <option value="kid7">주원이 (첫째)</option>
-                <option value="kid4">승원이 (둘째)</option>
+                <option value="family">{ROUTINE_TARGET_LABEL.family}</option>
+                <option value="kid7">{ROUTINE_TARGET_LABEL.kid7}</option>
+                <option value="kid4">{ROUTINE_TARGET_LABEL.kid4}</option>
               </select>
               <button type="submit" className="inline-flex min-h-[44px] items-center rounded-md bg-black px-3 text-sm font-semibold leading-snug text-white">
                 추가

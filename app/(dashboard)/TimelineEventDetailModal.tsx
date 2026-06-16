@@ -24,16 +24,7 @@ export type TimelineDetailOpen =
       target: "kid7" | "kid4" | "family";
     };
 
-const CHILD_GROUP_LABEL: Record<"kid7" | "kid4", string> = {
-  kid7: "주원이",
-  kid4: "승원이",
-};
-
-const ROUTINE_TARGET_LABEL: Record<"kid7" | "kid4" | "family", string> = {
-  kid7: "주원이 (첫째)",
-  kid4: "승원이 (둘째)",
-  family: "가족 공통",
-};
+import { CHILD_GROUP_LABEL, ROUTINE_TARGET_LABEL } from "@/lib/children";
 
 type TimelineEventDetailModalProps = {
   open: TimelineDetailOpen;

@@ -1,10 +1,6 @@
 "use client";
 
-const TARGET_LABEL: Record<string, string> = {
-  kid7: "주원이",
-  kid4: "승원이",
-  family: "가족 전체",
-};
+import { TARGET_LABEL } from "@/lib/children";
 
 const ACTION_TYPE_LABEL: Record<string, string> = {
   meal: "식사",
@@ -26,7 +22,7 @@ export type QuickActionAdminRow = {
 
 function formatQuickActionMeta(actionType: string, target: string) {
   const typeLabel = ACTION_TYPE_LABEL[actionType] ?? actionType;
-  const who = TARGET_LABEL[target] ?? target;
+  const who = TARGET_LABEL[target as "kid7" | "kid4" | "family"] ?? target;
   return `${typeLabel} · ${who}`;
 }
 

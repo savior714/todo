@@ -13,6 +13,10 @@
   - `bun run lint && bun run typecheck:strict && bun run test && bun run build` 통과
   - `node scripts/migrate-turso.mjs` 기반 Turso 마이그레이션 적용 검증
   - Google OAuth + 프로필 선택 + 대시보드 가드 플로우 검증
+- **Supabase → Turso 치환 이력**(FS-001~FS-015 구현 시):
+  - **FS-003**(RLS): Supabase RLS → Turso 마이그레이션으로 `application-level familyId` 검증으로 대체
+  - **FS-009**(Realtime): Supabase Realtime → `revalidatePath`(RSC)로 대체
+  - **FS-011**(care_guides): `care_guides` 테이블 → `quick_actions` 테이블로 통합(삭제)
 
 ## 핵심 기능 구현 현황
 
@@ -51,10 +55,13 @@
 
 - `app/`: 라우트, 화면, Server Actions
 - `db/migrations/`: Turso SQL 마이그레이션 (`0000_initial.sql`, `0001_quick_actions.sql`, `0002_drop_care_guides.sql`, `0003_events_timeline_idx.sql`, `0004_routine_checklist.sql`, …)
+- `lib/`: 공통 유틸리티 — `auth/`(Auth.js 설정), `dashboard/`(대시보드 로직), `events/`(이벤트 CRUD), `homework/`(숙제 타입/완료 로그), `quick-actions/`(퀵 액션), `timeline/`(타임라인 렌더링) 등
+- `types/`: 전역 TypeScript 타입 정의(`routine_items`, `routine_logs` 관련 타입 포함)
 - `tests/e2e/`: Done Criteria 계약 테스트
 - `docs/specs/`: PRD/TRD
 - `docs/plans/`: 실행 Blueprint 및 계획 상태
 - `.agents/memory/`: 세션 메모리 및 검증/이슈 이력
+- `routine_items` + `routine_logs`: 루틴 체크리스트(일상 항목) UI/Server Actions — `lib/quick-actions/`, `app/(dashboard)/routine/` 경로에 구현
 
 ## 로컬 실행
 
@@ -72,10 +79,10 @@ bun run test
 bun run build
 ```
 
-Turso 스키마 적용(원격 DB에 `TURSO_*` 설정 후). `npm run db:migrate`는 **`.env` → `.env.local` → `.env.vercel.dev` → `.env.vercel.prod`** 순으로 로드합니다(같은 키는 뒤 파일이 덮어씀). 운영 DB에 적용하려면 Vercel **Production**에 넣은 `TURSO_*`를 `.env.local`에 복사하거나, `vercel env pull .env.vercel.prod --environment production` 후 마이그레이션을 실행하세요. `--environment development`만 pull하면 `TURSO_*`가 비어 있을 수 있습니다. 스크립트는 `_turso_applied_migrations`에 적용된 `.sql` 파일명을 기록하므로 **이미 스키마가 있는 DB에서도** `0000` 재충돌 없이 이어서 적용할 수 있습니다.
+Turso 스키마 적용(원격 DB에 `TURSO_*` 설정 후). `bun run db:migrate`는 **`.env` → `.env.local` → `.env.vercel.dev` → `.env.vercel.prod`** 순으로 로드합니다(같은 키는 뒤 파일이 덮어씀). 운영 DB에 적용하려면 Vercel **Production**에 넣은 `TURSO_*`를 `.env.local`에 복사하거나, `vercel env pull .env.vercel.prod --environment production` 후 마이그레이션을 실행하세요. `--environment development`만 pull하면 `TURSO_*`가 비어 있을 수 있습니다. 스크립트는 `_turso_applied_migrations`에 적용된 `.sql` 파일명을 기록하므로 **이미 스키마가 있는 DB에서도** `0000` 재충돌 없이 이어서 적용할 수 있습니다.
 
 ```bash
-npm run db:migrate
+bun run db:migrate
 ```
 
 ## 환경 변수
@@ -100,12 +107,12 @@ npm run db:migrate
 
 - `checks`에 `false`가 있으면 → 해당 env가 비어있음 → Vercel 프로젝트 환경변수에 추가 후 재배포
 - `db`가 `"error"`이면 → Turso URL/토큰/네트워크 문제
-- `tables`에 `false`가 있으면 → **Turso DB에 마이그레이션 미적용** → 로컬에서 운영 Turso credential을 export한 뒤 `npm run db:migrate` 실행
+- `tables`에 `false`가 있으면 → **Turso DB에 마이그레이션 미적용** → 로컬에서 운영 Turso credential을 export한 뒤 `bun run db:migrate` 실행
 
 `error=Configuration` 페이지가 뜨는데 `/api/health`가 200이라면 거의 확실하게 `tables` 누락입니다(어댑터의 `users`/`accounts`/`sessions` 호출이 실패하면 Auth.js가 동일 페이지로 감싸서 보여줍니다).
 
 1. **`AUTH_SECRET`**: Vercel 프로젝트에 반드시 설정(임의 긴 문자열, `openssl rand -base64 32` 등). 없으면 `MissingSecret`로 위 페이지가 납니다.
-2. **`TURSO_DATABASE_URL`**, **`TURSO_AUTH_TOKEN`**: 없으면 서버가 DB 모듈 로드 시 실패하거나, 로그인 콜백에서 세션 저장에 실패할 수 있습니다. 설정 후 `npm run db:migrate`로 스키마 적용.
+2. **`TURSO_DATABASE_URL`**, **`TURSO_AUTH_TOKEN`**: 없으면 서버가 DB 모듈 로드 시 실패하거나, 로그인 콜백에서 세션 저장에 실패할 수 있습니다. 설정 후 `bun run db:migrate`로 스키마 적용.
 3. **`AUTH_GOOGLE_ID`**, **`AUTH_GOOGLE_SECRET`**: Google 콘솔의 클라이언트와 동일한지 확인.
 4. **`AUTH_URL`**: 프로덕션 도메인과 정확히 일치하는지 확인(다른 프로젝트 URL이면 OAuth·쿠키가 꼬입니다).
 
@@ -128,10 +135,10 @@ Google Cloud Console의 **Authorized redirect URIs**에 다음을 추가합니�
 
 ```bash
 npx vercel env pull .env.vercel.dev --environment development --yes --scope savior714s-projects
-npm run vercel:sync-auth
+bun run vercel:sync-auth
 ```
 
-그 다음 Vercel 대시보드에서 **`TURSO_DATABASE_URL`**, **`TURSO_AUTH_TOKEN`**을 Production/Development에 추가하고, 배포 후 `npm run db:migrate`로 스키마를 적용합니다. 레거시 `NEXT_PUBLIC_SUPABASE_*` 등은 제거해도 됩니다.
+그 다음 Vercel 대시보드에서 **`TURSO_DATABASE_URL`**, **`TURSO_AUTH_TOKEN`**을 Production/Development에 추가하고, 배포 후 `bun run db:migrate`로 스키마를 적용합니다. 레거시 `NEXT_PUBLIC_SUPABASE_*` 등은 제거해도 됩니다.
 
 ## 다음 단계
 

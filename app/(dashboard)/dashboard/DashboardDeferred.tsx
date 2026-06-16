@@ -10,6 +10,7 @@ import type { HomeworkQuickShortcut } from "@/app/(dashboard)/QuickActionPanel";
 import type { HomeworkTypeAdminRow } from "@/app/(dashboard)/HomeworkTypesAdminModal";
 import type { RoutineItemAdminRow } from "@/app/(dashboard)/RoutineItemsAdminModal";
 import { ensureDefaultQuickActionsForFamily } from "@/lib/quick-actions/seed";
+import { isValidTarget } from "@/lib/children";
 
 type DashboardDeferredProps = Readonly<{
   profile: ResolvedActiveProfile;
@@ -133,7 +134,7 @@ async function loadHomeworkLogsTodayForDashboard(familyId: string, todayKey: str
     rows = await db
       .select({ homeworkTypeId: homeworkLogs.homeworkTypeId })
       .from(homeworkLogs)
-      .where(and(eq(homeworkLogs.familyId, familyId), eq(homeworkLogs.dateKey, todayKey)));
+      .where(and(eq(homeworkLogs.familyId, familyId), eq(homeworkLogs.dateKey, todayKey), eq(homeworkLogs.isReverted, false)));
   } catch (err: unknown) {
     failed = true;
     const message = err instanceof Error ? err.message : String(err);
@@ -179,7 +180,7 @@ export default async function DashboardDeferred({ profile }: DashboardDeferredPr
   const routineItemRowsTyped: RoutineItemAdminRow[] = routineItemRows.map((r) => ({
     id: r.id,
     title: r.title,
-    target: (r.target === "kid7" || r.target === "kid4" || r.target === "family") ? r.target : "family",
+    target: isValidTarget(r.target) ? r.target : "family",
     isActive: r.isActive,
   }));
 
